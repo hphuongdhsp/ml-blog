@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Hướng dẫn sủ dụng gói thư viện BeautifulSoup trong Python để Web Scraping | fastpages</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Hướng dẫn sủ dụng gói thư viện BeautifulSoup trong Python để Web Scraping" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Nội dung của bài viết nhằm hướng dẫn các bạn mới làm quen với đào ảnh từ internet bằng gói thư viện beautiful soup." />
+<meta property="og:description" content="Nội dung của bài viết nhằm hướng dẫn các bạn mới làm quen với đào ảnh từ internet bằng gói thư viện beautiful soup." />
+<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2021/11/15/web-scraping.html" />
+<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2021/11/15/web-scraping.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-11-15T00:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Hướng dẫn sủ dụng gói thư viện BeautifulSoup trong Python để Web Scraping" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2021-11-15T00:00:00-06:00","datePublished":"2021-11-15T00:00:00-06:00","description":"Nội dung của bài viết nhằm hướng dẫn các bạn mới làm quen với đào ảnh từ internet bằng gói thư viện beautiful soup.","headline":"Hướng dẫn sủ dụng gói thư viện BeautifulSoup trong Python để Web Scraping","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2021/11/15/web-scraping.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2021/11/15/web-scraping.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/ml-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hphuongdhsp.github.io/ml-blog/feed.xml" title="fastpages" /><link rel="shortcut icon" type="image/x-icon" href="/ml-blog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ml-blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/ml-blog/about/">About Me</a><a class="page-link" href="/ml-blog/search/">Search</a><a class="page-link" href="/ml-blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Hướng dẫn sủ dụng gói thư viện BeautifulSoup trong Python để  Web Scraping</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-11-15T00:00:00-06:00" itemprop="datePublished">
+        Nov 15, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      10 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Nội dung của bài viết nhằm hướng dẫn các bạn mới làm quen với đào ảnh từ internet bằng gói thư viện beautiful soup.</p>
+
+<p>Bài viết gồm các ý chính chính sau:</p>
+
+<h2 id="outline">Outline</h2>
+
+<ul>
+  <li>
+    <p><a href="#1">1. Giới thiệu về Web Scaping</a></p>
+  </li>
+  <li><a href="#2">2. Tổng quan cấu trúc web </a>
+    <ul>
+      <li><a id="#2-1">2.1. HTML, CSS </a></li>
+      <li><a id="#2-1">2.2. Cấu trúc web  </a></li>
+    </ul>
+  </li>
+  <li><a href="#3">3. Bài toán cụ thể: craping ảnh từ trang web: http://www.globalskinatlas.com/diagindex.cfm </a>
+    <ul>
+      <li><a id="#3-1">3.1. Cấu trúc của trang web </a></li>
+      <li><a id="#3-2">3.2. Cách download ảnh thủ công </a></li>
+      <li><a id="#3-2">3.3. Xây dựng thuật toán từ thác tác down ảnh thủ công  </a></li>
+    </ul>
+  </li>
+  <li><a href="#4">4. Giới thiệu gói thư viện beautiful soup </a></li>
+  <li><a href="#4">5. Hoàn thành code </a></li>
+</ul>
+
+<h1 id="1giới-thiệu-về-web-scaping"><a id="1">1.Giới thiệu về Web Scaping</a></h1>
+
+<p>Internet có nguồn dữ liệu khổng lồ, dữ liệu mà chúng ta hoàn toàn có thể truy cập bằng cách sử dụng web cùng một công cụ lập trình (Python, C++). Web Scaping là tác vụ download tất cả thông tin liên quan từ một trang web cố định. Ví dụ chúng ta muốn download tất cả các ảnh từ trang web http://www.globalskinatlas.com/diagindex.cfm để làm phong phú kho dữ liệu.</p>
+
+<p>Một số trang web cung cấp cho chúng ta thông qua một API (Application Programming Interface), một số trang web khác có thể co ngừoi dùng lấy dữ liệu thông qua database có sẵn. Ví dụ khi bạn muốn download ảnh từ một trang web, bạn click vào ảnh trên website, từ website sẽ đưa bạn tới một trang web khác, nơi đó có lưu trữ ảnh trực tiếp trên server.</p>
+
+<h1 id="2-tổng-quan-cấu-trúc-web"><a id="2">2. Tổng quan cấu trúc web</a></h1>
+
+<p>Trước khi đi sâu vào làm sao có thể download tất cả dữ liệu từ một trang web, chúng ta sẽ tìm hiểu cấu trúc của một trang web. Việc này giống như đi câu cá, bạn tìm hiểu cấu trúc của hồ nước, để có thêm thông tin giúp việc câu cá dễ dàng hơn.</p>
+
+<h2 id="21-tổng-quan-html-css"><a id="2.1">2.1 Tổng quan HTML, CSS</a></h2>
+
+<p>Khi chúng ta truy cập một trang web, trình duyệt web (Firefox, Chrome) đưa ra yêu cầu đến máy chủ của trang web. Yêu cầu này được gọi là yêu cầu GET, sau đó chúng ta nhận được thông tin từ máy chủ. Nguồn thông tin từ máy chủ sẽ vẫn được trả lại thông tin gồm những tập file. Nhờ trình duyệt web, các tập này sẽ hiển thị dứoi dạng web. Cấu thành của tập để trình duyệt web có thể đọc một trang web bao gồm:</p>
+
+<p>HTML - nội dung chính của trang.
+CSS - File này hỗ trợ HTML để hiển thi web đẹp hơn.
+JS - Các tệp Javascript thêm tính tương tác cho các trang web.
+Hình ảnh - các định dạng hình ảnh, chẳng hạn như JPG và PNG, cho phép các trang web hiển thị hình ảnh.
+Sau khi trình duyệt của chúng tôi nhận được tất cả các tệp, nó sẽ hiển thị trang và hiển thị cho chúng tôi.</p>
+
+<p>Ví dụ: Khi chúng ta vào trình duyệt Chrome, chúng ta muốn try tập vào trang http://www.globalskinatlas.com/diagindex.cfm , khi đó máy chủ sẽ trả lại một tập, tập dữ liệu này gồm các file (html, css, javascript,), các file này sẽ được gửi trực tiếp về Chrome, thông qua trình duyệt, tất cả các tệp này sẽ tạp nên một trang web.</p>
+
+<p>Để hiểu rõ cấu trúc một trang web, chúng ta sẽ tìm hiểu sâu file HTML. Ở các trình duyệt. Để hiển thị cấu trúc file HTML, chúng ta bấm phím <em>F12</em>.</p>
+
+<h2 id="22-tổng-quan-html"><a id="2.2">2.2 Tổng quan HTML</a></h2>
+
+<p>Cấu trúc cơ bản của trang HTML có dạng như sau:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- &lt;!Doctype&gt;: Phần khai báo chuẩn của html hay xhtml.
+- &lt;head&gt;&lt;/head&gt;: Phần khai báo ban đầu, khai báo về meta, title, css, javascript…
+- &lt;body&gt;&lt;/body&gt;: Phần chứa nội dung của trang web, nơi hiển thị nội dung.
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Phần tiêu đề của html &lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+...Phần thân của html ...
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div></div>
+<p>Ở phần tiếp theo chúng ta sẽ giới thiệu về thẻ liên kết &lt;a&gt;, một những phần quan trọng nhất để thực hành đào ảnh.</p>
+<h2 id="221--thẻ-liên-kết-a"><a id="2.2.1">2.2.1  Thẻ liên kết <em>a</em></a></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- Thẻ liên kết \&lt;a\&gt; \&lt;/a&gt; dùng để tạo một liên kết từ trang web này sang trang web khác, từ vị trí này sang vị trí khác hay dùng để mở ra một object nào đó (có thể là file words, ảnh, excel, pdf, mp3, movie,...), thẻ này có một thuộc tính bắt buộc:
+
+- href: Chứa đường dẫn cụ thể tới mục tiêu liên kết.
+</code></pre></div></div>
+
+<p>Ví dụ: Trong trang web <a href="http://www.globalskinatlas.com/diagdetail.cfm?id=91">http://www.globalskinatlas.com/diagdetail.cfm?id=91</a>,  khi chúng ta sử dụng phím f12, một trong những tag  &lt;a&gt; &lt;/a&gt; có dạng như sau</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;a href="imagedetail.cfm?TopLevelid=170&amp;amp;ImageID=462&amp;amp;did=8 "&gt;View&lt;/a&gt;
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- Bằng truy cập trang web, ta thấy được liên kết ở tag này là: http://www.globalskinatlas.com/imagedetail.cfm?TopLevelid=170&amp;ImageID=462&amp;did=8 
+- Text để mô tả tag này là *View*
+</code></pre></div></div>
+
+<h2 id="222--thẻ-liên-kết-img"><a id="2.2.2">2.2.2  Thẻ liên kết <em>img</em></a></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- Thẻ hiển thị một image \&lt;*img*/&gt; dùng để nhúng một ảnh thông qua thuộc tính src, thẻ này có 2 thuộc tính bắt buộc:
+- src: Chứa đường dẫn tham chiếu tới image.
+- alt: Được sử dụng như một văn bản thay thế khi image không hiển thị (hoặc không có sẵn).
+</code></pre></div></div>
+
+<p>Cấu trúc của thẻ &lt;<em>img</em>&gt; không có sử dụng thẻ đóng (không dùng &lt;<em>img</em>&gt;&lt;/<em>img</em>&gt;), mà sử dụng ký tự kết thúc là một khoảng trắng và ký tự “/”.
+Tham khảo thêm về thẻ &lt;<em>img</em>/&gt;.</p>
+<h1 id="-3bài-toán-cụ-thể-craping-ảnh-từ-trang-web-httpwwwglobalskinatlascomdiagindexcfm"><a id="3"> 3.Bài toán cụ thể: craping ảnh từ trang web: http://www.globalskinatlas.com/diagindex.cfm</a></h1>
+
+<p>Ở phần này chúng ta sẽ đi sâu vào phân tích cụ thể và định hướng hướng làm.</p>
+
+<p>Đầu bài: Download tất cả ảnh có ở trang web http://www.globalskinatlas.com/diagindex.cfm và lưu trữ ảnh đó ở thư mục phù hợp.</p>
+
+<p>Nhiệm vụ xuất phát của bài toán xuất phát từ nhu cầu thu thập ảnh bệnh nhân bị bệnh và chúng ta muốn lưu trữ thông tin các bệnh của từng ảnh để tiện sau này sử dụng cho các mô hình  về  machine learning.</p>
+
+<h2 id="-31-cấu-trúc-của-trang-web"><a id="3.1"> 3.1 Cấu trúc của trang web</a></h2>
+<p>Chúng ta cùng xem xét cấu trúc của trang web. Khi thực hiện vào trang web, màn hình sẽ hiện thị như ảnh bên dưới. Chúng ta có thể thấy file được có rất nhiều tag &lt;<em>a</em>&gt;&lt;/<em>a</em>&gt;, mỗi tag tương ứng với một bệnh.</p>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/27/j-/gq/27j-gqhx7wj_owger_2hzxjdt9a.png" /></p>
+
+<p>Bấm phím f12 để thấy được cấu trúc của trang web. Mỗi tag bệnh sẽ tương ứng với</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;a href="diagdetail.cfm?id=653"&gt;&lt;/a&gt;
+</code></pre></div></div>
+
+<p>Nếu click vào một tag, sẽ đưa chúng ta tới một trang web mới, ví dụ ở đây chúng ta click vào <em>Ecthyma</em>, chúng ta được tới trang web http://www.globalskinatlas.com/diagdetail.cfm?id=653 .</p>
+
+<p>Nhận thấy rằng diagdetail.cfm?id=653 sẽ là tương ứng với bệnh Ezthyma. Và id <em>653</em> sẽ tương ứng với mã bệnh <em>Ecthyma</em>. Dispay của trang web sẽ có dạng hình như sau</p>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/yb/je/f_/ybjef_oy1pkacarf64jqdthvysu.png" /></p>
+
+<p>Khi click vào View ở góc cuối cùng, chúng ta sẽ được tới một trang web mới : http://www.globalskinatlas.com/imagedetail.cfm?TopLevelid=1099&amp;ImageID=2615&amp;did=6</p>
+
+<p>Trang web mới này được gắn ở href của một tag &lt;<em>a</em>&gt;&lt;/<em>a</em>&gt; của trang web http://www.globalskinatlas.com/diagdetail.cfm?id=653 , cụ thể  nội dung của tag &lt;<em>a</em>&gt;&lt;/<em>a</em>&gt;:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;a href="imagedetail.cfm?TopLevelid=1099&amp;amp;ImageID=2615&amp;amp;did=6"&gt;View&lt;/a&gt;
+</code></pre></div></div>
+
+<p>Có thể thấy “imagedetail.cfm?TopLevelid=1099&amp;ImageID=2615&amp;did=6” là tag gắn liền với trang web http://www.globalskinatlas.com/imagedetail.cfm?TopLevelid=1099&amp;ImageID=2615&amp;did=6.</p>
+
+<p>Hiện thị của trang web sẽ có dạng như sau</p>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/13/vc/9n/13vc9ncojyhrrwaqbzkes1bwigq.png" /></p>
+
+<p>Ở trang web này, khi nhấp chuột phải, chúng ta hoàn toàn có thể download ảnh thủ công. Nhưng khi tiến hành download ảnh, chúng ta nhận ra rằng, chỉ có ảnh ở trung tâm có size ảnh lớn, những ảnh nhỏ hơn sẽ có size nhỏ hơn. 
+Vì vậy chúng ta sẽ tiến hành download ảnh ở trung tâm, còn với mỗi ảnh nhỏ ở dưới, chúng ta sẽ nhấn click chuột vào ảnh, ví dụ chúng ta sẽ click vào ảnh nhỏ đầu tiên, từ link ảnh nhỏ sẽ đưa tới trang web có display như sau</p>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/ck/hp/1-/ckhp1-nveji7id0o10lmkxgsr9s.png" /></p>
+
+<p>Chúng ta sẽ tiếp tục download ảnh ở trung tâm và lưu ở thư mục bệnh.</p>
+
+<h2 id="-32-thuật-toán-đào-ảnh-thủ-công"><a id="3.2"> 3.2 Thuật toán đào ảnh thủ công</a></h2>
+
+<p>Dựa những phân tích như ở trên, chúng ta xây dựng được thuật toán đào ảnh như sau</p>
+
+<ul>
+  <li>
+    <ol>
+      <li>Truy cập trang web http://www.globalskinatlas.com/diagindex.cfm
+        <ul>
+          <li>1.1 Truy cập tag bệnh đầu tiên , tạo thư mục bệnh đầu tiên
+            <ul>
+              <li>1.1.1 Truy vào tag View đầu tiên</li>
+            </ul>
+          </li>
+        </ul>
+        <ul>
+          <li>1.1.1.0 Tải ảnh trung tâm lưu vào folder bệnh</li>
+          <li>1.1.1.1 Truy vào ảnh nhỏ đâù tiên và tải ảnh trung tâm lưu vào folder bệnh</li>
+          <li>1.1.1.2 Truy vào ảnh nhỏ thứ hai  và tải ảnh trung tâm lưu vào folder bệnh
+      - 1.1.2 Truy vào tag View thứ hia</li>
+          <li>1.1.2.0 Tải ảnh trung tâm lưu vào folder bệnh</li>
+          <li>1.1.2.1 Truy vào ảnh nhỏ đâù tiên và tải ảnh trung tâm lưu vào folder bệnh</li>
+          <li>1.1.2.2 Truy vào ảnh nhỏ thứ hai  và tải ảnh trung tâm lưu vào folder bệnh
+      - … 
+    - 1.2 Truy cập tag bệnh đầu tiên , tạo thư mục bệnh đầu tiên
+      - 1.2.1 Truy vào tag View đầu tiên</li>
+          <li>1.2.1.0 Tải ảnh trung tâm lưu vào folder bệnh</li>
+          <li>1.2.1.1 Truy vào ảnh nhỏ đâù tiên và tải ảnh trung tâm lưu vào folder bệnh</li>
+          <li>1.2.1.2 Truy vào ảnh nhỏ thứ hai  và tải ảnh trung tâm lưu vào folder bệnh
+      - 1.2.2 Truy vào tag View thứ hia</li>
+          <li>1.2.2.0 Tải ảnh trung tâm lưu vào folder bệnh</li>
+          <li>1.2.2.1 Truy vào ảnh nhỏ đâù tiên và tải ảnh trung tâm lưu vào folder bệnh</li>
+          <li>1.2.2.2 Truy vào ảnh nhỏ thứ hai  và tải ảnh trung tâm lưu vào folder bệnh
+      - …</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<p>Thuật toán trên đảm bảo giúp chúng ta có thể tải tất cả các ảnh và lưu trữ ảnh ở thư mục phù hợp. Nhiệm vụ của chúng ta bước tiếp theo sẽ tìm hiểu gói thưu viện beautiful soup và thực hiện hoá thuật toán thủ công</p>
+
+<h2 id="-4-giới-thiệu-gói-thư-viện-beautiful-soup-"><a id="4"> 4 Giới thiệu gói thư viện beautiful soup </a></h2>
+
+<p>BeautifulSoup là một gói thư viện của Python nhằm giúp người dùng dễ  dàng lấy dữ liệu ra khỏi các file HTML và XML. Bạn đọc có thể tham khảo chi tiết ở trang web https://www.howkteam.vn/d/thu-vien-beautiful-soup-460.</p>
+
+<p>Trong khuôn khô bài viết, chúng ta sẽ tìm hiểu những lệnh cơ bản sau:</p>
+
+<h3 id="lệnh-khởi-tạo-soup">Lệnh khởi tạo soup</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>r = requests.get(web_url)
+soup = BeautifulSoup(r.content, "html.parser")
+</code></pre></div></div>
+<h3 id="lệnh-lấy-tất-cả-a-tag">Lệnh lấy tất cả &lt;a&gt; tag</h3>
+<p>Lệnh trên nhằm tạo món soup dựa trên nguyên liệu trang web <em>web_url</em>, giúp bạn dễ dàng hơn trong việc truy cập dữ liệu của file HTML <em>web_url</em></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>links = soup.findall("a", href = Trues)
+</code></pre></div></div>
+<h3 id="lấy-url-ở-trong-một-tag">Lấy url ở trong một tag</h3>
+<p>Lệnh giúp bạn lấy url trong một tag &lt;<em>a</em>&gt;&lt;/<em>a</em>&gt; từ món soup có sẵn.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">html_doc</span> <span class="o">=</span> <span class="s">"""
+&lt;html&gt;&lt;head&gt;&lt;title&gt;The Dormouse's story&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;p class="title"&gt;&lt;b&gt;The Dormouse's story&lt;/b&gt;&lt;/p&gt;
+
+&lt;p class="story"&gt;Once upon a time there were three little sisters; and their names were
+&lt;a href="/redirect?Id=f%2fKgPq4IDV0SyEq0zfYr0L1x0DM4mpSt97%2ftYgbxlC2B7n4pvJNhhvRwo8bxiO4B" class="sister" id="link1"&gt;Elsie&lt;/a&gt;,
+&lt;a href="/redirect?Id=f%2fKgPq4IDV0SyEq0zfYr0OPun6GIXb9bh0UOloN9WCYbJtHZQd%2fvB08D2UeudkPP" class="sister" id="link2"&gt;Lacie&lt;/a&gt; and
+&lt;a href="/redirect?Id=f%2fKgPq4IDV0SyEq0zfYr0LirHL60gbBHH3VIishi9CqgtHAKmbGoKNvFheNkumnh" class="sister" id="link3"&gt;Tillie&lt;/a&gt;;
+and they lived at the bottom of a well.&lt;/p&gt;
+
+&lt;p class="story"&gt;...&lt;/p&gt;
+"""</span>
+
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html_doc</span><span class="p">,</span> <span class="s">'html.parser'</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">soup</span><span class="p">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'a'</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">print</span> <span class="p">(</span><span class="s">"Found the URL:"</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="s">'href'</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>Out put trả ra:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Found the URL: /redirect?Id=f%2fKgPq4IDV0SyEq0zfYr0L1x0DM4mpSt97%2ftYgbxlC2B7n4pvJNhhvRwo8bxiO4B
+Found the URL: /redirect?Id=f%2fKgPq4IDV0SyEq0zfYr0OPun6GIXb9bh0UOloN9WCYbJtHZQd%2fvB08D2UeudkPP
+Found the URL: /redirect?Id=f%2fKgPq4IDV0SyEq0zfYr0LirHL60gbBHH3VIishi9CqgtHAKmbGoKNvFheNkumnh
+</code></pre></div></div>
+<h3 id="lấy-text-ở-trong-một-tag">Lấy text ở trong một tag</h3>
+
+<p>Để lấy một tag trong một tag từ soup, chúng ta sử dụng lệnh:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tag.text.strip()
+</code></pre></div></div>
+<p>Ví dụ</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>html_doc = """
+&lt;html&gt;&lt;head&gt;&lt;title&gt;The Dormouse's story&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;p class="title"&gt;&lt;b&gt;The Dormouse's story&lt;/b&gt;&lt;/p&gt;
+
+&lt;p class="story"&gt;Once upon a time there were three little sisters; and their names were
+&lt;a href="/redirect?Id=f%2fKgPq4IDV0SyEq0zfYr0L1x0DM4mpSt97%2ftYgbxlC2B7n4pvJNhhvRwo8bxiO4B" class="sister" id="link1"&gt;Elsie&lt;/a&gt;,
+&lt;a href="/redirect?Id=f%2fKgPq4IDV0SyEq0zfYr0OPun6GIXb9bh0UOloN9WCYbJtHZQd%2fvB08D2UeudkPP" class="sister" id="link2"&gt;Lacie&lt;/a&gt; and
+&lt;a href="/redirect?Id=f%2fKgPq4IDV0SyEq0zfYr0LirHL60gbBHH3VIishi9CqgtHAKmbGoKNvFheNkumnh" class="sister" id="link3"&gt;Tillie&lt;/a&gt;;
+and they lived at the bottom of a well.&lt;/p&gt;
+
+&lt;p class="story"&gt;...&lt;/p&gt;
+"""
+
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(html_doc, 'html.parser')
+
+for a in soup.find_all('a', href=True):
+    print ("Found the text :", a.text.strip())
+</code></pre></div></div>
+
+<h1 id="5-hoàn-thành-code-craping-dữ-liệu-cho-bài-toán"><a id="5">5. Hoàn thành code craping dữ liệu cho bài toán</a></h1>
+
+<p>Từ những lệnh cở bản của <em>BeautifulSoup</em> ở mục 4 và thuật toán được xây dựng ở mục 3. Chúng ta xây dựng hàm trên python để craping toàn bộ ảnh bệnh từ trang web http://www.globalskinatlas.com/.</p>
+
+<p>Source code ở <a href="https://github.com/hphuongdhsp/test-beautiful-soup4/blob/main/src/main.py">link</a></p>
+
+  </div><a class="u-url" href="/ml-blog/2021/11/15/web-scraping.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/ml-blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ml-blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ml-blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/ml-blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/ml-blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
