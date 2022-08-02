@@ -4,8 +4,12 @@ title: About Me
 permalink: /about/
 ---
 
-This website is powered by **[fastpages](https://github.com/fastai/fastpages)** [^1].
 
+Hi there, I'am Hoang-Phuong.
 
+I am currently working at MedTech [Torus-Actions](https://www.torus.ai/) as a Data Scientist. 
 
-[^1]:a blogging platform that natively supports Jupyter notebooks in addition to other formats.
+My passion is in several domains: Machine Learning, Cryptocurrency, Fintech.
+I like to follow the latest technology in Deep Learning.
+
+Beside works, I like play sports: football, billard, pingpong,... 
