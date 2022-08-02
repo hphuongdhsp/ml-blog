@@ -1,6 +1,9 @@
 ---
+toc: true
 layout: post
-title: [Segmentation Model]-Part I - Training deep learning models using Tensorflow platform
+description: The first part of the Segmentation Tutorial Series, Training deep learning models using Tensorflow platform
+categories: [markdown]
+title: Segmentation Model-Part I - Training deep learning models using Tensorflow platform
 ---
 
 In this part we will cover how to train a segmentation model by using the tensorflow platform
