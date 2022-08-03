@@ -20,7 +20,7 @@ We want to cover a nail semantic segmentation problem. For each image, we want t
 
 
 
-Our data is organizated as
+Our data is organized as
 
 ```
 ├── Images
@@ -89,9 +89,9 @@ def make_csv_file(data_root: Union[str, Path]) -> None:
     valid_frame.to_csv(f"{data_root}/csv_file/valid.csv", index=False)
 ```
 
-Where `get_all_items`, `mkdir` are two supported functions (defined in `utils.py` file) which help us to find all items in a given folder and make a new folder.
+Where `get_all_items`, `mkdir` are two supported functions (defined in `utils.py` file) that help us to find all items in a given folder and make a new folder.
 
-Before going define the dataloader and model, let's recall some main features of `Pytorch Lightning`. For more information, you can find in [Pytorch Lightning](https://pytorch-lightning.readthedocs.io/en/stable/).
+Before going define the dataloader and model, let's recall some main features of `Pytorch Lightning`. For more information, you can find it at [Pytorch Lightning](https://pytorch-lightning.readthedocs.io/en/stable/).
 
 ## 3. Pytorch Lightnining
 
@@ -116,19 +116,17 @@ Three main features of Pytorch Lightning:
 
 ### 3.2 LightningModule
 
-A lightning module is composed of six components which fully define the system:
+A lightning module is composed of some components that fully define the system:
 
 - The model or system of models
 - The optimizer(s)
 - The train loop
 - The validation loop
-- The test loop
-- The prediction loop
 
 
 ### 3.3 Trainer
 
-Once we declare LightningDataModule, LightningModule, we can train model with `Trainer` API. 
+Once we declare LightningDataModule, LightningModule, we can train the model with `Trainer` API. 
 
 <img align="center" width="600"  src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png">
 
@@ -181,7 +179,7 @@ class NailDataset(Dataset):
 ```
 
 ### 4.2 Define `LightningDataModule` for the Nail Data
-We then use LightningDataModule to wrap our NailDataset into data module of Pytorch Lightning. 
+We then use LightningDataModule to wrap our NailDataset into the data module of Pytorch Lightning. 
 
 ```
 class NailSegmentation(LightningDataModule):
@@ -238,22 +236,22 @@ Here we need to define 3 main functions:
 - def train_dataloader(self)
 - val_dataloader(self)
 
-Those corespond to DataLoader of train and valid dataset in Pytorch. 
+Those respond to DataLoader of train and valid dataset in Pytorch. 
 
 ##  5. Model Module
 
 In this part we define:
 - A segmentation model 
-- Wrap model module by using LightningModule, for that we will define some main functions: 
+- Wrap the model module by using LightningModule, for that we will define some main functions: 
   - def training_step : calculate {loss, metric}, logging in each train step 
   - def validation_step: calculate {loss, metric}, logging in each valid step 
   - def validation_epoch_end: calculate {loss, metric}, logging in each epoch by using infos of validation_step
-  - def configure_optimizers: which optimization and learning rate scheduler we use for the training. 
+  - def configure_optimizers: which optimization and learning rate scheduler do we use for the training?
   
 
-###  5.1 Define model by using `segmentation_models_pytorch`
+###  5.1 Define the model by using `segmentation_models_pytorch`
 
-For convenience, we use [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch) to define our model. `Segmentation_models_pytorch` is a high level API, it helps us build a sementic segmentation model with only some lines of code. 
+For convenience, we use [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch) to define our model. `Segmentation_models_pytorch` is a high-level API, it helps us build a semantic segmentation model with only some lines of code. 
 
 ```
 import segmentation_models_pytorch as smp
@@ -342,7 +340,7 @@ class LitNailSegmentation(LightningModule):
 
 Here we use: 
  - [AdamW](https://pytorch.org/docs/stable/generated/torch.optim.AdamW.html) as the optimizers
- - symmetric_lovasz as the loss function, which is defined in the [Loss.py](https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%203-Pytorch%20Lightning/loss.py) file. *symmetric_lovasz* is define by 
+ - symmetric_lovasz as the loss function, which is defined in the [Loss.py](https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%203-Pytorch%20Lightning/loss.py) file. *symmetric_lovasz* is defined by 
 
 ```
 def symmetric_lovasz(outputs, targets):
@@ -355,7 +353,7 @@ where lovasz_hinge is [Lovasz loss](https://arxiv.org/pdf/1705.08790.pdf) for th
 
 ## 6. Trainer 
 
-Once we have data module, model module, we can train model with `Trainer` API, 
+Once we have the data module, and model module, we can train the model with `Trainer` API, 
 
 ```
 datamodule = NailSegmentation(
@@ -377,7 +375,7 @@ trainer.fit(
             ckpt_path=ckpt_path,
         )
 ```
-Here `args_trainer` is the argument of trainer. More precisely, it has
+Here `args_trainer` is the argument of the `trainer`. More precisely, it has
 ```
 {   gpus: [0]                       # gpu device to train 
     max_epochs: 300                 # number of epochs

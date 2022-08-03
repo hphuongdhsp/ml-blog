@@ -6,12 +6,12 @@ description: The first part of the Segmentation Tutorial Series, a step-by-step 
 title: Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow
 ---
 
-In this part we will cover how to train a segmentation model by using the tensorflow platform
+In this post, we will cover how to train a segmentation model by using the TensorFlow platform
 
 
 ## 1. Problem Description and Dataset
 
-We want cover a nail semantic segmentation problem. For each image we want to detect the segmentation of the mail in the image.
+We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the nail in the image.
 
 
 |                                                     Images                                                     |                                                     Masks                                                      |
@@ -20,7 +20,7 @@ We want cover a nail semantic segmentation problem. For each image we want to de
 
 
 
-Our data is organizated as
+Our data is organized as
 
 ```
 ├── Images
@@ -43,7 +43,7 @@ Our data is organizated as
 ```
 
 
-We have 2 folders: `Images` and `Masks`,  each folder has four sub-folders `1`, `2`, `3`, `4` corresponds to four types of distribution of nail. Images is the data folder and Masks is the label folder, that is the segmentations of input images.
+We have two folders: `Images` and `Masks`,  each folder has four sub-folders `1`, `2`, `3`, `4` corresponds to four types of distribution of nails. `Images` is the data folder and `Masks` is the label folder, which is the segmentations of input images.
 
 We download data from [link](https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing) and put it in `data_root`, for example
 
@@ -96,23 +96,23 @@ def make_csv_file(data_root) -> None:
     valid_frame.to_csv(f"{data_root}/csv_file/valid.csv", index=False)
 ```
 
-Here get_all_items, mkdir are two supported functions (defined in `utils.py` file) which help us to find all items in a given folder and make new folder. 
+Here `get_all_items`, `mkdir` are two supported functions (defined in `utils.py` file) that help us to find all items in a given folder and make a new folder. 
 
-Once we have data frame, we can pass to define the dataset. 
+Once we have the data frame, we can go to define the dataset. 
 
 ## 3. Define DataLoader
 
 In this part we will do the following: 
 
 - Get lists of images and masks
-- Define Dataloader with input be a list of images and masks and output be list of image batchs which is fed into the model. More precisely: 
+- Define Dataloader with input being a list of images and masks and output be list of image batchs which being fed into the model. More precisely: 
   - Decode images and masks (read images and masks)
   - Transform data
-  - Batch the augumented data. 
+  - Batch the augmented data. 
 
-Before going to the next part, let's talk about avantages of using tf.data for dataloader pipeline. 
+Before going to the next part, let's talk about the advantages of using tf.data for the data loader pipeline.
 
-The main feature of next part is the dataloader. We use the tensorflow.data to load the dataset instead of using `Sequence` of keras (keras.Sequence). In fact we can also combine `tf.data` and `keras.Sequence`. In this tutorial, we focus on how to load data by `tf.data`.
+The main feature of the next part is the data loader. We use the `tensorflow.data` (tf.data) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine `tf.data` and `keras.Sequence`. In this tutorial, we focus on how to load data by tf.data.
 
 Here is the pipeline loader of tf.data: 
 - Read data from a csv file
@@ -126,7 +126,7 @@ The advantage of this method is:
 - Loading data by using multi-processing
 - Don't have the memory leak phenomenal 
 - Flexible to load dataset, can load weight sample data (using `tf.compat.v1.data.experimental.sample_from_datasets` )
-- Downtime and waiting around is minimized while processing is maximized through parallel execution, see the following images: 
+- Downtime and waiting around are minimized while processing is maximized through parallel execution; see the following images:
 
 ### Naive pipeline
 
@@ -174,7 +174,7 @@ def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -
     return img, mask
 ```
 
-### 3.3 Doing augumentaion 
+### 3.3 Doing augmentation
 
 ```
     def aug_fn(image, mask):
@@ -189,8 +189,7 @@ def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -
         return aug_img, aug_mask
 ```
 
-Here we use [Albumentations](https://albumentations.ai/) library to define the transform.  **Albumentations** is a Python library for fast and flexible image augmentations. Albumentations efficiently implements a rich variety of image transform operations that are optimized for performance, and does so while providing a concise, yet powerful image augmentation interface for different computer vision tasks, including object classification, segmentation, and detection.
-For example, we define our validation tranform as
+Here we use [Albumentations](https://albumentations.ai/) library to define the transform. **Albumentations** is a Python library for fast and flexible image augmentations. Albumentations efficiently implements a rich variety of image transform operations that are optimized for performance and does so while providing a concise yet powerful image augmentation interface for different computer vision tasks, including object classification, segmentation, and detection. For example, we define our validation transform as
 
 ```
 import albumentations as A
@@ -204,25 +203,23 @@ def valid_transform():
     )
 ```
 
-You can find the detail of transforms in `transform.py` file, in the source code which is given in the end of the post. 
-
-We remark that, after doing augumentation, we cast the output of transfrom into `tensorflow type`
+You can find the detail of transforms in `transform.py` file, in the source code which is given at the end of the post.
+We remark that, after doing augmentation, we cast the output of transform into tensorflow type `tensorflow type`
 
 ```
 aug_img = tf.cast(aug_img / 255.0, dtype)
 aug_mask = tf.cast(aug_mask / 255.0, dtype)
 ```
 
-Once we finish the augumentation task, we can do batching of the data by 
+Once we finish the augmentation task, we can do batching of the data by
 
 ```
 dataset = dataset.batch(batch_size)
 ```
 
-Here, dataset now is a object of `tf.data`.
+Here, the dataset is now a object of `tf.data`.
 
-
-Compose four previous steps, we have the dataloader function: 
+Compose four previous steps, we have the data loader function:
 
 ```
 def tf_dataset(
@@ -284,9 +281,9 @@ def tf_dataset(
 
 # 4. Define the Segmentation model
 
-This part we will define the segmentation model by using `segmentation_models` library, we also define the loss function, optimization and metric.
+In this part we will define the segmentation model by using `segmentation_models` library, we also define the loss function, optimization, and metric.
 
-**Segmentation models** is python library with Neural Networks for Image Segmentation based on Keras (Tensorflow) framework. This is the high level API, you need only some lines of code to create a Segmentation Neural Network.
+**Segmentation models** is a python library with Neural Networks for Image Segmentation based on Keras (Tensorflow) framework. This is the high-level API, you need only some lines of code to create a Segmentation Neural Network.
 
 ## 4.1 Model 
 ```
@@ -333,14 +330,14 @@ Here we use:
 
 # 5 Model Training
 
-Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some technique which helps us boost the effiency of training: 
+Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some tools that helps us boost the efficiency of training:
 
 - mixed_precision
 - using wanbd as callback
 
 ## 5.1 Mixed_precision
 
-How does mixed precison work? 
+How does mixed precision work?
 
 Mixed precision training is the use of lower-precision operations (float16 and bfloat16) in a model during training to make it run faster and use less memory. Using mixed precision can improve performance by more than 3 times on modern GPUs and 60% on TPUs.
 
@@ -352,10 +349,10 @@ Here is the mixed precision training flow:
 
 
 
-- We first feed the data as the `float16` or `bloat16` type, then the input of the model have the low type (float16 and bfloat16). 
-- All of calculations in the model are computated with  the lower-precision operations
-- Convert the output of model into `float32` to do optimization task. 
-- Update weights and convert them into lower-precision, continue next round of training. 
+- We first feed the data as the float16 or bloat16 type, then the input of the model has the low type (float16 and bfloat16). 
+- All of the calculations in the model are computed with the lower-precision operations
+- Convert the output of the model into float32 to do optimization tasks.
+- Update weights, convert them into lower-precision, and continue the next round of training.
 
 
 To train model in tensorflow with the mixed precision, we just modify:
@@ -397,8 +394,7 @@ last_layer = tf.keras.layers.Activation(activation="sigmoid", dtype=tf.float32)(
 
 ## 5.2 Using Wanbd for logging.
 
-This part we will cover how to use wandb for logging. *WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live, and share your findings.*
-
+In this part, we will cover how to use wandb for logging. WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings.
 To do that we use callback of model training as the WandbLogging
 
 ```
@@ -417,7 +413,7 @@ callbacks.append(WandbCallback())
 
 ```
 
-We finish the training task by call the dataloader and fit the model. Then
+We finish the training task by calling the dataloader and fitting the model. Then
 
 ## 5.3 Dataloader
 
