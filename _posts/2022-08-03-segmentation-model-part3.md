@@ -390,4 +390,4 @@ Here `args_trainer` is the argument of trainer. More precisely, it has
 
 Lightning implements various techniques to help during training that can help make the training smoother.
 
-**For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%202-Tensorflow%20Balanced%20Data)**
+**For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%203-Pytorch%20Lightning)**
