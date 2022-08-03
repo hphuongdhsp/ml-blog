@@ -79,7 +79,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      5 min read
+      9 min read
     
 </span></p>
 
@@ -101,14 +101,21 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h2"><a href="#2-data-preparation">2. Data Preparation</a></li>
 <li class="toc-entry toc-h2"><a href="#3-define-dataloader">3. Define DataLoader</a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#30-get-lists-of-images-and-masks">3.0 Get lists of images and masks</a></li>
-<li class="toc-entry toc-h3"><a href="#31-decode-images-and-masks">3.1 Decode images and masks</a></li>
-<li class="toc-entry toc-h3"><a href="#32-doing-augumentaion">3.2 Doing augumentaion</a></li>
+<li class="toc-entry toc-h3"><a href="#naive-pipeline">Naive pipeline</a></li>
+<li class="toc-entry toc-h3"><a href="#31-get-images-and-masks-from-a-dataframe">3.1 Get images and masks from a dataframe.</a></li>
+<li class="toc-entry toc-h3"><a href="#32-decode-images-and-masks">3.2 Decode images and masks</a></li>
+<li class="toc-entry toc-h3"><a href="#33-doing-augumentaion">3.3 Doing augumentaion</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h1"><a href="#4-define-the-segmentation-model">4. Define the Segmentation model</a>
 <ul>
 <li class="toc-entry toc-h2"><a href="#41-model">4.1 Model</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#5-model-training">5 Model Training</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#51-mixed_precision">5.1 Mixed_precision</a></li>
+<li class="toc-entry toc-h2"><a href="#51-using-wanbd-for-logging">5.1 Using Wanbd for logging.</a></li>
 </ul>
 </li>
 </ul><p>In this part we will cover how to train a segmentation model by using the tensorflow platform</p>
@@ -132,7 +139,7 @@ window.onload = wrap_img;
 <h2 id="1-problem-description-and-dataset">
 <a class="anchor" href="#1-problem-description-and-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Problem Description and Dataset</h2>
 
-<p>We will cover the nail semantic segmentation. For each image we want to detect the segmentation of the mail in the image.</p>
+<p>We will cover a nail semantic segmentation. For each image we want to detect the segmentation of the mail in the image.</p>
 
 <table>
   <thead>
@@ -262,8 +269,40 @@ def make_csv_file(data_root) -&gt; None:
   </li>
 </ul>
 
-<h3 id="30-get-lists-of-images-and-masks">
-<a class="anchor" href="#30-get-lists-of-images-and-masks" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.0 Get lists of images and masks</h3>
+<p>Before going to the next part, let’s talk about avantages of using tf.data for dataloader pipeline.</p>
+
+<p>The main feature of next part is the dataloader. We use the tensorflow.data to load the dataset instead of using <code class="language-plaintext highlighter-rouge">Sequence</code> of keras (keras.Sequence). In fact we can also combine <code class="language-plaintext highlighter-rouge">tf.data</code> and <code class="language-plaintext highlighter-rouge">keras.Sequence</code>. In this tutorial, we focus on how to load data by <code class="language-plaintext highlighter-rouge">tf.data</code>.</p>
+
+<p>Here is the pipeline loader of tf.data:</p>
+<ul>
+  <li>Read data from a csv file</li>
+  <li>Transfrom (augumentate) the data</li>
+  <li>Load data into the model</li>
+</ul>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png"></p>
+
+<p>The advantage of this method is:</p>
+<ul>
+  <li>Loading data by using multi-processing</li>
+  <li>Don’t have the memory leak phenomenal</li>
+  <li>Flexible to load dataset, can load weight sample data (using <code class="language-plaintext highlighter-rouge">tf.compat.v1.data.experimental.sample_from_datasets</code> )</li>
+  <li>Downtime and waiting around is minimized while processing is maximized through parallel execution, see the following images:</li>
+</ul>
+
+<h3 id="naive-pipeline">
+<a class="anchor" href="#naive-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Naive pipeline</h3>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/se/pj/bx/sepjbxl-cofjvbatz7x8xp6wn3i.png"></p>
+
+<p>This is the typical workflow of a naive data pipeline, there is always some idle time and overhead due to the inefficiency of sequential execution.</p>
+
+<p>In contrast, consider: <code class="language-plaintext highlighter-rouge">tf.data</code> pipeline</p>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/yt/5z/bv/yt5zbvzi3pqdc4l_8ez1c6lzgug.png"></p>
+
+<h3 id="31-get-images-and-masks-from-a-dataframe">
+<a class="anchor" href="#31-get-images-and-masks-from-a-dataframe" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.1 Get images and masks from a dataframe.</h3>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def load_data_path(data_root: Union[str, Path], csv_dir: Union[str, Path], train: str) -&gt; Tuple:
 
@@ -274,8 +313,8 @@ def make_csv_file(data_root) -&gt; None:
     return (images, masks)
 </code></pre></div></div>
 
-<h3 id="31-decode-images-and-masks">
-<a class="anchor" href="#31-decode-images-and-masks" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.1 Decode images and masks</h3>
+<h3 id="32-decode-images-and-masks">
+<a class="anchor" href="#32-decode-images-and-masks" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2 Decode images and masks</h3>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -&gt; Any:
     """this function is to load image and mask
@@ -296,8 +335,8 @@ def make_csv_file(data_root) -&gt; None:
     return img, mask
 </code></pre></div></div>
 
-<h3 id="32-doing-augumentaion">
-<a class="anchor" href="#32-doing-augumentaion" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2 Doing augumentaion</h3>
+<h3 id="33-doing-augumentaion">
+<a class="anchor" href="#33-doing-augumentaion" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3 Doing augumentaion</h3>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    def aug_fn(image, mask):
         # do augumentation by albumentations library
@@ -334,7 +373,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dataset = dataset.batch(batch_size)
 </code></pre></div></div>
 
-<p>Compose 4 privious step we have:</p>
+<p>Compose 4 previous steps, we have the dataloader function:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def tf_dataset(
     dataset: Tuple[List[str], List[str]],
@@ -400,7 +439,6 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 
 <h2 id="41-model">
 <a class="anchor" href="#41-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.1 Model</h2>
-
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def create_model():
 
     model = sm.Unet(
@@ -432,6 +470,108 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
     # compile model with optimizer, losses and metrics
     model.compile(optimizer, total_loss, metrics)
     return model
+
+</code></pre></div></div>
+
+<p>Here we use:</p>
+<ul>
+  <li>The <a href="https://en.wikipedia.org/wiki/U-Net">Unet</a> model with the backbone is <a href="https://paperswithcode.com/method/efficientnet#:~:text=EfficientNet%20is%20a%20convolutional%20neural,resolution%20using%20a%20compound%20coefficient.">efficientnetb4</a>
+</li>
+  <li>The loss function is the sum <a href="https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient"><code class="language-plaintext highlighter-rouge">DiceLoss</code></a> and <a href="https://paperswithcode.com/method/focal-loss#:~:text=Focal%20loss%20applies%20a%20modulating,in%20the%20correct%20class%20increases."><code class="language-plaintext highlighter-rouge">FocalLoss</code></a>
+</li>
+  <li>The metric is IOU score and FSscore</li>
+  <li>The optimization algorithm is <a href="https://ml-explained.com/blog/radam-explained"><code class="language-plaintext highlighter-rouge">RectifiedAdam</code></a>
+</li>
+</ul>
+
+<h1 id="5-model-training">
+<a class="anchor" href="#5-model-training" aria-hidden="true"><span class="octicon octicon-link"></span></a>5 Model Training</h1>
+
+<p>Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some technique which helps us boost the effiency of training:</p>
+
+<ul>
+  <li>mixed_precision</li>
+  <li>using wanbd as callback</li>
+</ul>
+
+<h2 id="51-mixed_precision">
+<a class="anchor" href="#51-mixed_precision" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.1 Mixed_precision</h2>
+
+<p>How does mixed precison work?</p>
+
+<p>Mixed precision training is the use of lower-precision operations (float16 and bfloat16) in a model during training to make it run faster and use less memory. Using mixed precision can improve performance by more than 3 times on modern GPUs and 60% on TPUs.</p>
+
+<p>Here is the mixed precision training flow:</p>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/3y/pg/ew/3ypgewgss1uoezkydzapcg0pjgy.png"></p>
+
+<ul>
+  <li>We first feed the data as the <code class="language-plaintext highlighter-rouge">float16</code> or <code class="language-plaintext highlighter-rouge">bloat16</code> type, then the input of the model have the low type (float16 and bfloat16).</li>
+  <li>All of calculations in the model are computated with  the lower-precision operations</li>
+  <li>Convert the output of model into <code class="language-plaintext highlighter-rouge">float32</code> to do optimization task.</li>
+  <li>Update weights and convert them into lower-precision, continue next round of training.</li>
+</ul>
+
+<p>To train model in tensorflow with the mixed precision, we just modify:</p>
+
+<ul>
+  <li>We first define the global policy:</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="n">args</span><span class="p">.</span><span class="n">mixed_precision</span><span class="p">:</span>
+    <span class="n">policy</span> <span class="o">=</span> <span class="n">mixed_precision</span><span class="p">.</span><span class="n">Policy</span><span class="p">(</span><span class="s">"mixed_float16"</span><span class="p">)</span>
+    <span class="n">mixed_precision</span><span class="p">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Mixed precision enabled"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Change the out data (input of model) into tf.float16:</li>
+</ul>
+
+<p>When we load dataset, before do suffling and do batching we convert out data into float16. To do that,</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+    <span class="c1"># using tf.numpy_function to apply the aug_img to image and mask
+</span>    <span class="n">aug_img</span><span class="p">,</span> <span class="n">aug_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">numpy_function</span><span class="p">(</span><span class="n">aug_fn</span><span class="p">,</span> <span class="p">[</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">],</span> <span class="p">[</span><span class="n">dtype</span><span class="p">,</span> <span class="n">dtype</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">aug_img</span><span class="p">,</span> <span class="n">aug_mask</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Fix the last layer of the model. Here we remark that the dtype of the last layer should be <code class="language-plaintext highlighter-rouge">float32</code>. To do that, in the model part, we add some trick lines:</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">model</span> <span class="o">=</span> <span class="n">sm</span><span class="p">.</span><span class="n">Unet</span><span class="p">(</span>
+    <span class="s">"efficientnetb4"</span><span class="p">,</span>
+    <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">384</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">encoder_weights</span><span class="o">=</span><span class="s">"imagenet"</span><span class="p">,</span>
+    <span class="n">classes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># TO USE mixed_precision, HERE WE USE SMALL TRICK, REMOVE THE LAST LAYER AND ADD
+# THE ACTIVATION SIGMOID WITH THE DTYPE  TF.FLOAT32
+</span><span class="n">last_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Activation</span><span class="p">(</span><span class="n">activation</span><span class="o">=</span><span class="s">"sigmoid"</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">float32</span><span class="p">)(</span>
+    <span class="n">model</span><span class="p">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">].</span><span class="n">output</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="51-using-wanbd-for-logging">
+<a class="anchor" href="#51-using-wanbd-for-logging" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.1 Using Wanbd for logging.</h2>
+
+<p>This part we will cover how to use wandb for logging. <em>WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live, and share your findings.</em></p>
+
+<p>To do that we use callback of model training as the WandbLogging</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import wandb
+from wandb.keras import WandbCallback
+logdir = f"{work_dir}/tensorflow/logs/wandb"
+mkdir(logdir)
+wandb.init(project="Segmentation by Tensorflow", dir=logdir)
+
+wandb.config = {
+    "learning_rate": earning_rate,
+    "epochs": epochs,
+    "batch_size": batch_size,
+}
+callbacks.append(WandbCallback())
+
 </code></pre></div></div>
 
   </div><a class="u-url" href="/ml-blog/markdown/2022/08/02/segmentation-model-part1.html" hidden></a>
