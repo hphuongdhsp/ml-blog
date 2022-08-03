@@ -2,21 +2,11 @@
 toc: true
 layout: post
 description: The first part of the Segmentation Tutorial Series, Training deep learning models using Tensorflow platform
-categories: [markdown]
+categories: [tensorflow, semantic segmentation, deep learning]
 title: Segmentation Model-Part I - Training deep learning models using Tensorflow platform
 ---
 
 In this part we will cover how to train a segmentation model by using the tensorflow platform
-
-
-## Outline
-
-- <a href='#1'>1.Problem Description and Dataset</a>
-- <a href='#2'>2. Data Preparation </a> 
-- <a href='#3'>3. Define Dataloader </a> 
-    - <a id='#3-1'>3.1. Decode images </a> 
-    - <a id='#3-2'>3.2. Process Data  </a> 
-    - <a id='#3-3'>3.3. Batching Data  </a> 
 
 
 ## 1. Problem Description and Dataset
@@ -396,7 +386,7 @@ last_layer = tf.keras.layers.Activation(activation="sigmoid", dtype=tf.float32)(
 )
 ```
 
-## 5.1 Using Wanbd for logging.
+## 5.2 Using Wanbd for logging.
 
 This part we will cover how to use wandb for logging. *WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live, and share your findings.*
 
@@ -417,3 +407,51 @@ wandb.config = {
 callbacks.append(WandbCallback())
 
 ```
+
+We finish the training task by call the dataloader and fit the model. Then
+
+### Dataloader
+
+```
+data_root = str(args.data_root)
+train_csv_dir = f"{data_root}/csv_file/train.csv"
+valid_csv_dir = f"{data_root}/csv_file/valid.csv"
+# set batch_size
+batch_size = args.batch_size
+epochs = args.epochs
+
+# get training and validation set
+train_dataset = load_data_path(data_root, train_csv_dir, "train")
+train_loader = tf_dataset(
+    dataset=train_dataset,
+    shuffle=True,
+    batch_size=batch_size,
+    transforms=train_transform(),
+    dtype=dtype,
+    device=args.device,
+)
+valid_dataset = load_data_path(data_root, valid_csv_dir, "valid")
+valid_loader = tf_dataset(
+    dataset=valid_dataset,
+    shuffle=False,
+    batch_size=batch_size,
+    transforms=valid_transform(),
+    dtype=dtype,
+    device=args.device,
+)
+
+```
+
+### Fit traininig
+```
+history = model.fit(
+    train_loader,
+    steps_per_epoch=total_steps,
+    epochs=epochs,
+    validation_data=valid_loader,
+    callbacks=callbacks,
+)
+```
+
+
+**For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%201-Tensorflow)**
