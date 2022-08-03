@@ -107,8 +107,8 @@ In this part we will do the following:
 - Get lists of images and masks
 - Define Dataloader with input is lists of images and masks and outout is list of batch image which is feed into the model. More precisely, in this step we will: 
   - Decode images and masks
-  - Doing Augumentation
-  - Batching the augumented data. 
+  - Transform data
+  - Batch the augumented data. 
 
 Before going to the next part, let's talk about avantages of using tf.data for dataloader pipeline. 
 
@@ -410,7 +410,7 @@ callbacks.append(WandbCallback())
 
 We finish the training task by call the dataloader and fit the model. Then
 
-### Dataloader
+## 5.3 Dataloader
 
 ```
 data_root = str(args.data_root)
@@ -442,7 +442,7 @@ valid_loader = tf_dataset(
 
 ```
 
-### Fit traininig
+## 5.4 Fit training
 ```
 history = model.fit(
     train_loader,
