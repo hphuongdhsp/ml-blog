@@ -102,14 +102,13 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h2"><a href="#4-model-module">4. Model Module</a></li>
 <li class="toc-entry toc-h2"><a href="#41-define-model-by-using-segmentation_models_pytorch">4.1 Define model by using segmentation_models_pytorch</a></li>
 <li class="toc-entry toc-h2"><a href="#5-trainer">5. Trainer</a></li>
-</ul><p>Continue Segmentation Model the series,this post we discoved how to train a segmentation model in Pytorch Lightning. PyTorch Lightning is the deep learning framework for professional AI researchers and machine learning engineers who need maximal flexibility without sacrificing performance at scale. It is built on top of PyTorch.</p>
+</ul><p>Continue Segmentation Model the series; in this post, we discuss how to train a segmentation model in Pytorch Lightning. PyTorch Lightning is the deep learning framework for professional AI researchers and machine learning engineers who need maximal flexibility without sacrificing performance at scale. It is built on top of PyTorch.</p>
 
-<p>We still work with the Segmentation Problme (Nail Segmentation) and discover some useful tools for Pytorch Lightning. From this part, we will focus on Pytorch Platform. Then for the convenience, we recall some tasks of the previous post: Problem Description and Dataset, Data Preparation.</p>
-
+<p>We still work with the Segmentation Problem (Nail Segmentation) and discover some valuable tools for Pytorch Lightning. From this part, we will focus on the Pytorch Platform. Then for convenience, we recall some tasks of the previous post: Problem Description and Dataset, Data Preparation.</p>
 <h2 id="1-problem-description-and-dataset">
 <a class="anchor" href="#1-problem-description-and-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Problem Description and Dataset</h2>
 
-<p>We want cover a nail semantic segmentation problem. For each image we want to detect the segmentation of the mail in the image.</p>
+<p>We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the nail in the image.</p>
 
 <table>
   <thead>
@@ -147,7 +146,7 @@ window.onload = wrap_img;
 
 </code></pre></div></div>
 
-<p>We have 2 folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> corresponds to four types of distribution of nail. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, that is the segmentations of input images.</p>
+<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder, and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images. Each folder has four sub-folder:  <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, and <code class="language-plaintext highlighter-rouge">4</code>, corresponding to four types of nail distribution.</p>
 
 <p>We download data from <a href="https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing">link</a> and put it in <code class="language-plaintext highlighter-rouge">data_root</code>, for example</p>
 
@@ -157,7 +156,7 @@ window.onload = wrap_img;
 <h2 id="2-data-preparation">
 <a class="anchor" href="#2-data-preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Data Preparation</h2>
 
-<p>We want to have the CSV file that stores the image and mask paths. In this project, file names of image and mask are same, then we only need to save <code class="language-plaintext highlighter-rouge">images</code> path and modify <code class="language-plaintext highlighter-rouge">data_root</code> of images and masks when we define a dataset.</p>
+<p>We want the CSV file that stores the image and mask paths. In this project, file names of images and masks are the same, and then we only need to save the <code class="language-plaintext highlighter-rouge">images</code> path and modify the <code class="language-plaintext highlighter-rouge">data_root</code> of images and masks when we define a dataset.</p>
 
 <table>
   <thead>
@@ -212,7 +211,7 @@ window.onload = wrap_img;
     valid_frame.to_csv(f"{data_root}/csv_file/valid.csv", index=False)
 </code></pre></div></div>
 
-<p>Where <code class="language-plaintext highlighter-rouge">get_all_items</code>, <code class="language-plaintext highlighter-rouge">mkdir</code> are two supported functions (defined at <code class="language-plaintext highlighter-rouge">utils.py</code> file) which help us to find all items in a given folder and make new folder.</p>
+<p>Where <code class="language-plaintext highlighter-rouge">get_all_items</code>, <code class="language-plaintext highlighter-rouge">mkdir</code> are two supported functions (defined in <code class="language-plaintext highlighter-rouge">utils.py</code> file) which help us to find all items in a given folder and make a new folder.</p>
 
 <p>Before going define the dataloader and model, let’s recall some main features of <code class="language-plaintext highlighter-rouge">Pytorch Lightning</code>. For more information, you can find in <a href="https://pytorch-lightning.readthedocs.io/en/stable/">Pytorch Lightning</a>.</p>
 
@@ -378,9 +377,8 @@ class NailDataset(Dataset):
     <ul>
       <li>def training_step : calculate {loss, metric}, logging in each train step</li>
       <li>def validation_step: calculate {loss, metric}, logging in each valid step</li>
-      <li>def validation_epoch_end: calculate {loss, metric}, logging in each epoch by using info of validation_step</li>
-      <li>def configure_optimizers: which optimization and learning rate scheduler we use for training.</li>
-      <li>
+      <li>def validation_epoch_end: calculate {loss, metric}, logging in each epoch by using infos of validation_step</li>
+      <li>def configure_optimizers: which optimization and learning rate scheduler we use for the training.</li>
     </ul>
   </li>
 </ul>
@@ -389,7 +387,7 @@ class NailDataset(Dataset):
 <a class="anchor" href="#41-define-model-by-using-segmentation_models_pytorch" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.1 Define model by using <code class="language-plaintext highlighter-rouge">segmentation_models_pytorch</code>
 </h2>
 
-<p>For the convenience, we use <a href="https://github.com/qubvel/segmentation_models.pytorch">segmentation_models_pytorch</a> to define our model. <code class="language-plaintext highlighter-rouge">Segmentation_models_pytorch</code> is a high level API, it helps us build a sementic segmentation model with only some lines of code.</p>
+<p>For convenience, we use <a href="https://github.com/qubvel/segmentation_models.pytorch">segmentation_models_pytorch</a> to define our model. <code class="language-plaintext highlighter-rouge">Segmentation_models_pytorch</code> is a high level API, it helps us build a sementic segmentation model with only some lines of code.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import segmentation_models_pytorch as smp
 
@@ -401,7 +399,7 @@ model = smp.Unet(
 )
 </code></pre></div></div>
 
-<p>We next use LightningModule to wrap the model into model module of Pytorch Lightnining.</p>
+<p>We next use <code class="language-plaintext highlighter-rouge">LightningModule</code> to wrap the model into the model module of Pytorch Lightnining.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class LitNailSegmentation(LightningModule):
     def __init__(self, model: nn.Module, learning_rate: float = 1e-4):
@@ -477,7 +475,7 @@ model = smp.Unet(
 <ul>
   <li>
 <a href="https://pytorch.org/docs/stable/generated/torch.optim.AdamW.html">AdamW</a> as the optimizers</li>
-  <li>symmetric_lovasz as the loss function, which is defined in the <code class="language-plaintext highlighter-rouge">loss.py</code> file. <code class="language-plaintext highlighter-rouge">symmetric_lovasz</code> is define by</li>
+  <li>symmetric_lovasz as the loss function, which is defined in the <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%203-Pytorch%20Lightning/loss.py">Loss.py</a> file. <em>symmetric_lovasz</em> is define by</li>
 </ul>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def symmetric_lovasz(outputs, targets):
@@ -487,7 +485,7 @@ model = smp.Unet(
 <p>where lovasz_hinge is <a href="https://arxiv.org/pdf/1705.08790.pdf">Lovasz loss</a> for the binary segmentation.</p>
 
 <ul>
-  <li>Metric: Dice, IOU</li>
+  <li>Metrics: Dice, IOU</li>
 </ul>
 
 <h2 id="5-trainer">
@@ -515,17 +513,17 @@ trainer.fit(
         )
 </code></pre></div></div>
 <p>Here <code class="language-plaintext highlighter-rouge">args_trainer</code> is the argument of trainer. More precisely, it has</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{   gpus: [0]
-    max_epochs: 300
-    benchmark: True
-    precision: 16
-    progress_bar_refresh_rate: 1
-    gradient_clip_val: 5.0
-    auto_lr_find: True
-    weights_summary: "top"
-    limit_train_batches: 1.0
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{   gpus: [0]                       # gpu device to train 
+    max_epochs: 300                 # number of epochs
+    precision: 16                   # using mix precision to train  
+    auto_lr_find: True              # auto find the good initial learning rate
+    limit_train_batches: 1.0        # percent of train dataset use to train, here 100%
+    ... 
     }
 </code></pre></div></div>
+
+<p>Lightning implements various techniques to help during training that can help make the training smoother.</p>
+
 <p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%202-Tensorflow%20Balanced%20Data">github</a></strong></p>
 
   </div><a class="u-url" href="/ml-blog/2022/08/03/segmentation-model-part3.html" hidden></a>
