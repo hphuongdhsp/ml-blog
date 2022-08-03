@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Segmentation Model-Part II - How to handle Imbalanced Data in Segmentation Problem | Hoang Phuong’ Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Segmentation Model-Part II - How to handle Imbalanced Data in Segmentation Problem" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The second part of the Segmentation Tutorial Series, a guide to handle Imbalanced Data in Deep Learning" />
+<meta property="og:description" content="The second part of the Segmentation Tutorial Series, a guide to handle Imbalanced Data in Deep Learning" />
+<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part2.html" />
+<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part2.html" />
+<meta property="og:site_name" content="Hoang Phuong’ Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-08-03T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Segmentation Model-Part II - How to handle Imbalanced Data in Segmentation Problem" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-08-03T00:00:00-05:00","datePublished":"2022-08-03T00:00:00-05:00","description":"The second part of the Segmentation Tutorial Series, a guide to handle Imbalanced Data in Deep Learning","headline":"Segmentation Model-Part II - How to handle Imbalanced Data in Segmentation Problem","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part2.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part2.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/ml-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hphuongdhsp.github.io/ml-blog/feed.xml" title="Hoang Phuong' Blog" /><link rel="shortcut icon" type="image/x-icon" href="/ml-blog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ml-blog/">Hoang Phuong&#39; Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/ml-blog/about/">About Me</a><a class="page-link" href="/ml-blog/search/">Search</a><a class="page-link" href="/ml-blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part II - How to handle Imbalanced Data in Segmentation Problem</h1><p class="page-description">The second part of the Segmentation Tutorial Series, a guide to handle Imbalanced Data in Deep Learning</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-03T00:00:00-05:00" itemprop="datePublished">
+        Aug 3, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      4 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#1-problem-description-and-dataset">1. Problem Description and Dataset</a></li>
+<li class="toc-entry toc-h2"><a href="#2-data-preparation">2. Data Preparation</a></li>
+<li class="toc-entry toc-h2"><a href="#3-how-to-define-dataloader">3. How to define dataloader</a></li>
+</ul><p>In the last past, we discoved how to train a segmentation model in Tensorflow. This part we will cover how to balance dataset in training a segmentation model in Tensorflow. We can use the same technique to deal with the imbalanced data in a Classification problem. Let us recall our segmentation problem.</p>
+
+<h2 id="1-problem-description-and-dataset">
+<a class="anchor" href="#1-problem-description-and-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Problem Description and Dataset</h2>
+
+<p>We want cover a nail semantic segmentation problem. For each image we want to detect the segmentation of the mail in the image.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Images</th>
+      <th style="text-align: center">Masks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img align="center" width="300" src="https://habrastorage.org/webt/em/og/9v/emog9v4ya7ssllg5dht77_wehqk.png"></td>
+      <td style="text-align: center"><img align="center" width="300" src="https://habrastorage.org/webt/hl/bf/ov/hlbfovx1uhrbbebgxndyho9yywo.png"></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Our data is organizated as</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
+│   ├── 1
+│       ├── first_image.png
+│       ├── second_image.png
+│       ├── third_image.png
+│   ├── 2
+│   ├── 3
+│   ├── 4
+├── Masks
+│   ├── 1
+│       ├── first_image.png
+│       ├── second_image.png
+│       ├── third_image.png
+│   ├── 2
+│   ├── 3
+│   ├── 4
+
+</code></pre></div></div>
+
+<p>We have 2 folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> corresponds to four types of distribution of nail. Images is the data folder and Masks is the label folder, that is the segmentations of input images.</p>
+
+<p>We download data from <a href="https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing">link</a> and put it in <code class="language-plaintext highlighter-rouge">data_root</code>, for example</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data_root</span> <span class="o">=</span> <span class="s">"./nail-segmentation-dataset"</span>
+</code></pre></div></div>
+
+<h2 id="2-data-preparation">
+<a class="anchor" href="#2-data-preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Data Preparation</h2>
+
+<p>The same task as the previous port, we want to have the CSV file that stores the image and mask paths</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>index</th>
+      <th>images</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>path_first_image.png</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>path_second_image.png</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>path_third_image.png</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>path_fourth_image.png</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>For that we use <code class="language-plaintext highlighter-rouge">make_csv_file</code> function in <code class="language-plaintext highlighter-rouge">data_processing.py</code> file. <strong>What thing do we need more for data balancing?</strong></p>
+
+<p>We remark that our image data have four subfolders, and the distributions of the coverage segmentation are very different in each folder. Also the quanlity of image of those are diffirent (skew data).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Folder</th>
+      <th>number of image</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>749</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>144</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>52</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>34</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>We want to split the info dataframe into some smaller dataframe. To do that we use:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def split_data_train(data_root) -&gt; None:
+    r"""
+    This function is to split the train into some subsets. The purpose of this step is to make the balanced dataset.
+    """
+    data_root = args.data_root
+    path_csv = f"{data_root}/csv_file/train.csv"
+    train = pd.read_csv(path_csv)
+    train["type"] = train["images"].apply(lambda x: x.split("/")[1])
+    for i in train["type"].unique().tolist():
+        df = train.loc[train["type"] == i]
+        df.to_csv(f"{data_root}/csv_file/train{i}.csv", index=False)
+</code></pre></div></div>
+
+<p>We have 5 new data frame <code class="language-plaintext highlighter-rouge">train_0</code>, <code class="language-plaintext highlighter-rouge">train_1</code>, <code class="language-plaintext highlighter-rouge">train_2</code>, <code class="language-plaintext highlighter-rouge">train_3</code>, <code class="language-plaintext highlighter-rouge">train_4</code>. We will use those files in next step.</p>
+
+<p><strong>We will inherit all of things in the previous post (DataLoader, Model, mixed precision, logger)</strong>. We need to only change the way to load dataset and how to balance the data when we load data.</p>
+
+<h2 id="3-how-to-define-dataloader">
+<a class="anchor" href="#3-how-to-define-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. How to define dataloader</h2>
+
+<p>We remark that all function we will use have defined in the last part.</p>
+
+<p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%201-Tensorflow">github</a></strong></p>
+
+<p>We first define all dataframe and load directoris of image and masks</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>train0_csv_dir = f"{data_root}/csv_file/train0.csv"
+train1_csv_dir = f"{data_root}/csv_file/train1.csv"
+train2_csv_dir = f"{data_root}/csv_file/train2.csv"
+train3_csv_dir = f"{data_root}/csv_file/train3.csv"
+train4_csv_dir = f"{data_root}/csv_file/train4.csv"
+
+train0_dataset = load_data_path(data_root, train0_csv_dir, "train")
+train1_dataset = load_data_path(data_root, train1_csv_dir, "train")
+train2_dataset = load_data_path(data_root, train2_csv_dir, "train")
+train3_dataset = load_data_path(data_root, train3_csv_dir, "train")
+train4_dataset = load_data_path(data_root, train4_csv_dir, "train")
+
+</code></pre></div></div>
+<p>Using tf_dataset we load fine datasets, remark that we will not batch in this step, we will concat those dataset with weights and batch them when we have whole dataset.</p>
+
+<p><code class="language-plaintext highlighter-rouge">The cool thing about this method is that we can use different augmentation for different sub-dataset</code>. For example we can apply the train_transform for the first dataset and valid_transform for the second datset.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>train0_loader = tf_dataset(
+    dataset=train0_dataset,
+    shuffle=False,
+    batch_size=None,
+    transforms=train_transform(),
+    dtype=dtype,
+    device=args.device,
+)
+train1_loader = tf_dataset(
+    dataset=train1_dataset,
+    shuffle=False,
+    batch_size=None,
+    transforms=train_transform(),
+    dtype=dtype,
+    device=args.device,
+)
+train2_loader = tf_dataset(
+    dataset=train2_dataset,
+    shuffle=False,
+    batch_size=None,
+    transforms=train_transform(),
+    dtype=dtype,
+    device=args.device,
+)
+train3_loader = tf_dataset(
+    dataset=train3_dataset,
+    shuffle=False,
+    batch_size=None,
+    transforms=train_transform(),
+    dtype=dtype,
+    device=args.device,
+)
+train4_loader = tf_dataset(
+    dataset=train4_dataset,
+    shuffle=False,
+    batch_size=None,
+    transforms=train_transform(),
+    dtype=dtype,
+    device=args.device,
+)
+</code></pre></div></div>
+
+<p>Shuffle and repeat each dataset</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>data_loaders = [
+    train0_loader.apply(tf.data.experimental.shuffle_and_repeat(100000, count=epochs)),
+    train1_loader.apply(tf.data.experimental.shuffle_and_repeat(100000, count=epochs)),
+    train2_loader.apply(tf.data.experimental.shuffle_and_repeat(100000, count=epochs)),
+    train3_loader.apply(tf.data.experimental.shuffle_and_repeat(100000, count=epochs)),
+    train4_loader.apply(tf.data.experimental.shuffle_and_repeat(100000, count=epochs)),
+]
+
+</code></pre></div></div>
+
+<p>Calculate the weight sample, here we want each batch, each datset will be loaded  with the same sample.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>weights = [1 / len(data_loaders)] * len(data_loaders)
+</code></pre></div></div>
+
+<p>Using <code class="language-plaintext highlighter-rouge">tf.data.experimental.sample_from_datasets</code> to do balancing data.</p>
+
+<p>The input of <code class="language-plaintext highlighter-rouge">tf.data.experimental.sample_from_datasets</code> is:</p>
+<ul>
+  <li>datasets: A non-empty list of tf.data.Dataset objects with compatible structure.</li>
+  <li>weights: (Optional.) A list or Tensor of len(datasets) floating-point values where weights[i] represents the probability to sample from datasets[i], or a tf.data.Dataset object where each element is such a list. Defaults to a uniform distribution across datasets.</li>
+</ul>
+
+<p>Returns of <code class="language-plaintext highlighter-rouge">tf.data.experimental.sample_from_datasets</code></p>
+<ul>
+  <li>A dataset that interleaves elements from datasets at random, according to weights if provided, otherwise with uniform probability.</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>train_loader = tf.data.experimental.sample_from_datasets(data_loaders, weights=weights, seed=None)
+</code></pre></div></div>
+<p>We then have the train_loader with balancing data. We only need to batch them before feed data into the model.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>train_loader = train_loader.batch(batch_size)
+</code></pre></div></div>
+
+<p>Once we have train_loader, we define valid_loader, model, as same as previous post. Finally, we fit the model.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    history = model.fit(
+        train_loader,
+        steps_per_epoch=steps_per_epoch,
+        epochs=epochs,
+        validation_data=valid_loader,
+        callbacks=callbacks,
+    )
+</code></pre></div></div>
+
+<p>where</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    steps_per_epoch = (
+        int(
+            (
+                len(train0_dataset[0])
+                + len(train1_dataset[0])
+                + len(train2_dataset[0])
+                + len(train3_dataset[0])
+                + len(train4_dataset[0])
+            )
+            / batch_size
+        )
+        + 1
+    )
+</code></pre></div></div>
+
+<p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%202-Tensorflow%20Balanced%20Data">github</a></strong></p>
+
+  </div><a class="u-url" href="/ml-blog/2022/08/03/segmentation-model-part2.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/ml-blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ml-blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ml-blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/hphuongdhsp" target="_blank" title="hphuongdhsp"><svg class="svg-icon grey"><use xlink:href="/ml-blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/hphuongdhsp" target="_blank" title="hphuongdhsp"><svg class="svg-icon grey"><use xlink:href="/ml-blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
