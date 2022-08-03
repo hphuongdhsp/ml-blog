@@ -21,11 +21,11 @@ In this part we will cover how to train a segmentation model by using the tensor
 
 ## 1. Problem Description and Dataset
 
-We will cover the nail semantic segmentation. For each image we want to detect the segmentation of the mail in the image.
+We will cover a nail semantic segmentation. For each image we want to detect the segmentation of the mail in the image.
 
 
-|                                 Images                                 |                                 Masks                                 |
-| :--------------------------------------------------------------------: | :-------------------------------------------------------------------: |
+|                                                     Images                                                     |                                                     Masks                                                      |
+| :------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------: |
 | <img align="center" width="300"  src="https://habrastorage.org/webt/em/og/9v/emog9v4ya7ssllg5dht77_wehqk.png"> | <img align="center" width="300"  src="https://habrastorage.org/webt/hl/bf/ov/hlbfovx1uhrbbebgxndyho9yywo.png"> |
 
 
@@ -67,12 +67,12 @@ For convenience of loading data, we will store information of data in the datafr
 
 We want to have the a csv file that store the images and masks path 
 
-| index | images | 
-| ----- | ---------- |
-| 1     | path_first_image.png         |
-| 2     | path_second_image.png        | 
-| 3     | path_third_image.png         |
-| 4     | path_fourth_image.png        |
+| index | images                |
+| ----- | --------------------- |
+| 1     | path_first_image.png  |
+| 2     | path_second_image.png |
+| 3     | path_third_image.png  |
+| 4     | path_fourth_image.png |
 
 To do that we use
 ```
@@ -120,7 +120,37 @@ In this part we will do the following:
   - Doing Augumentation
   - Batching the augumented data. 
 
-### 3.0 Get lists of images and masks
+Before going to the next part, let's talk about avantages of using tf.data for dataloader pipeline. 
+
+The main feature of next part is the dataloader. We use the tensorflow.data to load the dataset instead of using `Sequence` of keras (keras.Sequence). In fact we can also combine `tf.data` and `keras.Sequence`. In this tutorial, we focus on how to load data by `tf.data`.
+
+Here is the pipeline loader of tf.data: 
+- Read data from a csv file
+- Transfrom (augumentate) the data
+- Load data into the model
+
+<img align="center" width="600"  src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png">
+
+
+The advantage of this method is: 
+- Loading data by using multi-processing
+- Don't have the memory leak phenomenal 
+- Flexible to load dataset, can load weight sample data (using `tf.compat.v1.data.experimental.sample_from_datasets` )
+- Downtime and waiting around is minimized while processing is maximized through parallel execution, see the following images: 
+
+### Naive pipeline
+
+<img align="center" width="600"  src="https://habrastorage.org/webt/se/pj/bx/sepjbxl-cofjvbatz7x8xp6wn3i.png">
+
+
+This is the typical workflow of a naive data pipeline, there is always some idle time and overhead due to the inefficiency of sequential execution.
+
+In contrast, consider: `tf.data` pipeline
+
+
+<img align="center" width="600"  src="https://habrastorage.org/webt/yt/5z/bv/yt5zbvzi3pqdc4l_8ez1c6lzgug.png">
+
+### 3.1 Get images and masks from a dataframe.
 
 ```
 def load_data_path(data_root: Union[str, Path], csv_dir: Union[str, Path], train: str) -> Tuple:
@@ -132,7 +162,7 @@ def load_data_path(data_root: Union[str, Path], csv_dir: Union[str, Path], train
     return (images, masks)
 ```
 
-### 3.1 Decode images and masks
+### 3.2 Decode images and masks
 
 ```
 def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -> Any:
@@ -154,7 +184,7 @@ def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -
     return img, mask
 ```
 
-### 3.2 Doing augumentaion 
+### 3.3 Doing augumentaion 
 
 ```
     def aug_fn(image, mask):
@@ -195,7 +225,7 @@ Once we finish the augumentation task, we can do batch of the data by
 dataset = dataset.batch(batch_size)
 ```
 
-Compose 4 privious step we have: 
+Compose 4 previous steps, we have the dataloader function: 
 
 ```
 def tf_dataset(
@@ -260,35 +290,130 @@ def tf_dataset(
 This part we will define the segmentation model by using `segmentation_models` library, we also define the loss function, optimization and metric
 
 ## 4.1 Model 
+```
+def create_model():
 
-    def create_model():
+    model = sm.Unet(
+        "efficientnetb4",
+        input_shape=(384, 384, 3),
+        encoder_weights="imagenet",
+        classes=1,
+    )
+    # TO USE mixed_precision, HERE WE USE SMALL TRICK, REMOVE THE LAST LAYER AND ADD
+    # THE ACTIVATION SIGMOID WITH THE DTYPE  TF.FLOAT32
+    last_layer = tf.keras.layers.Activation(activation="sigmoid", dtype=tf.float32)(model.layers[-2].output)
+    model = tf.keras.Model(model.input, last_layer)
 
-        model = sm.Unet(
-            "efficientnetb4",
-            input_shape=(384, 384, 3),
-            encoder_weights="imagenet",
-            classes=1,
-        )
-        # TO USE mixed_precision, HERE WE USE SMALL TRICK, REMOVE THE LAST LAYER AND ADD
-        # THE ACTIVATION SIGMOID WITH THE DTYPE  TF.FLOAT32
-        last_layer = tf.keras.layers.Activation(activation="sigmoid", dtype=tf.float32)(model.layers[-2].output)
-        model = tf.keras.Model(model.input, last_layer)
+    # define optimization, here we use the tensorflow addon, but use can also use some normal \
+    # optimazation that is defined in tensorflow.optimizers
+    optimizer = tfa.optimizers.RectifiedAdam()
 
-        # define optimization, here we use the tensorflow addon, but use can also use some normal \
-        # optimazation that is defined in tensorflow.optimizers
-        optimizer = tfa.optimizers.RectifiedAdam()
+    if args.mixed_precision:
+        optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer, dynamic=True)
+    # define a loss fucntion
+    dice_loss = sm.losses.DiceLoss()
+    focal_loss = sm.losses.BinaryFocalLoss()
+    total_loss = dice_loss + focal_loss
+    # define metric
+    metrics = [
+        sm.metrics.IOUScore(threshold=0.5),
+        sm.metrics.FScore(threshold=0.5),
+    ]
+    # compile model with optimizer, losses and metrics
+    model.compile(optimizer, total_loss, metrics)
+    return model
 
-        if args.mixed_precision:
-            optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer, dynamic=True)
-        # define a loss fucntion
-        dice_loss = sm.losses.DiceLoss()
-        focal_loss = sm.losses.BinaryFocalLoss()
-        total_loss = dice_loss + focal_loss
-        # define metric
-        metrics = [
-            sm.metrics.IOUScore(threshold=0.5),
-            sm.metrics.FScore(threshold=0.5),
-        ]
-        # compile model with optimizer, losses and metrics
-        model.compile(optimizer, total_loss, metrics)
-        return model
+```
+
+Here we use: 
+- The [Unet](https://en.wikipedia.org/wiki/U-Net) model with the backbone is [efficientnetb4](https://paperswithcode.com/method/efficientnet#:~:text=EfficientNet%20is%20a%20convolutional%20neural,resolution%20using%20a%20compound%20coefficient.)
+- The loss function is the sum [`DiceLoss`](https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient) and [`FocalLoss`](https://paperswithcode.com/method/focal-loss#:~:text=Focal%20loss%20applies%20a%20modulating,in%20the%20correct%20class%20increases.)
+- The metric is IOU score and FSscore
+- The optimization algorithm is [`RectifiedAdam`](https://ml-explained.com/blog/radam-explained)
+
+
+# 5 Model Training
+
+Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some technique which helps us boost the effiency of training: 
+
+- mixed_precision
+- using wanbd as callback
+
+## 5.1 Mixed_precision
+
+How does mixed precison work? 
+
+Mixed precision training is the use of lower-precision operations (float16 and bfloat16) in a model during training to make it run faster and use less memory. Using mixed precision can improve performance by more than 3 times on modern GPUs and 60% on TPUs.
+
+Here is the mixed precision training flow:
+
+
+<img align="center" width="600"  src="https://habrastorage.org/webt/3y/pg/ew/3ypgewgss1uoezkydzapcg0pjgy.png">
+
+
+
+
+- We first feed the data as the `float16` or `bloat16` type, then the input of the model have the low type (float16 and bfloat16). 
+- All of calculations in the model are computated with  the lower-precision operations
+- Convert the output of model into `float32` to do optimization task. 
+- Update weights and convert them into lower-precision, continue next round of training. 
+
+
+To train model in tensorflow with the mixed precision, we just modify:
+
+- We first define the global policy: 
+  
+```python
+if args.mixed_precision:
+    policy = mixed_precision.Policy("mixed_float16")
+    mixed_precision.set_policy(policy)
+    print("Mixed precision enabled")
+```
+
+- Change the out data (input of model) into tf.float16: 
+  
+When we load dataset, before do suffling and do batching we convert out data into float16. To do that, 
+```python
+def process_data(image, mask):
+    # using tf.numpy_function to apply the aug_img to image and mask
+    aug_img, aug_mask = tf.numpy_function(aug_fn, [image, mask], [dtype, dtype])
+    return aug_img, aug_mask
+```
+
+- Fix the last layer of the model. Here we remark that the dtype of the last layer should be `float32`. To do that, in the model part, we add some trick lines: 
+  
+```python
+model = sm.Unet(
+    "efficientnetb4",
+    input_shape=(384, 384, 3),
+    encoder_weights="imagenet",
+    classes=1,
+)
+# TO USE mixed_precision, HERE WE USE SMALL TRICK, REMOVE THE LAST LAYER AND ADD
+# THE ACTIVATION SIGMOID WITH THE DTYPE  TF.FLOAT32
+last_layer = tf.keras.layers.Activation(activation="sigmoid", dtype=tf.float32)(
+    model.layers[-2].output
+)
+```
+
+## 5.1 Using Wanbd for logging.
+
+This part we will cover how to use wandb for logging. *WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live, and share your findings.*
+
+To do that we use callback of model training as the WandbLogging
+
+```
+import wandb
+from wandb.keras import WandbCallback
+logdir = f"{work_dir}/tensorflow/logs/wandb"
+mkdir(logdir)
+wandb.init(project="Segmentation by Tensorflow", dir=logdir)
+
+wandb.config = {
+    "learning_rate": earning_rate,
+    "epochs": epochs,
+    "batch_size": batch_size,
+}
+callbacks.append(WandbCallback())
+
+```
