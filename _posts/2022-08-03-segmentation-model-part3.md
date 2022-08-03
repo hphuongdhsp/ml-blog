@@ -6,13 +6,12 @@ description: The third part of the Segmentation Tutorial Series, a step-by-step 
 title: Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning
 ---
 
-Continue Segmentation Model the series,this post we discoved how to train a segmentation model in Pytorch Lightning. PyTorch Lightning is the deep learning framework for professional AI researchers and machine learning engineers who need maximal flexibility without sacrificing performance at scale. It is built on top of PyTorch. 
+Continue Segmentation Model the series; in this post, we discuss how to train a segmentation model in Pytorch Lightning. PyTorch Lightning is the deep learning framework for professional AI researchers and machine learning engineers who need maximal flexibility without sacrificing performance at scale. It is built on top of PyTorch. 
 
-We still work with the Segmentation Problme (Nail Segmentation) and discover some useful tools for Pytorch Lightning. From this part, we will focus on Pytorch Platform. Then for the convenience, we recall some tasks of the previous post: Problem Description and Dataset, Data Preparation. 
-
+We still work with the Segmentation Problem (Nail Segmentation) and discover some valuable tools for Pytorch Lightning. From this part, we will focus on the Pytorch Platform. Then for convenience, we recall some tasks of the previous post: Problem Description and Dataset, Data Preparation. 
 ## 1. Problem Description and Dataset
 
-We want cover a nail semantic segmentation problem. For each image we want to detect the segmentation of the mail in the image.
+We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the nail in the image.
 
 
 |                                                     Images                                                     |                                                     Masks                                                      |
@@ -44,7 +43,7 @@ Our data is organizated as
 ```
 
 
-We have 2 folders: `Images` and `Masks`,  each folder has four sub-folders `1`, `2`, `3`, `4` corresponds to four types of distribution of nail. `Images` is the data folder and `Masks` is the label folder, that is the segmentations of input images.
+We have two folders: `Images` and `Masks`. `Images` is the data folder, and `Masks` is the label folder, which is the segmentations of input images. Each folder has four sub-folder:  `1`, `2`, `3`, and `4`, corresponding to four types of nail distribution.
 
 We download data from [link](https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing) and put it in `data_root`, for example
 
@@ -54,7 +53,7 @@ data_root = "./nail-segmentation-dataset"
 
 ## 2. Data Preparation
 
-We want to have the CSV file that stores the image and mask paths. In this project, file names of image and mask are same, then we only need to save `images` path and modify `data_root` of images and masks when we define a dataset. 
+We want the CSV file that stores the image and mask paths. In this project, file names of images and masks are the same, and then we only need to save the `images` path and modify the `data_root` of images and masks when we define a dataset. 
 
 | index | images                |
 | ----- | --------------------- |
@@ -90,7 +89,7 @@ def make_csv_file(data_root: Union[str, Path]) -> None:
     valid_frame.to_csv(f"{data_root}/csv_file/valid.csv", index=False)
 ```
 
-Where `get_all_items`, `mkdir` are two supported functions (defined at `utils.py` file) which help us to find all items in a given folder and make new folder. 
+Where `get_all_items`, `mkdir` are two supported functions (defined in `utils.py` file) which help us to find all items in a given folder and make a new folder.
 
 Before going define the dataloader and model, let's recall some main features of `Pytorch Lightning`. For more information, you can find in [Pytorch Lightning](https://pytorch-lightning.readthedocs.io/en/stable/).
 
@@ -248,13 +247,13 @@ In this part we define:
 - Wrap model module by using LightningModule, for that we will define some main functions: 
   - def training_step : calculate {loss, metric}, logging in each train step 
   - def validation_step: calculate {loss, metric}, logging in each valid step 
-  - def validation_epoch_end: calculate {loss, metric}, logging in each epoch by using info of validation_step
-  - def configure_optimizers: which optimization and learning rate scheduler we use for training. 
-  - 
+  - def validation_epoch_end: calculate {loss, metric}, logging in each epoch by using infos of validation_step
+  - def configure_optimizers: which optimization and learning rate scheduler we use for the training. 
+  
 
 ##  4.1 Define model by using `segmentation_models_pytorch`
 
-For the convenience, we use [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch) to define our model. `Segmentation_models_pytorch` is a high level API, it helps us build a sementic segmentation model with only some lines of code. 
+For convenience, we use [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch) to define our model. `Segmentation_models_pytorch` is a high level API, it helps us build a sementic segmentation model with only some lines of code. 
 
 ```
 import segmentation_models_pytorch as smp
@@ -268,7 +267,7 @@ model = smp.Unet(
 ```
 
 
-We next use LightningModule to wrap the model into model module of Pytorch Lightnining. 
+We next use `LightningModule` to wrap the model into the model module of Pytorch Lightnining. 
 
 ```
 class LitNailSegmentation(LightningModule):
@@ -343,7 +342,7 @@ class LitNailSegmentation(LightningModule):
 
 Here we use: 
  - [AdamW](https://pytorch.org/docs/stable/generated/torch.optim.AdamW.html) as the optimizers
- - symmetric_lovasz as the loss function, which is defined in the `loss.py` file. `symmetric_lovasz` is define by 
+ - symmetric_lovasz as the loss function, which is defined in the [Loss.py](https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%203-Pytorch%20Lightning/loss.py) file. *symmetric_lovasz* is define by 
 
 ```
 def symmetric_lovasz(outputs, targets):
@@ -352,7 +351,7 @@ def symmetric_lovasz(outputs, targets):
 
 where lovasz_hinge is [Lovasz loss](https://arxiv.org/pdf/1705.08790.pdf) for the binary segmentation.
 
-- Metric: Dice, IOU
+- Metrics: Dice, IOU
 
 ## 5. Trainer 
 
@@ -380,15 +379,15 @@ trainer.fit(
 ```
 Here `args_trainer` is the argument of trainer. More precisely, it has
 ```
-{   gpus: [0]
-    max_epochs: 300
-    benchmark: True
-    precision: 16
-    progress_bar_refresh_rate: 1
-    gradient_clip_val: 5.0
-    auto_lr_find: True
-    weights_summary: "top"
-    limit_train_batches: 1.0
+{   gpus: [0]                       # gpu device to train 
+    max_epochs: 300                 # number of epochs
+    precision: 16                   # using mix precision to train  
+    auto_lr_find: True              # auto find the good initial learning rate
+    limit_train_batches: 1.0        # percent of train dataset use to train, here 100%
+    ... 
     }
 ```
+
+Lightning implements various techniques to help during training that can help make the training smoother.
+
 **For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%202-Tensorflow%20Balanced%20Data)**
