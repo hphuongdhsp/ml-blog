@@ -4,21 +4,21 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Segmentation Model-Part I - Training deep learning models using Tensorflow platform | Hoang Phuong’ Blog</title>
+<title>Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow | Hoang Phuong’ Blog</title>
 <meta name="generator" content="Jekyll v4.1.1" />
-<meta property="og:title" content="Segmentation Model-Part I - Training deep learning models using Tensorflow platform" />
+<meta property="og:title" content="Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="The first part of the Segmentation Tutorial Series, Training deep learning models using Tensorflow platform" />
-<meta property="og:description" content="The first part of the Segmentation Tutorial Series, Training deep learning models using Tensorflow platform" />
+<meta name="description" content="The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow" />
+<meta property="og:description" content="The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow" />
 <link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html" />
 <meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html" />
 <meta property="og:site_name" content="Hoang Phuong’ Blog" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2022-08-02T00:00:00-05:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Segmentation Model-Part I - Training deep learning models using Tensorflow platform" />
+<meta property="twitter:title" content="Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-08-02T00:00:00-05:00","datePublished":"2022-08-02T00:00:00-05:00","description":"The first part of the Segmentation Tutorial Series, Training deep learning models using Tensorflow platform","headline":"Segmentation Model-Part I - Training deep learning models using Tensorflow platform","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-08-02T00:00:00-05:00","datePublished":"2022-08-02T00:00:00-05:00","description":"The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow","headline":"Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/ml-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hphuongdhsp.github.io/ml-blog/feed.xml" title="Hoang Phuong' Blog" /><link rel="shortcut icon" type="image/x-icon" href="/ml-blog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
@@ -73,13 +73,13 @@ window.onload = wrap_img;
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part I - Training deep learning models using Tensorflow platform</h1><p class="page-description">The first part of the Segmentation Tutorial Series, Training deep learning models using Tensorflow platform</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-02T00:00:00-05:00" itemprop="datePublished">
+    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow</h1><p class="page-description">The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-02T00:00:00-05:00" itemprop="datePublished">
         Aug 2, 2022
       </time>
        • <span class="read-time" title="Estimated read time">
     
     
-      9 min read
+      10 min read
     
 </span></p>
 
@@ -117,7 +117,7 @@ window.onload = wrap_img;
 <h2 id="1-problem-description-and-dataset">
 <a class="anchor" href="#1-problem-description-and-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Problem Description and Dataset</h2>
 
-<p>We will cover a nail semantic segmentation. For each image we want to detect the segmentation of the mail in the image.</p>
+<p>We want cover a nail semantic segmentation problem. For each image we want to detect the segmentation of the mail in the image.</p>
 
 <table>
   <thead>
@@ -134,7 +134,7 @@ window.onload = wrap_img;
   </tbody>
 </table>
 
-<p>Our original data is organizated as</p>
+<p>Our data is organizated as</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
 │   ├── 1
@@ -155,7 +155,7 @@ window.onload = wrap_img;
 
 </code></pre></div></div>
 
-<p>We have 2 folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> corresponds to four types of distribution of nail. Images is the input folder and Masks is the label folder, that is the segmentations that we want to detect.</p>
+<p>We have 2 folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> corresponds to four types of distribution of nail. Images is the data folder and Masks is the label folder, that is the segmentations of input images.</p>
 
 <p>We download data from <a href="https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing">link</a> and put it in <code class="language-plaintext highlighter-rouge">data_root</code>, for example</p>
 
@@ -165,9 +165,9 @@ window.onload = wrap_img;
 <h2 id="2-data-preparation">
 <a class="anchor" href="#2-data-preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Data Preparation</h2>
 
-<p>For convenience of loading data, we will store information of data in the dataframe (or csv file).</p>
+<p>For the convenience of loading data, we will store data information in the data frame (or CSV file).</p>
 
-<p>We want to have the a csv file that store the images and masks path</p>
+<p>We want to have the CSV file that stores the image and mask paths</p>
 
 <table>
   <thead>
@@ -227,9 +227,9 @@ def make_csv_file(data_root) -&gt; None:
     valid_frame.to_csv(f"{data_root}/csv_file/valid.csv", index=False)
 </code></pre></div></div>
 
-<p>Here get_all_items, mkdir are two supported functions, that help us to find all items in a given folder and make new folder.</p>
+<p>Here get_all_items, mkdir are two supported functions (defined in <code class="language-plaintext highlighter-rouge">utils.py</code> file) which help us to find all items in a given folder and make new folder.</p>
 
-<p>Once we have csv, we can pass to define the dataset.</p>
+<p>Once we have data frame, we can pass to define the dataset.</p>
 
 <h2 id="3-define-dataloader">
 <a class="anchor" href="#3-define-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Define DataLoader</h2>
@@ -238,9 +238,9 @@ def make_csv_file(data_root) -&gt; None:
 
 <ul>
   <li>Get lists of images and masks</li>
-  <li>Define Dataloader with input is lists of images and masks and outout is list of batch image which is feed into the model. More precisely, in this step we will:
+  <li>Define Dataloader with input be a list of images and masks and output be list of image batchs which is fed into the model. More precisely:
     <ul>
-      <li>Decode images and masks</li>
+      <li>Decode images and masks (read images and masks)</li>
       <li>Transform data</li>
       <li>Batch the augumented data.</li>
     </ul>
@@ -328,7 +328,8 @@ def make_csv_file(data_root) -&gt; None:
         return aug_img, aug_mask
 </code></pre></div></div>
 
-<p>Here we use <code class="language-plaintext highlighter-rouge">albumentation</code> library to define the transform, for example</p>
+<p>Here we use <a href="https://albumentations.ai/">Albumentations</a> library to define the transform.  <strong>Albumentations</strong> is a Python library for fast and flexible image augmentations. Albumentations efficiently implements a rich variety of image transform operations that are optimized for performance, and does so while providing a concise, yet powerful image augmentation interface for different computer vision tasks, including object classification, segmentation, and detection.
+For example, we define our validation tranform as</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import albumentations as A
 
@@ -341,17 +342,22 @@ def valid_transform():
     )
 </code></pre></div></div>
 
+<p>You can find the detail of transforms in <code class="language-plaintext highlighter-rouge">transform.py</code> file, in the source code which is given in the end of the post.</p>
+
 <p>We remark that, after doing augumentation, we cast the output of transfrom into <code class="language-plaintext highlighter-rouge">tensorflow type</code></p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>aug_img = tf.cast(aug_img / 255.0, dtype)
 aug_mask = tf.cast(aug_mask / 255.0, dtype)
 </code></pre></div></div>
 
-<p>Once we finish the augumentation task, we can do batch of the data by</p>
+<p>Once we finish the augumentation task, we can do batching of the data by</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dataset = dataset.batch(batch_size)
 </code></pre></div></div>
 
-<p>Compose 4 previous steps, we have the dataloader function:</p>
+<p>Here, dataset now is a object of <code class="language-plaintext highlighter-rouge">tf.data</code>.</p>
+
+<p>Compose four previous steps, we have the dataloader function:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def tf_dataset(
     dataset: Tuple[List[str], List[str]],
@@ -374,7 +380,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
     """
 
     # do augumentation by albumentations, remark that in the the end, we use tf.cast to normalize
-    # image and mask and also make sure that the out put of this function be in form of tensorflow (tf)
+    # image and mask and also make sure that the output of this function be in form of tensorflow (tf)
     def aug_fn(image, mask):
         # do augumentation by albumentations library
         data = {"image": image, "mask": mask}
@@ -413,7 +419,9 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <h1 id="4-define-the-segmentation-model">
 <a class="anchor" href="#4-define-the-segmentation-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Define the Segmentation model</h1>
 
-<p>This part we will define the segmentation model by using <code class="language-plaintext highlighter-rouge">segmentation_models</code> library, we also define the loss function, optimization and metric</p>
+<p>This part we will define the segmentation model by using <code class="language-plaintext highlighter-rouge">segmentation_models</code> library, we also define the loss function, optimization and metric.</p>
+
+<p><strong>Segmentation models</strong> is python library with Neural Networks for Image Segmentation based on Keras (Tensorflow) framework. This is the high level API, you need only some lines of code to create a Segmentation Neural Network.</p>
 
 <h2 id="41-model">
 <a class="anchor" href="#41-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.1 Model</h2>
