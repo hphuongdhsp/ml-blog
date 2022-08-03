@@ -1,9 +1,9 @@
 ---
 toc: true
 layout: post
-description: The first part of the Segmentation Tutorial Series, Training deep learning models using Tensorflow platform
+description: The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow
 # categories: [tensorflow, semantic segmentation, deep learning]
-title: Segmentation Model-Part I - Training deep learning models using Tensorflow platform
+title: Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow
 ---
 
 In this part we will cover how to train a segmentation model by using the tensorflow platform
@@ -11,7 +11,7 @@ In this part we will cover how to train a segmentation model by using the tensor
 
 ## 1. Problem Description and Dataset
 
-We will cover a nail semantic segmentation. For each image we want to detect the segmentation of the mail in the image.
+We want cover a nail semantic segmentation problem. For each image we want to detect the segmentation of the mail in the image.
 
 
 |                                                     Images                                                     |                                                     Masks                                                      |
@@ -20,7 +20,7 @@ We will cover a nail semantic segmentation. For each image we want to detect the
 
 
 
-Our original data is organizated as
+Our data is organizated as
 
 ```
 ├── Images
@@ -43,7 +43,7 @@ Our original data is organizated as
 ```
 
 
-We have 2 folders: `Images` and `Masks`,  each folder has four sub-folders `1`, `2`, `3`, `4` corresponds to four types of distribution of nail. Images is the input folder and Masks is the label folder, that is the segmentations that we want to detect. 
+We have 2 folders: `Images` and `Masks`,  each folder has four sub-folders `1`, `2`, `3`, `4` corresponds to four types of distribution of nail. Images is the data folder and Masks is the label folder, that is the segmentations of input images.
 
 We download data from [link](https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing) and put it in `data_root`, for example
 
@@ -53,9 +53,9 @@ data_root = "./nail-segmentation-dataset"
 
 ## 2. Data Preparation
 
-For convenience of loading data, we will store information of data in the dataframe (or csv file). 
+For the convenience of loading data, we will store data information in the data frame (or CSV file). 
 
-We want to have the a csv file that store the images and masks path 
+We want to have the CSV file that stores the image and mask paths
 
 | index | images                |
 | ----- | --------------------- |
@@ -96,17 +96,17 @@ def make_csv_file(data_root) -> None:
     valid_frame.to_csv(f"{data_root}/csv_file/valid.csv", index=False)
 ```
 
-Here get_all_items, mkdir are two supported functions, that help us to find all items in a given folder and make new folder. 
+Here get_all_items, mkdir are two supported functions (defined in `utils.py` file) which help us to find all items in a given folder and make new folder. 
 
-Once we have csv, we can pass to define the dataset. 
+Once we have data frame, we can pass to define the dataset. 
 
 ## 3. Define DataLoader
 
 In this part we will do the following: 
 
 - Get lists of images and masks
-- Define Dataloader with input is lists of images and masks and outout is list of batch image which is feed into the model. More precisely, in this step we will: 
-  - Decode images and masks
+- Define Dataloader with input be a list of images and masks and output be list of image batchs which is fed into the model. More precisely: 
+  - Decode images and masks (read images and masks)
   - Transform data
   - Batch the augumented data. 
 
@@ -189,7 +189,8 @@ def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -
         return aug_img, aug_mask
 ```
 
-Here we use `albumentation` library to define the transform, for example
+Here we use [Albumentations](https://albumentations.ai/) library to define the transform.  **Albumentations** is a Python library for fast and flexible image augmentations. Albumentations efficiently implements a rich variety of image transform operations that are optimized for performance, and does so while providing a concise, yet powerful image augmentation interface for different computer vision tasks, including object classification, segmentation, and detection.
+For example, we define our validation tranform as
 
 ```
 import albumentations as A
@@ -203,6 +204,8 @@ def valid_transform():
     )
 ```
 
+You can find the detail of transforms in `transform.py` file, in the source code which is given in the end of the post. 
+
 We remark that, after doing augumentation, we cast the output of transfrom into `tensorflow type`
 
 ```
@@ -210,12 +213,16 @@ aug_img = tf.cast(aug_img / 255.0, dtype)
 aug_mask = tf.cast(aug_mask / 255.0, dtype)
 ```
 
-Once we finish the augumentation task, we can do batch of the data by 
+Once we finish the augumentation task, we can do batching of the data by 
+
 ```
 dataset = dataset.batch(batch_size)
 ```
 
-Compose 4 previous steps, we have the dataloader function: 
+Here, dataset now is a object of `tf.data`.
+
+
+Compose four previous steps, we have the dataloader function: 
 
 ```
 def tf_dataset(
@@ -239,7 +246,7 @@ def tf_dataset(
     """
 
     # do augumentation by albumentations, remark that in the the end, we use tf.cast to normalize
-    # image and mask and also make sure that the out put of this function be in form of tensorflow (tf)
+    # image and mask and also make sure that the output of this function be in form of tensorflow (tf)
     def aug_fn(image, mask):
         # do augumentation by albumentations library
         data = {"image": image, "mask": mask}
@@ -277,7 +284,9 @@ def tf_dataset(
 
 # 4. Define the Segmentation model
 
-This part we will define the segmentation model by using `segmentation_models` library, we also define the loss function, optimization and metric
+This part we will define the segmentation model by using `segmentation_models` library, we also define the loss function, optimization and metric.
+
+**Segmentation models** is python library with Neural Networks for Image Segmentation based on Keras (Tensorflow) framework. This is the high level API, you need only some lines of code to create a Segmentation Neural Network.
 
 ## 4.1 Model 
 ```
