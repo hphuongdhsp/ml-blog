@@ -146,11 +146,10 @@ trainer.fit(modelmodule, datamodule)
 
 ##  4. DataLoader
 
-To define the LightningModule of our dataset, we first define the `from torch.utils.data.Dataset` for the nail data. 
+To define the LightningModule of our dataset, we first define the `torch.utils.data.Dataset` for the nail data. 
 
-
+### 4.1 Define `torch.utils.data.Dataset` for the Nail Data
 ```
-
 class NailDataset(Dataset):
     def __init__(self, data_root: str, csv_folder: str, train: str, tfms: A.Compose):
         self.data_root = data_root
@@ -181,7 +180,8 @@ class NailDataset(Dataset):
         }
 ```
 
-We then use LightningModule to wrap our NailDataset into data module of Pytorch Lightning. 
+### 4.2 Define `LightningDataModule` for the Nail Data
+We then use LightningDataModule to wrap our NailDataset into data module of Pytorch Lightning. 
 
 ```
 class NailSegmentation(LightningDataModule):
@@ -240,7 +240,7 @@ Here we need to define 3 main functions:
 
 Those corespond to DataLoader of train and valid dataset in Pytorch. 
 
-##  4. Model Module
+##  5. Model Module
 
 In this part we define:
 - A segmentation model 
@@ -251,7 +251,7 @@ In this part we define:
   - def configure_optimizers: which optimization and learning rate scheduler we use for the training. 
   
 
-##  4.1 Define model by using `segmentation_models_pytorch`
+###  5.1 Define model by using `segmentation_models_pytorch`
 
 For convenience, we use [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch) to define our model. `Segmentation_models_pytorch` is a high level API, it helps us build a sementic segmentation model with only some lines of code. 
 
@@ -266,7 +266,7 @@ model = smp.Unet(
 )
 ```
 
-
+###  5.2 Define LightningModule
 We next use `LightningModule` to wrap the model into the model module of Pytorch Lightnining. 
 
 ```
@@ -353,7 +353,7 @@ where lovasz_hinge is [Lovasz loss](https://arxiv.org/pdf/1705.08790.pdf) for th
 
 - Metrics: Dice, IOU
 
-## 5. Trainer 
+## 6. Trainer 
 
 Once we have data module, model module, we can train model with `Trainer` API, 
 
