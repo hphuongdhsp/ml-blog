@@ -96,7 +96,7 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h3"><a href="#naive-pipeline">Naive pipeline</a></li>
 <li class="toc-entry toc-h3"><a href="#31-get-images-and-masks-from-a-dataframe">3.1 Get images and masks from a dataframe.</a></li>
 <li class="toc-entry toc-h3"><a href="#32-decode-images-and-masks">3.2 Decode images and masks</a></li>
-<li class="toc-entry toc-h3"><a href="#33-doing-augumentaion">3.3 Doing augumentaion</a></li>
+<li class="toc-entry toc-h3"><a href="#33-doing-augmentation">3.3 Doing augmentation</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h1"><a href="#4-define-the-segmentation-model">4. Define the Segmentation model</a>
@@ -112,12 +112,12 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h2"><a href="#54-fit-training">5.4 Fit training</a></li>
 </ul>
 </li>
-</ul><p>In this part we will cover how to train a segmentation model by using the tensorflow platform</p>
+</ul><p>In this post, we will cover how to train a segmentation model by using the TensorFlow platform</p>
 
 <h2 id="1-problem-description-and-dataset">
 <a class="anchor" href="#1-problem-description-and-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Problem Description and Dataset</h2>
 
-<p>We want cover a nail semantic segmentation problem. For each image we want to detect the segmentation of the mail in the image.</p>
+<p>We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the nail in the image.</p>
 
 <table>
   <thead>
@@ -134,7 +134,7 @@ window.onload = wrap_img;
   </tbody>
 </table>
 
-<p>Our data is organizated as</p>
+<p>Our data is organized as</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
 │   ├── 1
@@ -155,7 +155,7 @@ window.onload = wrap_img;
 
 </code></pre></div></div>
 
-<p>We have 2 folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> corresponds to four types of distribution of nail. Images is the data folder and Masks is the label folder, that is the segmentations of input images.</p>
+<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> corresponds to four types of distribution of nails. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images.</p>
 
 <p>We download data from <a href="https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing">link</a> and put it in <code class="language-plaintext highlighter-rouge">data_root</code>, for example</p>
 
@@ -227,9 +227,9 @@ def make_csv_file(data_root) -&gt; None:
     valid_frame.to_csv(f"{data_root}/csv_file/valid.csv", index=False)
 </code></pre></div></div>
 
-<p>Here get_all_items, mkdir are two supported functions (defined in <code class="language-plaintext highlighter-rouge">utils.py</code> file) which help us to find all items in a given folder and make new folder.</p>
+<p>Here <code class="language-plaintext highlighter-rouge">get_all_items</code>, <code class="language-plaintext highlighter-rouge">mkdir</code> are two supported functions (defined in <code class="language-plaintext highlighter-rouge">utils.py</code> file) that help us to find all items in a given folder and make a new folder.</p>
 
-<p>Once we have data frame, we can pass to define the dataset.</p>
+<p>Once we have the data frame, we can go to define the dataset.</p>
 
 <h2 id="3-define-dataloader">
 <a class="anchor" href="#3-define-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Define DataLoader</h2>
@@ -238,18 +238,18 @@ def make_csv_file(data_root) -&gt; None:
 
 <ul>
   <li>Get lists of images and masks</li>
-  <li>Define Dataloader with input be a list of images and masks and output be list of image batchs which is fed into the model. More precisely:
+  <li>Define Dataloader with input being a list of images and masks and output be list of image batchs which being fed into the model. More precisely:
     <ul>
       <li>Decode images and masks (read images and masks)</li>
       <li>Transform data</li>
-      <li>Batch the augumented data.</li>
+      <li>Batch the augmented data.</li>
     </ul>
   </li>
 </ul>
 
-<p>Before going to the next part, let’s talk about avantages of using tf.data for dataloader pipeline.</p>
+<p>Before going to the next part, let’s talk about the advantages of using tf.data for the data loader pipeline.</p>
 
-<p>The main feature of next part is the dataloader. We use the tensorflow.data to load the dataset instead of using <code class="language-plaintext highlighter-rouge">Sequence</code> of keras (keras.Sequence). In fact we can also combine <code class="language-plaintext highlighter-rouge">tf.data</code> and <code class="language-plaintext highlighter-rouge">keras.Sequence</code>. In this tutorial, we focus on how to load data by <code class="language-plaintext highlighter-rouge">tf.data</code>.</p>
+<p>The main feature of the next part is the data loader. We use the <code class="language-plaintext highlighter-rouge">tensorflow.data</code> (tf.data) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine <code class="language-plaintext highlighter-rouge">tf.data</code> and <code class="language-plaintext highlighter-rouge">keras.Sequence</code>. In this tutorial, we focus on how to load data by tf.data.</p>
 
 <p>Here is the pipeline loader of tf.data:</p>
 <ul>
@@ -265,7 +265,7 @@ def make_csv_file(data_root) -&gt; None:
   <li>Loading data by using multi-processing</li>
   <li>Don’t have the memory leak phenomenal</li>
   <li>Flexible to load dataset, can load weight sample data (using <code class="language-plaintext highlighter-rouge">tf.compat.v1.data.experimental.sample_from_datasets</code> )</li>
-  <li>Downtime and waiting around is minimized while processing is maximized through parallel execution, see the following images:</li>
+  <li>Downtime and waiting around are minimized while processing is maximized through parallel execution; see the following images:</li>
 </ul>
 
 <h3 id="naive-pipeline">
@@ -313,8 +313,8 @@ def make_csv_file(data_root) -&gt; None:
     return img, mask
 </code></pre></div></div>
 
-<h3 id="33-doing-augumentaion">
-<a class="anchor" href="#33-doing-augumentaion" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3 Doing augumentaion</h3>
+<h3 id="33-doing-augmentation">
+<a class="anchor" href="#33-doing-augmentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3 Doing augmentation</h3>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    def aug_fn(image, mask):
         # do augumentation by albumentations library
@@ -328,8 +328,7 @@ def make_csv_file(data_root) -&gt; None:
         return aug_img, aug_mask
 </code></pre></div></div>
 
-<p>Here we use <a href="https://albumentations.ai/">Albumentations</a> library to define the transform.  <strong>Albumentations</strong> is a Python library for fast and flexible image augmentations. Albumentations efficiently implements a rich variety of image transform operations that are optimized for performance, and does so while providing a concise, yet powerful image augmentation interface for different computer vision tasks, including object classification, segmentation, and detection.
-For example, we define our validation tranform as</p>
+<p>Here we use <a href="https://albumentations.ai/">Albumentations</a> library to define the transform. <strong>Albumentations</strong> is a Python library for fast and flexible image augmentations. Albumentations efficiently implements a rich variety of image transform operations that are optimized for performance and does so while providing a concise yet powerful image augmentation interface for different computer vision tasks, including object classification, segmentation, and detection. For example, we define our validation transform as</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import albumentations as A
 
@@ -342,22 +341,21 @@ def valid_transform():
     )
 </code></pre></div></div>
 
-<p>You can find the detail of transforms in <code class="language-plaintext highlighter-rouge">transform.py</code> file, in the source code which is given in the end of the post.</p>
-
-<p>We remark that, after doing augumentation, we cast the output of transfrom into <code class="language-plaintext highlighter-rouge">tensorflow type</code></p>
+<p>You can find the detail of transforms in <code class="language-plaintext highlighter-rouge">transform.py</code> file, in the source code which is given at the end of the post.
+We remark that, after doing augmentation, we cast the output of transform into tensorflow type <code class="language-plaintext highlighter-rouge">tensorflow type</code></p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>aug_img = tf.cast(aug_img / 255.0, dtype)
 aug_mask = tf.cast(aug_mask / 255.0, dtype)
 </code></pre></div></div>
 
-<p>Once we finish the augumentation task, we can do batching of the data by</p>
+<p>Once we finish the augmentation task, we can do batching of the data by</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dataset = dataset.batch(batch_size)
 </code></pre></div></div>
 
-<p>Here, dataset now is a object of <code class="language-plaintext highlighter-rouge">tf.data</code>.</p>
+<p>Here, the dataset is now a object of <code class="language-plaintext highlighter-rouge">tf.data</code>.</p>
 
-<p>Compose four previous steps, we have the dataloader function:</p>
+<p>Compose four previous steps, we have the data loader function:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def tf_dataset(
     dataset: Tuple[List[str], List[str]],
@@ -419,9 +417,9 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <h1 id="4-define-the-segmentation-model">
 <a class="anchor" href="#4-define-the-segmentation-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Define the Segmentation model</h1>
 
-<p>This part we will define the segmentation model by using <code class="language-plaintext highlighter-rouge">segmentation_models</code> library, we also define the loss function, optimization and metric.</p>
+<p>In this part we will define the segmentation model by using <code class="language-plaintext highlighter-rouge">segmentation_models</code> library, we also define the loss function, optimization, and metric.</p>
 
-<p><strong>Segmentation models</strong> is python library with Neural Networks for Image Segmentation based on Keras (Tensorflow) framework. This is the high level API, you need only some lines of code to create a Segmentation Neural Network.</p>
+<p><strong>Segmentation models</strong> is a python library with Neural Networks for Image Segmentation based on Keras (Tensorflow) framework. This is the high-level API, you need only some lines of code to create a Segmentation Neural Network.</p>
 
 <h2 id="41-model">
 <a class="anchor" href="#41-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.1 Model</h2>
@@ -473,7 +471,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <h1 id="5-model-training">
 <a class="anchor" href="#5-model-training" aria-hidden="true"><span class="octicon octicon-link"></span></a>5 Model Training</h1>
 
-<p>Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some technique which helps us boost the effiency of training:</p>
+<p>Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some tools that helps us boost the efficiency of training:</p>
 
 <ul>
   <li>mixed_precision</li>
@@ -483,7 +481,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <h2 id="51-mixed_precision">
 <a class="anchor" href="#51-mixed_precision" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.1 Mixed_precision</h2>
 
-<p>How does mixed precison work?</p>
+<p>How does mixed precision work?</p>
 
 <p>Mixed precision training is the use of lower-precision operations (float16 and bfloat16) in a model during training to make it run faster and use less memory. Using mixed precision can improve performance by more than 3 times on modern GPUs and 60% on TPUs.</p>
 
@@ -492,10 +490,10 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <p><img align="center" width="600" src="https://habrastorage.org/webt/3y/pg/ew/3ypgewgss1uoezkydzapcg0pjgy.png"></p>
 
 <ul>
-  <li>We first feed the data as the <code class="language-plaintext highlighter-rouge">float16</code> or <code class="language-plaintext highlighter-rouge">bloat16</code> type, then the input of the model have the low type (float16 and bfloat16).</li>
-  <li>All of calculations in the model are computated with  the lower-precision operations</li>
-  <li>Convert the output of model into <code class="language-plaintext highlighter-rouge">float32</code> to do optimization task.</li>
-  <li>Update weights and convert them into lower-precision, continue next round of training.</li>
+  <li>We first feed the data as the float16 or bloat16 type, then the input of the model has the low type (float16 and bfloat16).</li>
+  <li>All of the calculations in the model are computed with the lower-precision operations</li>
+  <li>Convert the output of the model into float32 to do optimization tasks.</li>
+  <li>Update weights, convert them into lower-precision, and continue the next round of training.</li>
 </ul>
 
 <p>To train model in tensorflow with the mixed precision, we just modify:</p>
@@ -541,9 +539,8 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <h2 id="52-using-wanbd-for-logging">
 <a class="anchor" href="#52-using-wanbd-for-logging" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.2 Using Wanbd for logging.</h2>
 
-<p>This part we will cover how to use wandb for logging. <em>WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live, and share your findings.</em></p>
-
-<p>To do that we use callback of model training as the WandbLogging</p>
+<p>In this part, we will cover how to use wandb for logging. WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings.
+To do that we use callback of model training as the WandbLogging</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import wandb
 from wandb.keras import WandbCallback
@@ -560,7 +557,7 @@ callbacks.append(WandbCallback())
 
 </code></pre></div></div>
 
-<p>We finish the training task by call the dataloader and fit the model. Then</p>
+<p>We finish the training task by calling the dataloader and fitting the model. Then</p>
 
 <h2 id="53-dataloader">
 <a class="anchor" href="#53-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.3 Dataloader</h2>

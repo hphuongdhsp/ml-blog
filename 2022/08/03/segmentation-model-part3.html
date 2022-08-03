@@ -106,7 +106,7 @@ window.onload = wrap_img;
 </li>
 <li class="toc-entry toc-h2"><a href="#5-model-module">5. Model Module</a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#51-define-model-by-using-segmentation_models_pytorch">5.1 Define model by using segmentation_models_pytorch</a></li>
+<li class="toc-entry toc-h3"><a href="#51-define-the-model-by-using-segmentation_models_pytorch">5.1 Define the model by using segmentation_models_pytorch</a></li>
 <li class="toc-entry toc-h3"><a href="#52-define-lightningmodule">5.2 Define LightningModule</a></li>
 </ul>
 </li>
@@ -134,7 +134,7 @@ window.onload = wrap_img;
   </tbody>
 </table>
 
-<p>Our data is organizated as</p>
+<p>Our data is organized as</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
 │   ├── 1
@@ -220,9 +220,9 @@ window.onload = wrap_img;
     valid_frame.to_csv(f"{data_root}/csv_file/valid.csv", index=False)
 </code></pre></div></div>
 
-<p>Where <code class="language-plaintext highlighter-rouge">get_all_items</code>, <code class="language-plaintext highlighter-rouge">mkdir</code> are two supported functions (defined in <code class="language-plaintext highlighter-rouge">utils.py</code> file) which help us to find all items in a given folder and make a new folder.</p>
+<p>Where <code class="language-plaintext highlighter-rouge">get_all_items</code>, <code class="language-plaintext highlighter-rouge">mkdir</code> are two supported functions (defined in <code class="language-plaintext highlighter-rouge">utils.py</code> file) that help us to find all items in a given folder and make a new folder.</p>
 
-<p>Before going define the dataloader and model, let’s recall some main features of <code class="language-plaintext highlighter-rouge">Pytorch Lightning</code>. For more information, you can find in <a href="https://pytorch-lightning.readthedocs.io/en/stable/">Pytorch Lightning</a>.</p>
+<p>Before going define the dataloader and model, let’s recall some main features of <code class="language-plaintext highlighter-rouge">Pytorch Lightning</code>. For more information, you can find it at <a href="https://pytorch-lightning.readthedocs.io/en/stable/">Pytorch Lightning</a>.</p>
 
 <h2 id="3-pytorch-lightnining">
 <a class="anchor" href="#3-pytorch-lightnining" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Pytorch Lightnining</h2>
@@ -254,21 +254,19 @@ window.onload = wrap_img;
 <h3 id="32-lightningmodule">
 <a class="anchor" href="#32-lightningmodule" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2 LightningModule</h3>
 
-<p>A lightning module is composed of six components which fully define the system:</p>
+<p>A lightning module is composed of some components that fully define the system:</p>
 
 <ul>
   <li>The model or system of models</li>
   <li>The optimizer(s)</li>
   <li>The train loop</li>
   <li>The validation loop</li>
-  <li>The test loop</li>
-  <li>The prediction loop</li>
 </ul>
 
 <h3 id="33-trainer">
 <a class="anchor" href="#33-trainer" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3 Trainer</h3>
 
-<p>Once we declare LightningDataModule, LightningModule, we can train model with <code class="language-plaintext highlighter-rouge">Trainer</code> API.</p>
+<p>Once we declare LightningDataModule, LightningModule, we can train the model with <code class="language-plaintext highlighter-rouge">Trainer</code> API.</p>
 
 <p><img align="center" width="600" src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png"></p>
 
@@ -319,7 +317,7 @@ trainer.fit(modelmodule, datamodule)
 
 <h3 id="42-define-lightningdatamodule-for-the-nail-data">
 <a class="anchor" href="#42-define-lightningdatamodule-for-the-nail-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.2 Define <code class="language-plaintext highlighter-rouge">LightningDataModule</code> for the Nail Data</h3>
-<p>We then use LightningDataModule to wrap our NailDataset into data module of Pytorch Lightning.</p>
+<p>We then use LightningDataModule to wrap our NailDataset into the data module of Pytorch Lightning.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class NailSegmentation(LightningDataModule):
     def __init__(self, data_root: str, csv_path: str, test_path: str, batch_size: int = 16, num_workers: int = 4):
@@ -377,7 +375,7 @@ trainer.fit(modelmodule, datamodule)
   <li>val_dataloader(self)</li>
 </ul>
 
-<p>Those corespond to DataLoader of train and valid dataset in Pytorch.</p>
+<p>Those respond to DataLoader of train and valid dataset in Pytorch.</p>
 
 <h2 id="5-model-module">
 <a class="anchor" href="#5-model-module" aria-hidden="true"><span class="octicon octicon-link"></span></a>5. Model Module</h2>
@@ -385,21 +383,21 @@ trainer.fit(modelmodule, datamodule)
 <p>In this part we define:</p>
 <ul>
   <li>A segmentation model</li>
-  <li>Wrap model module by using LightningModule, for that we will define some main functions:
+  <li>Wrap the model module by using LightningModule, for that we will define some main functions:
     <ul>
       <li>def training_step : calculate {loss, metric}, logging in each train step</li>
       <li>def validation_step: calculate {loss, metric}, logging in each valid step</li>
       <li>def validation_epoch_end: calculate {loss, metric}, logging in each epoch by using infos of validation_step</li>
-      <li>def configure_optimizers: which optimization and learning rate scheduler we use for the training.</li>
+      <li>def configure_optimizers: which optimization and learning rate scheduler do we use for the training?</li>
     </ul>
   </li>
 </ul>
 
-<h3 id="51-define-model-by-using-segmentation_models_pytorch">
-<a class="anchor" href="#51-define-model-by-using-segmentation_models_pytorch" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.1 Define model by using <code class="language-plaintext highlighter-rouge">segmentation_models_pytorch</code>
+<h3 id="51-define-the-model-by-using-segmentation_models_pytorch">
+<a class="anchor" href="#51-define-the-model-by-using-segmentation_models_pytorch" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.1 Define the model by using <code class="language-plaintext highlighter-rouge">segmentation_models_pytorch</code>
 </h3>
 
-<p>For convenience, we use <a href="https://github.com/qubvel/segmentation_models.pytorch">segmentation_models_pytorch</a> to define our model. <code class="language-plaintext highlighter-rouge">Segmentation_models_pytorch</code> is a high level API, it helps us build a sementic segmentation model with only some lines of code.</p>
+<p>For convenience, we use <a href="https://github.com/qubvel/segmentation_models.pytorch">segmentation_models_pytorch</a> to define our model. <code class="language-plaintext highlighter-rouge">Segmentation_models_pytorch</code> is a high-level API, it helps us build a semantic segmentation model with only some lines of code.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import segmentation_models_pytorch as smp
 
@@ -489,7 +487,7 @@ model = smp.Unet(
 <ul>
   <li>
 <a href="https://pytorch.org/docs/stable/generated/torch.optim.AdamW.html">AdamW</a> as the optimizers</li>
-  <li>symmetric_lovasz as the loss function, which is defined in the <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%203-Pytorch%20Lightning/loss.py">Loss.py</a> file. <em>symmetric_lovasz</em> is define by</li>
+  <li>symmetric_lovasz as the loss function, which is defined in the <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%203-Pytorch%20Lightning/loss.py">Loss.py</a> file. <em>symmetric_lovasz</em> is defined by</li>
 </ul>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def symmetric_lovasz(outputs, targets):
@@ -505,7 +503,7 @@ model = smp.Unet(
 <h2 id="6-trainer">
 <a class="anchor" href="#6-trainer" aria-hidden="true"><span class="octicon octicon-link"></span></a>6. Trainer</h2>
 
-<p>Once we have data module, model module, we can train model with <code class="language-plaintext highlighter-rouge">Trainer</code> API,</p>
+<p>Once we have the data module, and model module, we can train the model with <code class="language-plaintext highlighter-rouge">Trainer</code> API,</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>datamodule = NailSegmentation(
     data_root=data_root,
@@ -526,7 +524,7 @@ trainer.fit(
             ckpt_path=ckpt_path,
         )
 </code></pre></div></div>
-<p>Here <code class="language-plaintext highlighter-rouge">args_trainer</code> is the argument of trainer. More precisely, it has</p>
+<p>Here <code class="language-plaintext highlighter-rouge">args_trainer</code> is the argument of the <code class="language-plaintext highlighter-rouge">trainer</code>. More precisely, it has</p>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{   gpus: [0]                       # gpu device to train 
     max_epochs: 300                 # number of epochs
     precision: 16                   # using mix precision to train  
