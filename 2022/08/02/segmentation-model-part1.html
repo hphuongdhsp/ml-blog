@@ -107,12 +107,9 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h1"><a href="#5-model-training">5 Model Training</a>
 <ul>
 <li class="toc-entry toc-h2"><a href="#51-mixed_precision">5.1 Mixed_precision</a></li>
-<li class="toc-entry toc-h2"><a href="#52-using-wanbd-for-logging">5.2 Using Wanbd for logging.</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#dataloader">Dataloader</a></li>
-<li class="toc-entry toc-h3"><a href="#fit-traininig">Fit traininig</a></li>
-</ul>
-</li>
+<li class="toc-entry toc-h2"><a href="#52-using-wanbd-for-logging">5.2 Using Wanbd for logging.</a></li>
+<li class="toc-entry toc-h2"><a href="#53-dataloader">5.3 Dataloader</a></li>
+<li class="toc-entry toc-h2"><a href="#54-fit-training">5.4 Fit training</a></li>
 </ul>
 </li>
 </ul><p>In this part we will cover how to train a segmentation model by using the tensorflow platform</p>
@@ -244,8 +241,8 @@ def make_csv_file(data_root) -&gt; None:
   <li>Define Dataloader with input is lists of images and masks and outout is list of batch image which is feed into the model. More precisely, in this step we will:
     <ul>
       <li>Decode images and masks</li>
-      <li>Doing Augumentation</li>
-      <li>Batching the augumented data.</li>
+      <li>Transform data</li>
+      <li>Batch the augumented data.</li>
     </ul>
   </li>
 </ul>
@@ -557,8 +554,8 @@ callbacks.append(WandbCallback())
 
 <p>We finish the training task by call the dataloader and fit the model. Then</p>
 
-<h3 id="dataloader">
-<a class="anchor" href="#dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dataloader</h3>
+<h2 id="53-dataloader">
+<a class="anchor" href="#53-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.3 Dataloader</h2>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>data_root = str(args.data_root)
 train_csv_dir = f"{data_root}/csv_file/train.csv"
@@ -589,8 +586,8 @@ valid_loader = tf_dataset(
 
 </code></pre></div></div>
 
-<h3 id="fit-traininig">
-<a class="anchor" href="#fit-traininig" aria-hidden="true"><span class="octicon octicon-link"></span></a>Fit traininig</h3>
+<h2 id="54-fit-training">
+<a class="anchor" href="#54-fit-training" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.4 Fit training</h2>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>history = model.fit(
     train_loader,
     steps_per_epoch=total_steps,
