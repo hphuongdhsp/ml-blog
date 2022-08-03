@@ -2,7 +2,7 @@
 toc: true
 layout: post
 description: The first part of the Segmentation Tutorial Series, Training deep learning models using Tensorflow platform
-categories: [tensorflow, semantic segmentation, deep learning]
+# categories: [tensorflow, semantic segmentation, deep learning]
 title: Segmentation Model-Part I - Training deep learning models using Tensorflow platform
 ---
 
