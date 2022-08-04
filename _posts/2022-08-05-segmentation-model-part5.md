@@ -375,14 +375,10 @@ def training_step(self, batch, batch_idx):
 
 ```
 
-Once we finish to define `LightningModule` and `LightningDataModule`, we can jump to the `Trainer`
+Once we finish to define `LightningModule` and `LightningDataModule`, we can jump to the `Trainer` to run the training. 
 
 <img align="center" width="600"  src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png">
 
-
-### 4.2 LightningWrapper  
-
-**We keep all of rest parts of the pipeline** (`LightningDataModule`, `Trainer`). 
 
 
 **For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%205-Pytorch%20with%20Dali)**
