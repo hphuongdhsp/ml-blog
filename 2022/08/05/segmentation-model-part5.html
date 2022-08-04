@@ -215,26 +215,20 @@ we discover how to use <a href="https://docs.nvidia.com/deeplearning/dali/user-g
 
 <p><code class="language-plaintext highlighter-rouge">DALI</code> is open source library for decoding and augmenting images,videos and speech to accelerate deep learning applications. DALI reduces latency and training time, mitigating bottlenecks, by overlapping training and pre-processing. It provides a drop-in replacement for built in data loaders and data iterators in popular deep learning frameworks for easy integration or retargeting to different frameworks.</p>
 
-<p>Let us discuss the difference among: a Naive Deeplearning Pipeline, Kornia Deep Learning Pipeline and DALI Deeplearning Pipeline.</p>
+<p>Let us discuss the difference between a Naive Deeplearning Pipeline, Kornia Deep Learning Pipeline and DALI Deeplearning Pipeline.</p>
 
 <h3 id="naive-deep-learning-pipeline">
 <a class="anchor" href="#naive-deep-learning-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Naive Deep Learning Pipeline</h3>
 
 <ul>
-  <li>Naive Deeplearning Pipeline: The pre-processing of the data occurs on the CPU, the model will be typically trained on GPU/TPU.</li>
-</ul>
-
-<h3 id="kornia-deep-learning-pipeline">
+  <li>Naive Deeplearning Pipeline: The pre-processing of the data occurs on the CPU, the model will be typically trained on GPU/TPU.
+    <h3 id="kornia-deep-learning-pipeline">
 <a class="anchor" href="#kornia-deep-learning-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Kornia Deep Learning Pipeline</h3>
-
-<ul>
-  <li>Kornia Deep Learning Pipeline: The reading, resezing or padding data occurs on CPU, the transform (augmentation) and model training runed on GPU/TPU. The transform is consider as an <code class="language-plaintext highlighter-rouge">nn.Module</code>. Then <code class="language-plaintext highlighter-rouge">transform</code> is a  <code class="language-plaintext highlighter-rouge">nn.Module</code> object that <code class="language-plaintext highlighter-rouge">forward</code> input x of size <code class="language-plaintext highlighter-rouge">BxCxHxW</code> and obtain the output of size <code class="language-plaintext highlighter-rouge">BxCxHxW</code>.</li>
-</ul>
-
-<h3 id="dali-deep-learning-pipeline">
+  </li>
+  <li>Kornia Deep Learning Pipeline: The reading, resezing or padding data occurs on CPU, the transform (augmentation) and model training runed on GPU/TPU. The transform is consider as an <code class="language-plaintext highlighter-rouge">nn.Module</code>. Then <code class="language-plaintext highlighter-rouge">transform</code> is a  <code class="language-plaintext highlighter-rouge">nn.Module</code> object that <code class="language-plaintext highlighter-rouge">forward</code> input x of size <code class="language-plaintext highlighter-rouge">BxCxHxW</code> and obtain the output of size <code class="language-plaintext highlighter-rouge">BxCxHxW</code>.
+    <h3 id="dali-deep-learning-pipeline">
 <a class="anchor" href="#dali-deep-learning-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>DALI Deep Learning Pipeline</h3>
-
-<ul>
+  </li>
   <li>DALI Deeplearning Pipeline: In the reading image, we have two components: encoding and decoding. With DALI library, we can read do encoding by CPUs and decoding by GPUs that work on batch. All other tasks will work on GPUs. We remark that the transform in DALI Pipeline works on data of several types: <code class="language-plaintext highlighter-rouge">BxCxHxW</code>, <code class="language-plaintext highlighter-rouge">BxHxWXC</code>. That is why DALI can easily be retargeted to TensorFlow, PyTorch, and MXNet.</li>
 </ul>
 
