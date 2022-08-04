@@ -3,7 +3,7 @@ toc: true
 layout: post
 description: The fourth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Kornia library
 # categories: [tensorflow, semantic segmentation, deep learning]
-title: Segmentation Model-Part III - Data augmentation on the GPU with Kornia library
+title: Segmentation Model-Part IV - Data augmentation on the GPU with Kornia library
 ---
 
 In this post, we discover how to use [Kornia](https://github.com/kornia/kornia) modules in order to perform the data augmentatio on the GPU in batch mode. Kornia is a differentiable library that allows classical computer vision to be integrated into deep learning models. Kornia consists a lot of components. One of them is `kornia.augmentation` - a module to perform data augmentation in the GPU. 
@@ -72,7 +72,7 @@ For that we use `make_csv_file` function in `data_processing.py` file.
 
 The fact is that today these transforms are applied one input at a time on CPUs. This means that they are super slow. 
 
-### A naive approach model training
+### 3.1 A naive approach model training
 
 <img align="center" width="600"  src="https://habrastorage.org/webt/vb/ou/jr/vboujrk9qbwjoabvrj-glqy5s-e.png">
 
@@ -81,297 +81,131 @@ A naive training pipeline includes:
 - The pre-processing of the data occurs on the CPU
 - The model will be typically trained on GPU/TPU.
 
-### Data Augmentation using GPU for Maximum Speed!
+### 3.2 Data Augmentation using GPU
 
-To improve the training speed we want to 
+To improve the training speed we can shift the data augmentation task in to GPU 
 
-When GPU/TPU starts training the model, the CPU is idle. This is not an efficient way to manage resources.
+<img align="center" width="600"  src="https://habrastorage.org/webt/nr/wb/zr/nrwbzrp-xf-s2z2awddfswtu0hq.png">
 
+To do that we can use [Kornia.augmentation](https://kornia.readthedocs.io/en/v0.4.1/index.html), [Dali](https://developer.nvidia.com/dali). 
+- `Kornia.augmentation` is the module of Kornia which permit to do augmentation in GPU. It will boost the speed of traininig in almost cases. 
+- `DALI` is a library for data loading and pre-processing to accelerate deep learning applications. Data processing pipelines implemented using DALI can easily be retargeted to  [TensorFlow](https://www.tensorflow.org/), PyTorch[https://pytorch.org/], [MXNet](https://mxnet.apache.org/versions/1.9.1/) and [PaddlePaddle](https://github.com/PaddlePaddle/Paddle). This post we will focus on how to use `Kornia`. The guide of using `DALI` will be introduced in next post. 
 
+## 4. Data Augmentation using Kornia 
 
+In this part, we will cover how to use Kornia for data augmentation. 
+To augumentate data on GPU, we can understand transforms (augumentations) as a `transform_module` ( is a   nn.Module object) whose input is a tensor of size $C\times H \times W$ and output is also tensor of size $C\times H \times W$.
 
-### 3.1 LightningDataModule
-
-`LightningDataModule` is a shareable, reusable class that encapsulates all the steps needed to process data:
-- Data processing
-- Load inside Dataset
-- Apply transforms
-- Wrap inside a DataLoader
-  
-<img align="center" width="600"  src="https://habrastorage.org/webt/cv/i_/1n/cvi_1nwwdq28wh5tkun8z7h2fp4.png">
-
-### 3.2 LightningModule
-
-A lightning module is composed of some components that fully define the system:
-
-- The model or system of models
-- The optimizer(s)
-- The train loop
-- The validation loop
-
-
-### 3.3 Trainer
-
-Once we declare LightningDataModule, LightningModule, we can train the model with `Trainer` API. 
-
-<img align="center" width="600"  src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png">
-
-
-A basic use of trainer: 
-
+That `transform_module` is put between the processing task (includes read images, make images of batch having same size,  convert images in to the tensor format) and the training model. More precisely,
 ```
-modelmodule = LightningModule(*args_model)
-datamodule = LightningDataModule(*args_data)
-trainer = Trainer(*args_trainer)
-trainer.fit(modelmodule, datamodule)
-```
+class ModelWithAugumentation(nn.Module):
+    """Module to perform data augmentation on torch tensors."""
 
-
-
-##  4. DataLoader
-
-To define the LightningModule of our dataset, we first define the `torch.utils.data.Dataset` for the nail data. 
-
-### 4.1 Define `torch.utils.data.Dataset` for the Nail Data
-```
-class NailDataset(Dataset):
-    def __init__(self, data_root: str, csv_folder: str, train: str, tfms: A.Compose):
-        self.data_root = data_root
-        self.csv_folder = csv_folder
-        self.train = train
-        self.tfms = tfms
-        if self.train == "train":
-            self.ids = pd.read_csv(os.path.join(self.csv_folder, "train.csv"))["images"]
-        else:
-            self.ids = pd.read_csv(os.path.join(self.csv_folder, "valid.csv"))["images"]
-
-    def __len__(self) -> int:
-        return len(self.ids)
-
-    def __getitem__(self, idx: int) -> Any:
-        fname = self.ids[idx]
-
-        image = read_image(self.data_root + f"/{self.train}/images" + fname)
-        mask = read_mask(self.data_root + f"/{self.train}/masks" + fname)
-
-        mask = (mask > 0).astype(np.uint8)
-        if self.tfms is not None:
-            augmented = self.tfms(image=image, mask=mask)
-            image, mask = augmented["image"], augmented["mask"]
-        return {
-            "image": img2tensor(image),
-            "label": img2tensor(mask),
-        }
-```
-
-### 4.2 Define `LightningDataModule` for the Nail Data
-We then use LightningDataModule to wrap our NailDataset into the data module of Pytorch Lightning. 
-
-```
-class NailSegmentation(LightningDataModule):
-    def __init__(self, data_root: str, csv_path: str, test_path: str, batch_size: int = 16, num_workers: int = 4):
+    def __init__(self, transform_module: nn.Module, model : nn.Module) -> None:
         super().__init__()
-        assert os.path.isdir(csv_path), f"missing folder: {csv_path}"
-        assert os.path.isdir(data_root), f"missing folder: {data_root}"
-        self.data_root = str(data_root)
-        self.csv_path = str(csv_path)
-        self.test_path = str(test_path)
-        self.valid_transform = valid_transform()
-        self.train_transform = train_transform()
-        # other configs
-        self.batch_size = batch_size
-        self.num_workers = num_workers if num_workers is not None else mproc.cpu_count()
 
-    def prepare_data(self) -> None:
-        pass
-
-    def setup(self, *_, **__) -> None:
-
-        self.train_dataset = NailDataset(
-            self.data_root,
-            self.csv_path,
-            train="train",
-            tfms=self.train_transform,
-        )
-        self.valid_dataset = NailDataset(
-            self.data_root,
-            self.csv_path,
-            train="valid",
-            tfms=self.valid_transform,
-        )
-
-    def train_dataloader(self) -> DataLoader:
-        return DataLoader(
-            self.train_dataset,
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
-            shuffle=True,
-        )
-
-    def val_dataloader(self) -> DataLoader:
-        return DataLoader(
-            self.valid_dataset,
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
-            shuffle=False,
-        )
-```
-
-Here we need to define 3 main functions: 
-
-- def train_dataloader(self)
-- val_dataloader(self)
-
-Those respond to DataLoader of train and valid dataset in Pytorch. 
-
-##  5. Model Module
-
-In this part we define:
-- A segmentation model 
-- Wrap the model module by using LightningModule, for that we will define some main functions: 
-  - def training_step : calculate {loss, metric}, logging in each train step 
-  - def validation_step: calculate {loss, metric}, logging in each valid step 
-  - def validation_epoch_end: calculate {loss, metric}, logging in each epoch by using infos of validation_step
-  - def configure_optimizers: which optimization and learning rate scheduler do we use for the training?
-  
-
-###  5.1 Define the model by using `segmentation_models_pytorch`
-
-For convenience, we use [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch) to define our model. `Segmentation_models_pytorch` is a high-level API, it helps us build a semantic segmentation model with only some lines of code. 
-
-```
-import segmentation_models_pytorch as smp
-
-model = smp.Unet(
-    encoder_name="timm-efficientnet-b4",    # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-    encoder_weights="imagenet",             # use `imagenet` pre-trained weights for encoder initialization
-    in_channels=3,                          # model input channels (1 for gray-scale images, 3 for RGB,
-    classes=1,                              # model output channels (number of classes in your dataset)
-)
-```
-
-###  5.2 Define LightningModule
-We next use `LightningModule` to wrap the model into the model module of Pytorch Lightnining. 
-
-```
-class LitNailSegmentation(LightningModule):
-    def __init__(self, model: nn.Module, learning_rate: float = 1e-4):
-        super().__init__()
+        self.transform_module = transform_module
         self.model = model
-        self.loss_function = symmetric_lovasz
-        self.dice_soft = binary_dice_coefficient
-        self.learning_rate = learning_rate
-        self.save_hyperparameters()
 
-    def forward(self, x):
-        return self.model(x)
-
-    def training_step(self, batch, batch_idx):
-        imgs, masks = batch["image"], batch["label"]
-
-        imgs, masks = imgs.float(), masks.float()
-        logits = self(imgs)
-
-        train_loss = self.loss_function(logits, masks)
-        train_dice_soft = self.dice_soft(logits, masks)
-
-        self.log("train_loss", train_loss, prog_bar=True)
-        self.log("train_dice_soft", train_dice_soft, prog_bar=True)
-        return {"loss": train_loss, "train_dice_soft": train_dice_soft}
-
-    def validation_step(self, batch, batch_idx):
-        imgs, masks = batch["image"], batch["label"]
-
-        imgs, masks = imgs.float(), masks.float()
-        logits = self(imgs)
-        valid_loss = self.loss_function(logits, masks)
-        valid_dice_soft = self.dice_soft(logits, masks)
-        valid_iou = binary_mean_iou(logits, masks)
-
-        self.log("valid_loss", valid_loss, prog_bar=True)
-        self.log("valid_dice", valid_dice_soft, prog_bar=True)
-        self.log("valid_iou", valid_iou, prog_bar=True)
-
-        return {
-            "valid_loss": valid_loss,
-            "valid_dice": valid_dice_soft,
-            "valid_iou": valid_iou,
-        }
-
-    def validation_epoch_end(self, outputs):
-
-        logs = {"epoch": self.trainer.current_epoch}
-        valid_losses = torch.stack([x["valid_loss"] for x in outputs]).mean()
-        valid_dices = torch.stack([x["valid_dice"] for x in outputs]).mean()
-        valid_ious = torch.stack([x["valid_iou"] for x in outputs]).mean()
-
-        logs["valid_losses"] = valid_losses
-        logs["valid_dices"] = valid_dices
-        logs["valid_ious"] = valid_ious
-
-        return {
-            "valid_losses": valid_losses,
-            "valid_dices": valid_dices,
-            "valid_ious": valid_ious,
-            "log": logs,
-        }
-
-    def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.learning_rate)
-
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, self.trainer.max_epochs, 0)
-        self.optimizer = [optimizer]
-        return self.optimizer, [scheduler]
+    def forward(self, x: Tensor) -> Tensor:
+        augmented_x = self.transform_module(x)  # BxCxHxW
+        x_out = self.model(augmented_x)
+        return x_out
 ```
 
-Here we use: 
- - [AdamW](https://pytorch.org/docs/stable/generated/torch.optim.AdamW.html) as the optimizers
- - symmetric_lovasz as the loss function, which is defined in the [Loss.py](https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%203-Pytorch%20Lightning/loss.py) file. *symmetric_lovasz* is defined by 
+where transform_module is defined by using `Kornia` or `torchvision`. For example
 
 ```
-def symmetric_lovasz(outputs, targets):
-    return 0.5*(lovasz_hinge(outputs, targets) + lovasz_hinge(-outputs, 1.0 - targets))
+transform_module = K.augmentation.AugmentationSequential(
+    K.augmentation.Normalize(Tensor((0.485, 0.456, 0.406)), Tensor((0.229, 0.224, 0.225)), p=1)
+)
 ```
 
-where lovasz_hinge is [Lovasz loss](https://arxiv.org/pdf/1705.08790.pdf) for the binary segmentation.
+We now apply that strategy to our problem. Comparing with the previous pipeline in the last post ([Training deep learning segmentation models in Pytorch Lightning](https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html)), here are some modifications. 
 
-- Metrics: Dice, IOU
-
-## 6. Trainer 
-
-Once we have the data module, and model module, we can train the model with `Trainer` API, 
+- Only use Resize or Padding in the data augmentation on CPUs, in the last part we define the whole augmentation by using albumentations and use it as the transform before going to the model.
 
 ```
-datamodule = NailSegmentation(
-    data_root=data_root,
-    csv_path=csv_path,
-    test_path="",
-    batch_size=batch_size,
-    num_workers=4,
+self.valid_transform = resize()
+self.train_transform = resize()
+```
+
+- Using Kornia to define the augmentation, hare we have `train_transform_K` and `valid_transform_K`
+  
+```
+
+valid_transform_K = K.augmentation.AugmentationSequential(
+    K.augmentation.Normalize(Tensor((0.485, 0.456, 0.406)), Tensor((0.229, 0.224, 0.225)), p=1),
+    data_keys=["input", "mask"],
 )
 
-model_lighning = LitNailSegmentation(model=model, learning_rate=config.training.learning_rate)
+train_transform_K = K.augmentation.AugmentationSequential(
+    K.augmentation.container.ImageSequential(  # OneOf
+        K.augmentation.RandomHorizontalFlip(p=0.6),
+        K.augmentation.RandomVerticalFlip(p=0.6),
+        random_apply=1,
+        random_apply_weights=[0.5, 0.5],
+    ),
+    K.augmentation.ColorJitter(0.1, 0.1, 0.1, 0.1, p=0.5),
+    # K.augmentation.RandomAffine( degrees = (-15.0,15.0), p= 0.3),
+    K.augmentation.Normalize(Tensor((0.485, 0.456, 0.406)), Tensor((0.229, 0.224, 0.225)), p=1),
+    data_keys=["input", "mask"],
+    same_on_batch=False,
+)
 
-
-trainer = Trainer(*args_trainer)
-
-trainer.fit(
-            model=model_lighning,
-            datamodule=datamodule,
-            ckpt_path=ckpt_path,
-        )
 ```
-Here `args_trainer` is the argument of the `trainer`. More precisely, it has
+
+- In the LightningModule, we define two new functions  
 ```
-{   gpus: [0]                       # gpu device to train 
-    max_epochs: 300                 # number of epochs
-    precision: 16                   # using mix precision to train  
-    auto_lr_find: True              # auto find the good initial learning rate
-    limit_train_batches: 1.0        # percent of train dataset use to train, here 100%
-    ... 
+self.train_transform = train_transform_K
+self.valid_transform = valid_transform_K
+```
+and add transform into the training loop and the valid loop (`training_step` and `validation_step`)
+
+```
+def training_step(self, batch, batch_idx):
+    imgs, masks = batch["image"], batch["label"]
+    if self.train_transform is not None:
+        imgs, masks = self.train_transform(imgs, masks) # add the transform before going to the model
+        imgs, masks = imgs.float(), masks.float()
+    logits = self(imgs)
+
+    train_loss = self.loss_function(logits, masks)
+    train_dice_soft = self.dice_soft(logits, masks)
+
+    self.log("train_loss", train_loss, prog_bar=True)
+    self.log("train_dice_soft", train_dice_soft, prog_bar=True)
+    return {"loss": train_loss, "train_dice_soft": train_dice_soft}
+
+def validation_step(self, batch, batch_idx):
+    imgs, masks = batch["image"], batch["label"]
+    if self.valid_transform:
+        imgs, masks = self.valid_transform(imgs, masks) # add the transform before going to the model
+        imgs, masks = imgs.float(), masks.float()
+    logits = self(imgs)
+
+    valid_loss = self.loss_function(logits, masks)
+    valid_dice_soft = self.dice_soft(logits, masks)
+    valid_iou = binary_mean_iou(logits, masks)
+
+    self.log("valid_loss", valid_loss, prog_bar=True)
+    self.log("valid_dice", valid_dice_soft, prog_bar=True)
+    self.log("valid_iou", valid_iou, prog_bar=True)
+
+    return {
+        "valid_loss": valid_loss,
+        "valid_dice": valid_dice_soft,
+        "valid_iou": valid_iou,
     }
 ```
 
-Lightning implements various techniques to help during training that can help make the training smoother.
+**We keep all of rest parts of the pipeline** (`LightningDataModule`, `Trainer`). 
 
-**For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%203-Pytorch%20Lightning)**
+
+**For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%204-Pytorch%20Lightning%20with%20Kornia)**
+
+
+### References
+
+- [Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning](https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html)
+- [Kornia.augmentation](https://kornia.readthedocs.io/en/latest/augmentation.html)

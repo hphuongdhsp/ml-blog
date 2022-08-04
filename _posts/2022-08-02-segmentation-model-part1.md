@@ -112,10 +112,10 @@ In this part we will do the following:
 
 Before going to the next part, let's talk about the advantages of using tf.data for the data loader pipeline.
 
-The main feature of the next part is the data loader. We use the `tensorflow.data` (tf.data) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine `tf.data` and `keras.Sequence`. In this tutorial, we focus on how to load data by tf.data.
+The main feature of the next part is the data loader. We use the `tensorflow.data` (tf.data) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine `tf.data` and `keras.Sequence`. This tutorial focuses on how to load data by tf.data.
 
 Here is the pipeline loader of tf.data: 
-- Read data from a csv file
+- Read data from a CSV file
 - Transfrom (augumentate) the data
 - Load data into the model
 
@@ -203,8 +203,7 @@ def valid_transform():
     )
 ```
 
-You can find the detail of transforms in `transform.py` file, in the source code which is given at the end of the post.
-We remark that, after doing augmentation, we cast the output of transform into tensorflow type `tensorflow type`
+You can find the detail of transforms in `transform.py` file, in the source code given at the post's end. We remark that, after doing augmentation, we cast the output of transform into TensorFlow type `tensorflow type`
 
 ```
 aug_img = tf.cast(aug_img / 255.0, dtype)
@@ -217,7 +216,7 @@ Once we finish the augmentation task, we can do batching of the data by
 dataset = dataset.batch(batch_size)
 ```
 
-Here, the dataset is now a object of `tf.data`.
+Here, the dataset is now an object of `tf.data`.
 
 Compose four previous steps, we have the data loader function:
 
@@ -281,7 +280,7 @@ def tf_dataset(
 
 # 4. Define the Segmentation model
 
-In this part we will define the segmentation model by using `segmentation_models` library, we also define the loss function, optimization, and metric.
+In this part, we will define the segmentation model by using `segmentation_models` library, we also define the loss function, optimization, and metrics.
 
 **Segmentation models** is a python library with Neural Networks for Image Segmentation based on Keras (Tensorflow) framework. This is the high-level API, you need only some lines of code to create a Segmentation Neural Network.
 
@@ -330,10 +329,10 @@ Here we use:
 
 # 5 Model Training
 
-Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some tools that helps us boost the efficiency of training:
+Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some tools that help us boost the efficiency of training:
 
 - mixed_precision
-- using wanbd as callback
+- using wanbd as a callback
 
 ## 5.1 Mixed_precision
 
@@ -355,7 +354,7 @@ Here is the mixed precision training flow:
 - Update weights, convert them into lower-precision, and continue the next round of training.
 
 
-To train model in tensorflow with the mixed precision, we just modify:
+To train the model in TensorFlow with mixed precision, we just modify:
 
 - We first define the global policy: 
   
@@ -394,8 +393,7 @@ last_layer = tf.keras.layers.Activation(activation="sigmoid", dtype=tf.float32)(
 
 ## 5.2 Using Wanbd for logging.
 
-In this part, we will cover how to use wandb for logging. WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings.
-To do that we use callback of model training as the WandbLogging
+In this part, we will cover how to use wandb for logging. WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings. To do that we use callback of model training as the WandbLogging
 
 ```
 import wandb
@@ -413,7 +411,7 @@ callbacks.append(WandbCallback())
 
 ```
 
-We finish the training task by calling the dataloader and fitting the model. Then
+We finish the training task by calling the train loader and the valid loader and fitting the model. Then
 
 ## 5.3 Dataloader
 
