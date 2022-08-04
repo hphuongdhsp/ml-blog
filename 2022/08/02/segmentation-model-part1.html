@@ -249,11 +249,11 @@ def make_csv_file(data_root) -&gt; None:
 
 <p>Before going to the next part, let’s talk about the advantages of using tf.data for the data loader pipeline.</p>
 
-<p>The main feature of the next part is the data loader. We use the <code class="language-plaintext highlighter-rouge">tensorflow.data</code> (tf.data) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine <code class="language-plaintext highlighter-rouge">tf.data</code> and <code class="language-plaintext highlighter-rouge">keras.Sequence</code>. In this tutorial, we focus on how to load data by tf.data.</p>
+<p>The main feature of the next part is the data loader. We use the <code class="language-plaintext highlighter-rouge">tensorflow.data</code> (tf.data) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine <code class="language-plaintext highlighter-rouge">tf.data</code> and <code class="language-plaintext highlighter-rouge">keras.Sequence</code>. This tutorial focuses on how to load data by tf.data.</p>
 
 <p>Here is the pipeline loader of tf.data:</p>
 <ul>
-  <li>Read data from a csv file</li>
+  <li>Read data from a CSV file</li>
   <li>Transfrom (augumentate) the data</li>
   <li>Load data into the model</li>
 </ul>
@@ -341,8 +341,7 @@ def valid_transform():
     )
 </code></pre></div></div>
 
-<p>You can find the detail of transforms in <code class="language-plaintext highlighter-rouge">transform.py</code> file, in the source code which is given at the end of the post.
-We remark that, after doing augmentation, we cast the output of transform into tensorflow type <code class="language-plaintext highlighter-rouge">tensorflow type</code></p>
+<p>You can find the detail of transforms in <code class="language-plaintext highlighter-rouge">transform.py</code> file, in the source code given at the post’s end. We remark that, after doing augmentation, we cast the output of transform into TensorFlow type <code class="language-plaintext highlighter-rouge">tensorflow type</code></p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>aug_img = tf.cast(aug_img / 255.0, dtype)
 aug_mask = tf.cast(aug_mask / 255.0, dtype)
@@ -353,7 +352,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dataset = dataset.batch(batch_size)
 </code></pre></div></div>
 
-<p>Here, the dataset is now a object of <code class="language-plaintext highlighter-rouge">tf.data</code>.</p>
+<p>Here, the dataset is now an object of <code class="language-plaintext highlighter-rouge">tf.data</code>.</p>
 
 <p>Compose four previous steps, we have the data loader function:</p>
 
@@ -417,7 +416,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <h1 id="4-define-the-segmentation-model">
 <a class="anchor" href="#4-define-the-segmentation-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Define the Segmentation model</h1>
 
-<p>In this part we will define the segmentation model by using <code class="language-plaintext highlighter-rouge">segmentation_models</code> library, we also define the loss function, optimization, and metric.</p>
+<p>In this part, we will define the segmentation model by using <code class="language-plaintext highlighter-rouge">segmentation_models</code> library, we also define the loss function, optimization, and metrics.</p>
 
 <p><strong>Segmentation models</strong> is a python library with Neural Networks for Image Segmentation based on Keras (Tensorflow) framework. This is the high-level API, you need only some lines of code to create a Segmentation Neural Network.</p>
 
@@ -471,11 +470,11 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <h1 id="5-model-training">
 <a class="anchor" href="#5-model-training" aria-hidden="true"><span class="octicon octicon-link"></span></a>5 Model Training</h1>
 
-<p>Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some tools that helps us boost the efficiency of training:</p>
+<p>Once we have: dataloader and model we then combine them to run the model. In this part we will introduce some tools that help us boost the efficiency of training:</p>
 
 <ul>
   <li>mixed_precision</li>
-  <li>using wanbd as callback</li>
+  <li>using wanbd as a callback</li>
 </ul>
 
 <h2 id="51-mixed_precision">
@@ -496,7 +495,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
   <li>Update weights, convert them into lower-precision, and continue the next round of training.</li>
 </ul>
 
-<p>To train model in tensorflow with the mixed precision, we just modify:</p>
+<p>To train the model in TensorFlow with mixed precision, we just modify:</p>
 
 <ul>
   <li>We first define the global policy:</li>
@@ -539,8 +538,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <h2 id="52-using-wanbd-for-logging">
 <a class="anchor" href="#52-using-wanbd-for-logging" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.2 Using Wanbd for logging.</h2>
 
-<p>In this part, we will cover how to use wandb for logging. WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings.
-To do that we use callback of model training as the WandbLogging</p>
+<p>In this part, we will cover how to use wandb for logging. WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings. To do that we use callback of model training as the WandbLogging</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import wandb
 from wandb.keras import WandbCallback
@@ -557,7 +555,7 @@ callbacks.append(WandbCallback())
 
 </code></pre></div></div>
 
-<p>We finish the training task by calling the dataloader and fitting the model. Then</p>
+<p>We finish the training task by calling the train loader and the valid loader and fitting the model. Then</p>
 
 <h2 id="53-dataloader">
 <a class="anchor" href="#53-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.3 Dataloader</h2>
