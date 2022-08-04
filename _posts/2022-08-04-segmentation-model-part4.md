@@ -6,7 +6,7 @@ description: The fourth part of the Segmentation Tutorial Series, a step-by-step
 title: Segmentation Model-Part IV - Data augmentation on the GPU with Kornia library
 ---
 
-In this post, we discover how to use [Kornia](https://github.com/kornia/kornia) modules in order to perform the data augmentatio on the GPU in batch mode. Kornia is a differentiable library that allows classical computer vision to be integrated into deep learning models. Kornia consists a lot of components. One of them is `kornia.augmentation` - a module to perform data augmentation in the GPU. 
+In this post, we discover how to use [Kornia](https://github.com/kornia/kornia) modules in order to perform the data augmentation on the GPU in batch mode. Kornia is a differentiable library that allows classical computer vision to be integrated into deep learning models. Kornia consists a lot of components. One of them is `kornia.augmentation` - a module to perform data augmentation in the GPU. 
 
 We will work with the Segmentation Problem (Nail Segmentation). For that, we use Pytorch Lightninig to train model and use Kornia to build the data augmentation on the GPU. 
 
@@ -89,7 +89,7 @@ To improve the training speed we can shift the data augmentation task in to GPU
 
 To do that we can use [Kornia.augmentation](https://kornia.readthedocs.io/en/v0.4.1/index.html), [Dali](https://developer.nvidia.com/dali). 
 - `Kornia.augmentation` is the module of Kornia which permit to do augmentation in GPU. It will boost the speed of traininig in almost cases. 
-- `DALI` is a library for data loading and pre-processing to accelerate deep learning applications. Data processing pipelines implemented using DALI can easily be retargeted to  [TensorFlow](https://www.tensorflow.org/), PyTorch[https://pytorch.org/], [MXNet](https://mxnet.apache.org/versions/1.9.1/) and [PaddlePaddle](https://github.com/PaddlePaddle/Paddle). This post we will focus on how to use `Kornia`. The guide of using `DALI` will be introduced in next post. 
+- `DALI` is a library for data loading and pre-processing to accelerate deep learning applications. Data processing pipelines implemented using DALI can easily be retargeted to  [TensorFlow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/), [MXNet](https://mxnet.apache.org/versions/1.9.1/) and [PaddlePaddle](https://github.com/PaddlePaddle/Paddle). This post we will focus on how to use `Kornia`. The guide of using `DALI` will be introduced in next post. 
 
 ## 4. Data Augmentation using Kornia 
 

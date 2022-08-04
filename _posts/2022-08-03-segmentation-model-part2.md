@@ -6,7 +6,7 @@ description: The second part of the Segmentation Tutorial Series, a guide to han
 title: Segmentation Model-Part II - How to handle Imbalanced Data in Segmentation Problem
 ---
 
-In the last post, we discussed how to train a segmentation model in Tensorflow. This part will cover how to balance datasets in training a segmentation model in Tensorflow. We can use the same technique to deal with the imbalanced data in a Classification problem. Let us recall our segmentation problem.
+In the last post, we discussed how to train a segmentation model in Tensorflow. This post will cover how to balance datasets in training a segmentation model in Tensorflow. We can use the same technique to deal with the imbalanced data in a Classification problem. Let us recall our segmentation problem.
 
 
 ## 1. Problem Description and Dataset
@@ -53,7 +53,7 @@ data_root = "./nail-segmentation-dataset"
 
 ## 2. Data Preparation
 
-For the same task as the previous post, we want to have the CSV file that stores the image and mask paths
+Similar to the training pipeline of the previous post, we want to have the CSV file that stores the image and mask paths
 
 | index | images                |
 | ----- | --------------------- |
