@@ -102,7 +102,7 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h3"><a href="#references">References</a></li>
 </ul>
 </li>
-</ul><p>In this post, we discover how to use <a href="https://github.com/kornia/kornia">Kornia</a> modules in order to perform the data augmentatio on the GPU in batch mode. Kornia is a differentiable library that allows classical computer vision to be integrated into deep learning models. Kornia consists a lot of components. One of them is <code class="language-plaintext highlighter-rouge">kornia.augmentation</code> - a module to perform data augmentation in the GPU.</p>
+</ul><p>In this post, we discover how to use <a href="https://github.com/kornia/kornia">Kornia</a> modules in order to perform the data augmentation on the GPU in batch mode. Kornia is a differentiable library that allows classical computer vision to be integrated into deep learning models. Kornia consists a lot of components. One of them is <code class="language-plaintext highlighter-rouge">kornia.augmentation</code> - a module to perform data augmentation in the GPU.</p>
 
 <p>We will work with the Segmentation Problem (Nail Segmentation). For that, we use Pytorch Lightninig to train model and use Kornia to build the data augmentation on the GPU.</p>
 
@@ -217,7 +217,7 @@ window.onload = wrap_img;
   <li>
 <code class="language-plaintext highlighter-rouge">Kornia.augmentation</code> is the module of Kornia which permit to do augmentation in GPU. It will boost the speed of traininig in almost cases.</li>
   <li>
-<code class="language-plaintext highlighter-rouge">DALI</code> is a library for data loading and pre-processing to accelerate deep learning applications. Data processing pipelines implemented using DALI can easily be retargeted to  <a href="https://www.tensorflow.org/">TensorFlow</a>, PyTorch[https://pytorch.org/], <a href="https://mxnet.apache.org/versions/1.9.1/">MXNet</a> and <a href="https://github.com/PaddlePaddle/Paddle">PaddlePaddle</a>. This post we will focus on how to use <code class="language-plaintext highlighter-rouge">Kornia</code>. The guide of using <code class="language-plaintext highlighter-rouge">DALI</code> will be introduced in next post.</li>
+<code class="language-plaintext highlighter-rouge">DALI</code> is a library for data loading and pre-processing to accelerate deep learning applications. Data processing pipelines implemented using DALI can easily be retargeted to  <a href="https://www.tensorflow.org/">TensorFlow</a>, <a href="https://pytorch.org/">PyTorch</a>, <a href="https://mxnet.apache.org/versions/1.9.1/">MXNet</a> and <a href="https://github.com/PaddlePaddle/Paddle">PaddlePaddle</a>. This post we will focus on how to use <code class="language-plaintext highlighter-rouge">Kornia</code>. The guide of using <code class="language-plaintext highlighter-rouge">DALI</code> will be introduced in next post.</li>
 </ul>
 
 <h2 id="4-data-augmentation-using-kornia">

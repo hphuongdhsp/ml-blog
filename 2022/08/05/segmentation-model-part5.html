@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Segmentation Model-Part V - Data augmentation on the GPU with DALI | Hoang Phuong’ Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Segmentation Model-Part V - Data augmentation on the GPU with DALI" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library" />
+<meta property="og:description" content="The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library" />
+<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part5.html" />
+<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part5.html" />
+<meta property="og:site_name" content="Hoang Phuong’ Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-08-05T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Segmentation Model-Part V - Data augmentation on the GPU with DALI" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-08-05T00:00:00-05:00","datePublished":"2022-08-05T00:00:00-05:00","description":"The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library","headline":"Segmentation Model-Part V - Data augmentation on the GPU with DALI","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part5.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part5.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/ml-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hphuongdhsp.github.io/ml-blog/feed.xml" title="Hoang Phuong' Blog" /><link rel="shortcut icon" type="image/x-icon" href="/ml-blog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ml-blog/">Hoang Phuong&#39; Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/ml-blog/about/">About Me</a><a class="page-link" href="/ml-blog/search/">Search</a><a class="page-link" href="/ml-blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part V - Data augmentation on the GPU with DALI</h1><p class="page-description">The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-05T00:00:00-05:00" itemprop="datePublished">
+        Aug 5, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      8 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#1-problem-description-and-dataset">1. Problem Description and Dataset</a></li>
+<li class="toc-entry toc-h2"><a href="#2-data-preparation">2. Data Preparation</a></li>
+<li class="toc-entry toc-h2"><a href="#3-nvidia-data-loading-library-dali">3. NVIDIA Data Loading Library (DALI)</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#naive-deep-learning-pipeline">Naive Deep Learning Pipeline</a></li>
+<li class="toc-entry toc-h3"><a href="#kornia-deep-learning-pipeline">Kornia Deep Learning Pipeline</a></li>
+<li class="toc-entry toc-h3"><a href="#dali-deep-learning-pipeline">DALI Deep Learning Pipeline</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#4-training-the-segmentation-problem-with-dali-and-pytorch-lighiting">4. Training the Segmentation problem with DALI and Pytorch Lighiting.</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#41-define-data-pipeline-by-dali">4.1 Define Data Pipeline by DALI</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#validpipeline">ValidPipeline</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#42-lightningwrapper">4.2 LightningWrapper</a></li>
+<li class="toc-entry toc-h3"><a href="#42-lightningwrapper-1">4.2 LightningWrapper</a></li>
+<li class="toc-entry toc-h3"><a href="#references">References</a></li>
+</ul>
+</li>
+</ul><p>In the last post, we have discovered how to augmente data on GPUs with Kornia. This post, we will 
+we discover how to use <a href="https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html">DALI</a> to accelerate deep learning.</p>
+
+<p>We will work with the Segmentation Problem (Nail Segmentation). For that, we use Pytorch Lightninig to train model and use <code class="language-plaintext highlighter-rouge">DALI</code> to load data and do data processing. The first and second we will recall <code class="language-plaintext highlighter-rouge">Problem Description and Dataset</code>. If you have followed previous posts, you can skip that part.</p>
+
+<h2 id="1-problem-description-and-dataset">
+<a class="anchor" href="#1-problem-description-and-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Problem Description and Dataset</h2>
+
+<p>We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the nail in the image.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Images</th>
+      <th style="text-align: center">Masks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img align="center" width="300" src="https://habrastorage.org/webt/em/og/9v/emog9v4ya7ssllg5dht77_wehqk.png"></td>
+      <td style="text-align: center"><img align="center" width="300" src="https://habrastorage.org/webt/hl/bf/ov/hlbfovx1uhrbbebgxndyho9yywo.png"></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Our data is organized as</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
+│   ├── 1
+│       ├── first_image.png
+│       ├── second_image.png
+│       ├── third_image.png
+│   ├── 2
+│   ├── 3
+│   ├── 4
+├── Masks
+│   ├── 1
+│       ├── first_image.png
+│       ├── second_image.png
+│       ├── third_image.png
+│   ├── 2
+│   ├── 3
+│   ├── 4
+
+</code></pre></div></div>
+
+<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder, and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images. Each folder has four sub-folder:  <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, and <code class="language-plaintext highlighter-rouge">4</code>, corresponding to four types of nail distribution.</p>
+
+<p>We download data from <a href="https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing">link</a> and put it in <code class="language-plaintext highlighter-rouge">data_root</code>, for example</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data_root</span> <span class="o">=</span> <span class="s">"./nail-segmentation-dataset"</span>
+</code></pre></div></div>
+
+<h2 id="2-data-preparation">
+<a class="anchor" href="#2-data-preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Data Preparation</h2>
+
+<p>For the convenience of training with DALI, we will convert <code class="language-plaintext highlighter-rouge">png</code> data into <code class="language-plaintext highlighter-rouge">npy</code> format and save all of informations of images and masks in a CSV file</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>index</th>
+      <th>images</th>
+      <th>masks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>path_first_image.npy</td>
+      <td>path_first_image.npy</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>path_second_image.npy</td>
+      <td>path_second_image.npy</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>path_third_image.npy</td>
+      <td>path_third_image.npy</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>path_fourth_image.npy</td>
+      <td>path_fourth_image.npy</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>To do that we use two functions <code class="language-plaintext highlighter-rouge">png2numpy</code>, <code class="language-plaintext highlighter-rouge">make_csv_file_npy</code> in <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%205-Pytorch%20with%20Dali/data_processing.py"><code class="language-plaintext highlighter-rouge">data_processing.py</code></a> file.</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">png2numpy</code> function helps us convert the <code class="language-plaintext highlighter-rouge">png</code> format into the <code class="language-plaintext highlighter-rouge">npy</code> format and save images and masks in <code class="language-plaintext highlighter-rouge">data_root_npy</code> folder</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">make_csv_file_npy</code> makes 2 CVS files train.cvs and valid.csv having the previous form and be saved at 
+<code class="language-plaintext highlighter-rouge">f"{data_root_npy}/csv_file"</code> foler.</li>
+</ul>
+
+<h2 id="3-nvidia-data-loading-library-dali">
+<a class="anchor" href="#3-nvidia-data-loading-library-dali" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. NVIDIA Data Loading Library (DALI)</h2>
+
+<p><code class="language-plaintext highlighter-rouge">DALI</code> is open source library for decoding and augmenting images,videos and speech to accelerate deep learning applications. DALI reduces latency and training time, mitigating bottlenecks, by overlapping training and pre-processing. It provides a drop-in replacement for built in data loaders and data iterators in popular deep learning frameworks for easy integration or retargeting to different frameworks.</p>
+
+<p>Let us discuss the difference among: a Naive Deeplearning Pipeline, Kornia Deep Learning Pipeline and DALI Deeplearning Pipeline.</p>
+<h3 id="naive-deep-learning-pipeline">
+<a class="anchor" href="#naive-deep-learning-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Naive Deep Learning Pipeline</h3>
+<ul>
+  <li>Naive Deeplearning Pipeline: The pre-processing of the data occurs on the CPU, the model will be typically trained on GPU/TPU.
+    <h3 id="kornia-deep-learning-pipeline">
+<a class="anchor" href="#kornia-deep-learning-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Kornia Deep Learning Pipeline</h3>
+  </li>
+  <li>Kornia Deep Learning Pipeline: The reading, resezing or padding data occurs on CPU, the transform (augmentation) and model training runed on GPU/TPU. The transform is consider as an <code class="language-plaintext highlighter-rouge">nn.Module</code>. Then <code class="language-plaintext highlighter-rouge">transform</code> is a  <code class="language-plaintext highlighter-rouge">nn.Module</code> object that <code class="language-plaintext highlighter-rouge">forward</code> input x of size <code class="language-plaintext highlighter-rouge">BxCxHxW</code> and obtain the output of size <code class="language-plaintext highlighter-rouge">BxCxHxW</code>.
+    <h3 id="dali-deep-learning-pipeline">
+<a class="anchor" href="#dali-deep-learning-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>DALI Deep Learning Pipeline</h3>
+  </li>
+  <li>DALI Deeplearning Pipeline: In the reading image, we have two components: encoding and decoding. With DALI library, we can read do encoding by CPUs and decoding by GPUs that work on batch. All other tasks will work on GPUs. We remark that the transform in DALI Pipeline works on data of several types: <code class="language-plaintext highlighter-rouge">BxCxHxW</code>, <code class="language-plaintext highlighter-rouge">BxHxWXC</code>. That is why DALI can easily be retargeted to TensorFlow, PyTorch, and MXNet.</li>
+</ul>
+
+<p>The DALI Training Pipeline</p>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/do/qg/tu/doqgtugeu1kqtdtojhospmro0j0.jpeg"></p>
+
+<p>DALI Library in the whole Pipieline.</p>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/g1/31/ga/g131gag8f-3co1irt5qq8rl5oui.png"></p>
+
+<h2 id="4-training-the-segmentation-problem-with-dali-and-pytorch-lighiting">
+<a class="anchor" href="#4-training-the-segmentation-problem-with-dali-and-pytorch-lighiting" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Training the Segmentation problem with DALI and Pytorch Lighiting.</h2>
+
+<p>In this part, we will details how to do processing the data in <code class="language-plaintext highlighter-rouge">DALI</code> and train the model by Pytorch Lighiting.</p>
+
+<h3 id="41-define-data-pipeline-by-dali">
+<a class="anchor" href="#41-define-data-pipeline-by-dali" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.1 Define Data Pipeline by DALI</h3>
+
+<p>We will define the processing data pipeline by using <code class="language-plaintext highlighter-rouge">dali</code>, instead of using <code class="language-plaintext highlighter-rouge">torch.utils.data</code>.</p>
+
+<p>We first define new class: <code class="language-plaintext highlighter-rouge">GenericPipeline</code> that wraps the <code class="language-plaintext highlighter-rouge">nvidia.dali.pipeline.Pipeline</code> class</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import nvidia.dali.ops as ops
+import nvidia.dali.types as types
+from nvidia.dali.pipeline import Pipeline
+
+class GenericPipeline(Pipeline):
+    def __init__(self, batch_size, num_threads, device_id, **kwargs):
+        super().__init__(batch_size, num_threads, device_id)
+        self.kwargs = kwargs
+        self.dim = kwargs["dim"]
+        self.device = device_id
+        # self.patch_size = [384,384]
+        self.load_to_gpu = kwargs["load_to_gpu"]
+        self.input_x = self.get_reader(kwargs["imgs"])
+        self.input_y = self.get_reader(kwargs["lbls"])
+        self.cast = ops.Cast(device="gpu", dtype=types.DALIDataType.FLOAT)
+
+    def get_reader(self, data):
+        return ops.readers.Numpy(
+            files=data,
+            device="cpu",
+            read_ahead=True,
+            dont_use_mmap=True,
+            pad_last_batch=True,
+            shard_id=self.device,
+            seed=self.kwargs["seed"],
+            num_shards=self.kwargs["gpus"],
+            shuffle_after_epoch=self.kwargs["shuffle"],
+        )
+
+    def load_data(self):
+        img = self.input_x(name="ReaderX")  # read X
+        img = img.gpu()
+        img = self.cast(img)
+        if self.input_y is not None:
+            lbl = self.input_y(name="ReaderY")  # read Y
+            lbl = lbl.gpu()
+            lbl = self.cast(lbl)
+
+            return img, lbl
+        return img
+
+</code></pre></div></div>
+
+<p>The initial input of GenericPipeline is:</p>
+<ul>
+  <li>batch_size: batchsize</li>
+  <li>num_threads: number of workers</li>
+  <li>device_id: gpu device</li>
+  <li>kwargs: the dictionary that has the infomations of parameters and train/valid data.</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kwargs = {
+            "dim": 2,
+            "seed": 42,
+            "gpus": 1,
+            "overlap": 0.5,
+            "benchmark": False,
+            "num_workers": 4,
+            "oversampling": 0.4,
+            "test_batches": 0,
+            "train_batches": 0,
+            "load_to_gpu": True,
+        }
+</code></pre></div></div>
+
+<p>We now can define <code class="language-plaintext highlighter-rouge">ValidPipeline</code> and <code class="language-plaintext highlighter-rouge">TrainPipeline</code> based on the <code class="language-plaintext highlighter-rouge">GenericPipeline</code></p>
+
+<h4 id="validpipeline">
+<a class="anchor" href="#validpipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>ValidPipeline</h4>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class ValidPipeline(GenericPipeline):
+    def __init__(self, batch_size, num_threads, device_id, **kwargs):
+        super().__init__(batch_size, num_threads, device_id, **kwargs)
+        # self.invert_resampled_y = kwargs["invert_resampled_y"]
+        # if self.invert_resampled_y:
+        #     self.input_meta = self.get_reader(kwargs["meta"])
+        #     self.input_orig_y = self.get_reader(kwargs["orig_lbl"])
+        print(len(kwargs["imgs"]))
+
+    def define_graph(self):
+        img, lbl = self.load_data()
+        img, lbl = self.resize_fn(img, lbl)  # reszie to inpput size (384)
+        img, lbl = self.transpose_fn(img, lbl)
+
+        return img, lbl
+
+</code></pre></div></div>
+<p>Here, we remark that define_graph is the function to do the data processing. For ValidPipeline, the flow of the data will be:</p>
+<ul>
+  <li>load_data</li>
+  <li>resize data</li>
+  <li>transpose data (convert image into the size of CxHxW)</li>
+</ul>
+
+<p>Similar, we have the TrainPipeline</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class TrainPipeline(GenericPipeline):
+    def __init__(self, batch_size, num_threads, device_id, **kwargs):
+        super().__init__(batch_size, num_threads, device_id, **kwargs)
+        self.oversampling = kwargs["oversampling"]
+
+    """
+    define some augumentations, for more augumentation, please read \
+        https://github.com/NVIDIA/DALI/tree/main/docs/examples/image_processing
+    """
+
+    @staticmethod
+    def slice_fn(img):
+        return fn.slice(img, 1, 3, axes=[0])
+
+    def resize(self, data, interp_type):
+        return fn.resize(data, interp_type=interp_type, size=self.crop_shape_float)
+
+    def noise_fn(self, img):
+        img_noised = img + fn.random.normal(img, stddev=fn.random.uniform(range=(0.0, 0.33)))
+        return random_augmentation(0.15, img_noised, img)
+
+    def blur_fn(self, img):
+        img_blurred = fn.gaussian_blur(img, sigma=fn.random.uniform(range=(0.5, 1.5)))
+        return random_augmentation(0.15, img_blurred, img)
+
+    def brightness_fn(self, img):
+        brightness_scale = random_augmentation(0.15, fn.random.uniform(range=(0.7, 1.3)), 1.0)
+        return img * brightness_scale
+
+    def contrast_fn(self, img):
+        scale = random_augmentation(0.13, fn.random.uniform(range=(0.9, 1.1)), 1.0)
+        return math.clamp(img * scale, fn.reductions.min(img), fn.reductions.max(img))
+
+    def flips_fn(self, img, lbl):
+        kwargs = {
+            "horizontal": fn.random.coin_flip(probability=0.5),
+            "vertical": fn.random.coin_flip(probability=0.5),
+        }
+        return fn.flip(img, **kwargs), fn.flip(lbl, **kwargs)
+
+    def define_graph(self):
+        img, lbl = self.load_data()
+        img, lbl = self.resize_fn(img, lbl)  # reszie to inpput size (384)
+        img, lbl = self.flips_fn(img, lbl)
+        img = self.noise_fn(img)
+        img = self.blur_fn(img)
+        img = self.brightness_fn(img)
+        img = self.contrast_fn(img)
+
+        img, lbl = self.transpose_fn(img, lbl)
+        return img, lbl
+
+</code></pre></div></div>
+
+<p>For the <code class="language-plaintext highlighter-rouge">TrainPipeline</code>, we need more augmentations. The augmentation is defined in the <code class="language-plaintext highlighter-rouge">define_graph</code> function.</p>
+
+<p>For the augmentation in DALI, we need to redefine all of transform functions. For more infomation, read the <a href="https://github.com/NVIDIA/DALI/tree/main/docs/examples/image_processing">dali tutorial</a>.</p>
+
+<p>For the convenience, we will define the function <code class="language-plaintext highlighter-rouge">fetch_dali_loader</code> that will generate <code class="language-plaintext highlighter-rouge">Pipeline</code> (TrainPipeline, ValidPipeline) depends on the type of dataset.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def fetch_dali_loader(imgs, lbls, batch_size, mode, **kwargs):
+    assert len(imgs) &gt; 0, "Empty list of images!"
+    if lbls is not None:
+        assert len(imgs) == len(lbls), f"Number of images ({len(imgs)}) not matching number of labels ({len(lbls)})"
+    pipeline = PIPELINES[mode]
+    shuffle = True if mode == "train" else False
+    load_to_gpu = True if mode in ["eval", "test"] else False
+    pipe_kwargs = {"imgs": imgs, "lbls": lbls, "load_to_gpu": load_to_gpu, "shuffle": shuffle, **kwargs}
+
+    rank = int(os.getenv("LOCAL_RANK", "0"))
+    pipe = pipeline(batch_size, kwargs["num_workers"], rank, **pipe_kwargs)
+    return pipe
+</code></pre></div></div>
+
+<p>Once we have the TrainPipeline and ValidPipeline, we can use them for the LightningWrapper to make the lightning data module.</p>
+
+<h3 id="42-lightningwrapper">
+<a class="anchor" href="#42-lightningwrapper" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.2 LightningWrapper</h3>
+
+<p>Our LightningDataModule of Nail data is defined by</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class NailSegmentationDaliDali(LightningDataModule):
+    def __init__(self, data_root_npy: str, batch_size: int, csv_folder: str):
+        super().__init__()
+
+        self.data_root_npy = str(data_root_npy)
+        self.csv_folder = csv_folder
+        self.batch_size = batch_size
+        self.train_csv = pd.read_csv(os.path.join(self.csv_folder, "train.csv"))
+        self.valid_csv = pd.read_csv(os.path.join(self.csv_folder, "valid.csv"))
+
+        self.kwargs = {
+            "dim": 2,
+            "seed": 42,
+            "gpus": 1,
+            "overlap": 0.5,
+            "benchmark": False,
+            "num_workers": 4,
+            "oversampling": 0.4,
+            "test_batches": 0,
+            "train_batches": 0,
+            "load_to_gpu": True,
+        }
+
+    def prepare_data(self) -&gt; None:
+        pass
+
+    def setup(self, stage=None):
+        self.train_imgs = [os.path.join(self.data_root_npy, path) for path in self.train_csv["images"]]
+        self.train_lbls = [os.path.join(self.data_root_npy, path) for path in self.train_csv["masks"]]
+
+        self.val_imgs = [os.path.join(self.data_root_npy, path) for path in self.valid_csv["images"]]
+        self.val_lbls = [os.path.join(self.data_root_npy, path) for path in self.valid_csv["masks"]]
+
+        self.train_dataset = fetch_dali_loader(
+            imgs=self.train_imgs, lbls=self.train_lbls, batch_size=self.batch_size, mode="train", **self.kwargs
+        )
+        self.valid_dataset = fetch_dali_loader(
+            imgs=self.val_imgs, lbls=self.val_lbls, batch_size=self.batch_size, mode="eval", **self.kwargs
+        )
+
+    def train_dataloader(self):
+        output_map = ["image", "label"]
+        return LightningWrapper(
+            self.train_dataset,
+            auto_reset=True,
+            reader_name="ReaderX",
+            output_map=output_map,
+            dynamic_shape=False,
+        )
+
+    def val_dataloader(self):
+        output_map = ["image", "label"]
+        return LightningWrapper(
+            self.valid_dataset,
+            auto_reset=True,
+            reader_name="ReaderX",
+            output_map=output_map,
+            dynamic_shape=True,
+        )
+
+</code></pre></div></div>
+
+<ul>
+  <li>Here in the setup function, we use fetch_dali_loader to get the datapipeline for the train and valid stages</li>
+  <li>train_dataloader and val_dataloader is defined thank to the <code class="language-plaintext highlighter-rouge">LightningWrapper</code> class</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class LightningWrapper(DALIGenericIterator):
+    def __init__(self, pipe, **kwargs):
+        super().__init__(pipe, **kwargs)
+
+    def __next__(self):
+        out = super().__next__()[0]
+        return out
+</code></pre></div></div>
+<ul>
+  <li>We remark that the input of the model will be dicts of keys [“image”, “label”]. It means
+    <div class="language-plaintext highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>input_batch = {"image": images, "label": masks}
+</code></pre></div>    </div>
+    <p>Then we also need to modify the train loop (<code class="language-plaintext highlighter-rouge">training_step</code>) and the valid loop (<code class="language-plaintext highlighter-rouge">validation_step</code>) of the LightningModule. For example:</p>
+  </li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def training_step(self, batch, batch_idx):
+    imgs, masks = batch["image"].float(), batch["label"]
+
+    logits = self(imgs)
+    train_loss = self.loss_function(logits, masks)
+    train_dice_soft = self.dice_soft(logits, masks)
+
+    self.log("train_loss", train_loss, prog_bar=True)
+    self.log("train_dice_soft", train_dice_soft, prog_bar=True)
+    return {"loss": train_loss, "train_dice_soft": train_dice_soft}
+
+</code></pre></div></div>
+
+<p>Once we finish to define <code class="language-plaintext highlighter-rouge">LightningModule</code> and <code class="language-plaintext highlighter-rouge">LightningDataModule</code>, we can jump to the <code class="language-plaintext highlighter-rouge">Trainer</code></p>
+
+<p><img align="center" width="600" src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png"></p>
+
+<h3 id="42-lightningwrapper-1">
+<a class="anchor" href="#42-lightningwrapper-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.2 LightningWrapper</h3>
+
+<p><strong>We keep all of rest parts of the pipeline</strong> (<code class="language-plaintext highlighter-rouge">LightningDataModule</code>, <code class="language-plaintext highlighter-rouge">Trainer</code>).</p>
+
+<p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%205-Pytorch%20with%20Dali">github</a></strong></p>
+
+<h3 id="references">
+<a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h3>
+
+<ul>
+  <li><a href="https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html">Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning</a></li>
+  <li><a href="https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html">NVIDIA DALI Documentation</a></li>
+  <li><a href="https://github.com/NVIDIA/DALI/blob/main/docs/examples/image_processing/augmentation_gallery.ipynb">Augmentation Gallery</a></li>
+  <li><a href="https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/Segmentation/nnUNet">nnU-Net For PyTorch</a></li>
+</ul>
+
+  </div><a class="u-url" href="/ml-blog/2022/08/05/segmentation-model-part5.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/ml-blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ml-blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ml-blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/hphuongdhsp" target="_blank" title="hphuongdhsp"><svg class="svg-icon grey"><use xlink:href="/ml-blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/hphuongdhsp" target="_blank" title="hphuongdhsp"><svg class="svg-icon grey"><use xlink:href="/ml-blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
