@@ -74,16 +74,14 @@ To do that we use two functions `png2numpy`, `make_csv_file_npy` in [`data_proce
 
 `DALI` is open source library for decoding and augmenting images,videos and speech to accelerate deep learning applications. DALI reduces latency and training time, mitigating bottlenecks, by overlapping training and pre-processing. It provides a drop-in replacement for built in data loaders and data iterators in popular deep learning frameworks for easy integration or retargeting to different frameworks. 
 
-Let us discuss the difference among: a Naive Deeplearning Pipeline, Kornia Deep Learning Pipeline and DALI Deeplearning Pipeline.  
+Let us discuss the difference between a Naive Deeplearning Pipeline, Kornia Deep Learning Pipeline and DALI Deeplearning Pipeline.
 
 ### Naive Deep Learning Pipeline
 
 - Naive Deeplearning Pipeline: The pre-processing of the data occurs on the CPU, the model will be typically trained on GPU/TPU.
-
 ### Kornia Deep Learning Pipeline
 
 - Kornia Deep Learning Pipeline: The reading, resezing or padding data occurs on CPU, the transform (augmentation) and model training runed on GPU/TPU. The transform is consider as an `nn.Module`. Then `transform` is a  `nn.Module` object that `forward` input x of size `BxCxHxW` and obtain the output of size `BxCxHxW`.
-
 ### DALI Deep Learning Pipeline
 
 - DALI Deeplearning Pipeline: In the reading image, we have two components: encoding and decoding. With DALI library, we can read do encoding by CPUs and decoding by GPUs that work on batch. All other tasks will work on GPUs. We remark that the transform in DALI Pipeline works on data of several types: `BxCxHxW`, `BxHxWXC`. That is why DALI can easily be retargeted to TensorFlow, PyTorch, and MXNet.
