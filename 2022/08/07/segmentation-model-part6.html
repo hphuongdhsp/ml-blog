@@ -9,19 +9,19 @@
 <meta property="og:title" content="Segmentation Model-Part VI - Training the Segformer model by using Pytorch Lightning and HuggingFace" />
 <meta name="author" content="Nguyen Hoang-Phuong" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="The sixth part of the Segmentation Tutorial Series, a step-by-step guide to developing Instance Segmentation Models in MMDetection" />
-<meta property="og:description" content="The sixth part of the Segmentation Tutorial Series, a step-by-step guide to developing Instance Segmentation Models in MMDetection" />
-<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/jupyter/2022/08/07/segmentation-model-part6.html" />
-<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/jupyter/2022/08/07/segmentation-model-part6.html" />
+<meta name="description" content="The sixth part of the Segmentation Tutorial Series, a guide to developing the SerFormer model for segmentation problem." />
+<meta property="og:description" content="The sixth part of the Segmentation Tutorial Series, a guide to developing the SerFormer model for segmentation problem." />
+<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/07/segmentation-model-part6.html" />
+<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/07/segmentation-model-part6.html" />
 <meta property="og:site_name" content="Hoang Phuong’ Blog" />
-<meta property="og:image" content="https://hphuongdhsp.github.io/ml-blog/_notebooks/my_icons/segformer_architecture.png" />
+<meta property="og:image" content="https://hphuongdhsp.github.io/ml-blog/images/segformer_architecture.png" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2022-08-07T00:00:00-05:00" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta property="twitter:image" content="https://hphuongdhsp.github.io/ml-blog/_notebooks/my_icons/segformer_architecture.png" />
+<meta property="twitter:image" content="https://hphuongdhsp.github.io/ml-blog/images/segformer_architecture.png" />
 <meta property="twitter:title" content="Segmentation Model-Part VI - Training the Segformer model by using Pytorch Lightning and HuggingFace" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nguyen Hoang-Phuong"},"dateModified":"2022-08-07T00:00:00-05:00","datePublished":"2022-08-07T00:00:00-05:00","description":"The sixth part of the Segmentation Tutorial Series, a step-by-step guide to developing Instance Segmentation Models in MMDetection","headline":"Segmentation Model-Part VI - Training the Segformer model by using Pytorch Lightning and HuggingFace","image":"https://hphuongdhsp.github.io/ml-blog/_notebooks/my_icons/segformer_architecture.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/jupyter/2022/08/07/segmentation-model-part6.html"},"url":"https://hphuongdhsp.github.io/ml-blog/jupyter/2022/08/07/segmentation-model-part6.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nguyen Hoang-Phuong"},"dateModified":"2022-08-07T00:00:00-05:00","datePublished":"2022-08-07T00:00:00-05:00","description":"The sixth part of the Segmentation Tutorial Series, a guide to developing the SerFormer model for segmentation problem.","headline":"Segmentation Model-Part VI - Training the Segformer model by using Pytorch Lightning and HuggingFace","image":"https://hphuongdhsp.github.io/ml-blog/images/segformer_architecture.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/07/segmentation-model-part6.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/07/segmentation-model-part6.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/ml-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hphuongdhsp.github.io/ml-blog/feed.xml" title="Hoang Phuong' Blog" /><link rel="shortcut icon" type="image/x-icon" href="/ml-blog/images/hp.ico">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
@@ -93,7 +93,7 @@ window.onload = wrap_img;
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part VI -  Training the Segformer model by using Pytorch Lightning and HuggingFace</h1><p class="page-description">The sixth part of the Segmentation Tutorial Series, a step-by-step guide to developing Instance Segmentation Models in MMDetection</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-07T00:00:00-05:00" itemprop="datePublished">
+    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part VI -  Training the Segformer model by using Pytorch Lightning and HuggingFace</h1><p class="page-description">The sixth part of the Segmentation Tutorial Series, a guide to developing the SerFormer model for segmentation problem.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-07T00:00:00-05:00" itemprop="datePublished">
         Aug 7, 2022
       </time>• 
           <span itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -105,13 +105,6 @@ window.onload = wrap_img;
     
 </span></p>
 
-    
-      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
-      
-        <a class="category-tags-link" href="/ml-blog/categories/#jupyter">jupyter</a>
-        
-      
-      </p>
     
 
     
@@ -151,7 +144,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Similar to the previous post, we will work with the Segmentation Problem (Nail Segmentation). In the first and second parts we will recall <code>Problem Description and Dataset</code>. If you have followed previous posts, you can skip those parts. In the third part, we will focus on the advantages of the Segformer model. The last part of the post will cover the training the Segformer model.</p>
+<p>Similar to the previous post, we will work with the Segmentation Problem (Nail Segmentation). In the first and second parts we will recall <strong>Problem Description and Dataset</strong>. If you have followed previous posts, you can skip those parts. In the third part, we will focus on the advantages of the Segformer model. The last part of the post will cover the training the Segformer model.</p>
 
 </div>
 </div>
@@ -260,7 +253,7 @@ window.onload = wrap_img;
 </h2>
 <p>The SegFormer model was proposed in SegFormer: <a href="https://arxiv.org/pdf/2105.15203v1.pdf">Simple and Efficient Design for Semantic Segmentation with Transformers</a> by Enze Xie, Wenhai Wang, Zhiding Yu, Anima Anandkumar, Jose M. Alvarez, Ping Luo. The model consists of a hierarchical Transformer encoder and a lightweight all-MLP decode head to achieve great results on image segmentation benchmarks.</p>
 <p>The figure below illustrates the architecture of SegFormer</p>
-<p><img src="https://habrastorage.org/webt/rj/pf/lv/rjpflvzjcjdeh7vxnls2lzzfl38.png" alt="" title="the architecture of SegFormer"></p>
+<p><img src="https://habrastorage.org/webt/rj/pf/lv/rjpflvzjcjdeh7vxnls2lzzfl38.png" alt="" title="The architecture of SegFormer"></p>
 <!-- <img align="center" width="600"  src="https://habrastorage.org/webt/rj/pf/lv/rjpflvzjcjdeh7vxnls2lzzfl38.png"> -->
 
 <p>SegFormer has the following notable points:</p>
@@ -412,13 +405,13 @@ Now we can jump to the next part.</p>
 <h2 id="4.-Traing-the-Segformer-model-with-Pytorch-Lightning-and-HuggingFace.">
 <a class="anchor" href="#4.-Traing-the-Segformer-model-with-Pytorch-Lightning-and-HuggingFace." aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Traing the Segformer model with Pytorch Lightning and HuggingFace.<a class="anchor-link" href="#4.-Traing-the-Segformer-model-with-Pytorch-Lightning-and-HuggingFace."> </a>
 </h2>
-<p>In this part we will discover how to train the Segformer model. In the <a href="https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html">part III</a>, we have used the <code>segmentation_models_pytorch</code> to build a <code>Unet</code> model to deal with the nail the segmentation problem. Unfortunately, the <code>segmentation_models_pytorch</code> don't yet implement<code>SegFormer</code> model. There are some open sources that implement the <code>SegFormer</code> model:</p>
+<p>In this part we will discover how to train the Segformer model. In the <a href="https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html">part III</a>, we have used the <strong>segmentation_models_pytorch</strong> to build a <strong>Unet</strong> model to deal with the nail the segmentation problem. Unfortunately, the segmentation_models_pytorch don't yet implement <strong>SegFormer</strong> model. There are some open sources that implement the <strong>SegFormer</strong> model:</p>
 <ul>
 <li><a href="https://github.com/open-mmlab/mmsegmentation">MMSegmentation</a></li>
 <li><a href="https://github.com/huggingface/transformers">Transformers - HuggingFace</a></li>
 <li>
 <a href="https://github.com/FrancescoSaverioZuppichini/SegFormer">Implementing SegFormer in PyTorch</a> 
-The first one is the officinal source code, but the model sticks with the <code>MMSegmentation</code> platform. It will be difficulty for unfamiliar people to use the <code>MMSegmentation</code> platform. The third one is reimplemented, but the model is not trained in any data. So We cannot profit the pretrained weights. Then we choose the second one that is implemented and trained by the <code>HuggingFace</code> team. </li>
+The first one is the officinal source code, but the model sticks with the <strong>MMSegmentation</strong> platform. It will be difficulty for unfamiliar people of the <strong>MMSegmentation</strong> platform. The third one is reimplemented from scratch, but the model is not trained for any data. So we cannot profit the pretrained weights. We choose the second one that is implemented and trained by the <strong>HuggingFace</strong> team. </li>
 </ul>
 <p>We will reuse the datapipeline and modelpipeline of the <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%203-Pytorch%20Lightning">third part</a> of the tutorial series except that we will use the <code>transformer</code> library to build the Segformer model.</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">SegformerForSemanticSegmentation</span>
@@ -446,7 +439,7 @@ The first one is the officinal source code, but the model sticks with the <code>
 <li>MiT-B4 Mix-Transformer is used to build the encoder part.</li>
 <li>Weight is trained on the ADE 20K dataset.</li>
 <li>Size of image = 512<blockquote>
-<p>Note that the output of the <code>SegFormer</code> model is (128,128). We the use the resize function <code>torch.nn.functional.interpolate</code>. We can totally replace the resize function with any other weighted function:<code>nn.ConvTranspose2d</code>.</p>
+<p>Note that the output of the <strong>SegFormer</strong> model is (128,128). We the use the resize function <code>torch.nn.functional.interpolate</code>. We can totally replace the resize function with any other weighted function:<code>nn.ConvTranspose2d</code>.</p>
 </blockquote>
 </li>
 </ul>
@@ -512,7 +505,7 @@ The first one is the officinal source code, but the model sticks with the <code>
         theme="github-light"
         crossorigin="anonymous"
         async>
-</script><a class="u-url" href="/ml-blog/jupyter/2022/08/07/segmentation-model-part6.html" hidden></a>
+</script><a class="u-url" href="/ml-blog/2022/08/07/segmentation-model-part6.html" hidden></a>
 </article>
 
       </div>
