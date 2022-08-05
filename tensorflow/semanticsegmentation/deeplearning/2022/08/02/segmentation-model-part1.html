@@ -11,8 +11,8 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow" />
 <meta property="og:description" content="The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow" />
-<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html" />
-<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html" />
+<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/tensorflow/semanticsegmentation/deeplearning/2022/08/02/segmentation-model-part1.html" />
+<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/tensorflow/semanticsegmentation/deeplearning/2022/08/02/segmentation-model-part1.html" />
 <meta property="og:site_name" content="Hoang Phuong’ Blog" />
 <meta property="og:image" content="https://hphuongdhsp.github.io/ml-blog/images/tensorflow.png" />
 <meta property="og:type" content="article" />
@@ -21,7 +21,7 @@
 <meta property="twitter:image" content="https://hphuongdhsp.github.io/ml-blog/images/tensorflow.png" />
 <meta property="twitter:title" content="Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nguyen Hoang-Phuong"},"dateModified":"2022-08-02T00:00:00-05:00","datePublished":"2022-08-02T00:00:00-05:00","description":"The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow","headline":"Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow","image":"https://hphuongdhsp.github.io/ml-blog/images/tensorflow.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/02/segmentation-model-part1.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nguyen Hoang-Phuong"},"dateModified":"2022-08-02T00:00:00-05:00","datePublished":"2022-08-02T00:00:00-05:00","description":"The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow","headline":"Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow","image":"https://hphuongdhsp.github.io/ml-blog/images/tensorflow.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/tensorflow/semanticsegmentation/deeplearning/2022/08/02/segmentation-model-part1.html"},"url":"https://hphuongdhsp.github.io/ml-blog/tensorflow/semanticsegmentation/deeplearning/2022/08/02/segmentation-model-part1.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/ml-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hphuongdhsp.github.io/ml-blog/feed.xml" title="Hoang Phuong' Blog" /><link rel="shortcut icon" type="image/x-icon" href="/ml-blog/images/hp.ico">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
@@ -105,6 +105,19 @@ window.onload = wrap_img;
     
 </span></p>
 
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/ml-blog/categories/#tensorflow">tensorflow</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ml-blog/categories/#semanticsegmentation">semanticsegmentation</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ml-blog/categories/#deeplearning">deeplearning</a>
+        
+      
+      </p>
     
 
     </header>
@@ -280,7 +293,8 @@ def make_csv_file(data_root) -&gt; None:
   <li>Load data into the model</li>
 </ul>
 
-<p><img align="center" width="600" src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png"></p>
+<p><img src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png" alt="" title="tf.data pipeline">
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png"> --></p>
 
 <p>The advantage of this method is:</p>
 <ul>
@@ -293,31 +307,32 @@ def make_csv_file(data_root) -&gt; None:
 <h3 id="naive-pipeline">
 <a class="anchor" href="#naive-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Naive pipeline</h3>
 
-<p><img align="center" width="600" src="https://habrastorage.org/webt/se/pj/bx/sepjbxl-cofjvbatz7x8xp6wn3i.png"></p>
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/se/pj/bx/sepjbxl-cofjvbatz7x8xp6wn3i.png"> -->
+<p><img src="https://habrastorage.org/webt/se/pj/bx/sepjbxl-cofjvbatz7x8xp6wn3i.png" alt="" title="Naive pipeline"></p>
 
 <p>This is the typical workflow of a naive data pipeline, there is always some idle time and overhead due to the inefficiency of sequential execution.</p>
 
 <p>In contrast, consider: <code class="language-plaintext highlighter-rouge">tf.data</code> pipeline</p>
 
-<p><img align="center" width="600" src="https://habrastorage.org/webt/yt/5z/bv/yt5zbvzi3pqdc4l_8ez1c6lzgug.png"></p>
-
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/yt/5z/bv/yt5zbvzi3pqdc4l_8ez1c6lzgug.png"> -->
+<p><img src="https://habrastorage.org/webt/yt/5z/bv/yt5zbvzi3pqdc4l_8ez1c6lzgug.png" alt="" title="tf.data pipeline"></p>
 <h3 id="31-get-images-and-masks-from-a-dataframe">
 <a class="anchor" href="#31-get-images-and-masks-from-a-dataframe" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.1 Get images and masks from a dataframe.</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def load_data_path(data_root: Union[str, Path], csv_dir: Union[str, Path], train: str) -&gt; Tuple:
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">load_data_path</span><span class="p">(</span><span class="n">data_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">csv_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">train</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">:</span>
 
-    csv_file = pd.read_csv(csv_dir)
-    ids = sorted(csv_file["images"])
-    images = [data_root + f"/{train}/images" + fname for fname in ids]
-    masks = [data_root + f"/{train}/masks" + fname for fname in ids]
-    return (images, masks)
+    <span class="n">csv_file</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_dir</span><span class="p">)</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">csv_file</span><span class="p">[</span><span class="s">"images"</span><span class="p">])</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_root</span> <span class="o">+</span> <span class="sa">f</span><span class="s">"/</span><span class="si">{</span><span class="n">train</span><span class="si">}</span><span class="s">/images"</span> <span class="o">+</span> <span class="n">fname</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">]</span>
+    <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_root</span> <span class="o">+</span> <span class="sa">f</span><span class="s">"/</span><span class="si">{</span><span class="n">train</span><span class="si">}</span><span class="s">/masks"</span> <span class="o">+</span> <span class="n">fname</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
 </code></pre></div></div>
 
 <h3 id="32-decode-images-and-masks">
 <a class="anchor" href="#32-decode-images-and-masks" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2 Decode images and masks</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -&gt; Any:
-    """this function is to load image and mask
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">load_image_and_mask_from_path</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="n">tf</span><span class="p">.</span><span class="n">string</span><span class="p">,</span> <span class="n">mask_path</span><span class="p">:</span> <span class="n">tf</span><span class="p">.</span><span class="n">string</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="s">"""this function is to load image and mask
 
     Args:
         image_path (tf.string): the tensorflow string of image
@@ -325,42 +340,42 @@ def make_csv_file(data_root) -&gt; None:
 
     Returns:
         [type]: image and mask
-    """
-    # read image by tensorflow function
-    img = tf.io.read_file(image_path)
-    img = tf.image.decode_image(img, channels=3)
-    # read mask by tensorflow function
-    mask = tf.io.read_file(mask_path)
-    mask = tf.image.decode_image(mask, channels=1)
-    return img, mask
+    """</span>
+    <span class="c1"># read image by tensorflow function
+</span>    <span class="n">img</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">image</span><span class="p">.</span><span class="n">decode_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="c1"># read mask by tensorflow function
+</span>    <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">mask_path</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">image</span><span class="p">.</span><span class="n">decode_image</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="n">mask</span>
 </code></pre></div></div>
 
 <h3 id="33-doing-augmentation">
 <a class="anchor" href="#33-doing-augmentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.3 Doing augmentation</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    def aug_fn(image, mask):
-        # do augumentation by albumentations library
-        data = {"image": image, "mask": mask}
-        aug_data = transforms(**data)
-        aug_img = aug_data["image"]
-        aug_mask = aug_data["mask"]
-        # do normalize by using the tensorflow.cast function
-        aug_img = tf.cast(aug_img / 255.0, dtype)
-        aug_mask = tf.cast(aug_mask / 255.0, dtype)
-        return aug_img, aug_mask
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">def</span> <span class="nf">aug_fn</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+        <span class="c1"># do augumentation by albumentations library
+</span>        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">"image"</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span> <span class="s">"mask"</span><span class="p">:</span> <span class="n">mask</span><span class="p">}</span>
+        <span class="n">aug_data</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">aug_img</span> <span class="o">=</span> <span class="n">aug_data</span><span class="p">[</span><span class="s">"image"</span><span class="p">]</span>
+        <span class="n">aug_mask</span> <span class="o">=</span> <span class="n">aug_data</span><span class="p">[</span><span class="s">"mask"</span><span class="p">]</span>
+        <span class="c1"># do normalize by using the tensorflow.cast function
+</span>        <span class="n">aug_img</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">cast</span><span class="p">(</span><span class="n">aug_img</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="n">aug_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">cast</span><span class="p">(</span><span class="n">aug_mask</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">aug_img</span><span class="p">,</span> <span class="n">aug_mask</span>
 </code></pre></div></div>
 
 <p>Here we use <a href="https://albumentations.ai/">Albumentations</a> library to define the transform. <strong>Albumentations</strong> is a Python library for fast and flexible image augmentations. Albumentations efficiently implements a rich variety of image transform operations that are optimized for performance and does so while providing a concise yet powerful image augmentation interface for different computer vision tasks, including object classification, segmentation, and detection. For example, we define our validation transform as</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import albumentations as A
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">albumentations</span> <span class="k">as</span> <span class="n">A</span>
 
-def valid_transform():
-    return A.Compose(
-        [
-            A.Resize(384, 384, always_apply=True),
-        ],
-        p=1,
-    )
+<span class="k">def</span> <span class="nf">valid_transform</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">A</span><span class="p">.</span><span class="n">Compose</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">A</span><span class="p">.</span><span class="n">Resize</span><span class="p">(</span><span class="mi">384</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span> <span class="n">always_apply</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
 </code></pre></div></div>
 
 <p>You can find the detail of transforms in <code class="language-plaintext highlighter-rouge">transform.py</code> file, in the source code given at the post’s end. We remark that, after doing augmentation, we cast the output of transform into TensorFlow type <code class="language-plaintext highlighter-rouge">tensorflow type</code></p>
@@ -371,22 +386,22 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 
 <p>Once we finish the augmentation task, we can do batching of the data by</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dataset = dataset.batch(batch_size)
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
 </code></pre></div></div>
 
 <p>Here, the dataset is now an object of <code class="language-plaintext highlighter-rouge">tf.data</code>.</p>
 
 <p>Compose four previous steps, we have the data loader function:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def tf_dataset(
-    dataset: Tuple[List[str], List[str]],
-    shuffle: bool,
-    batch_size: Any,
-    transforms: A.Compose,
-    dtype: Any,
-    device: List[int],
-):
-    r"""This function is to create dataloader for tensorflow training
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">tf_dataset</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">transforms</span><span class="p">:</span> <span class="n">A</span><span class="p">.</span><span class="n">Compose</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">device</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="s">"""This function is to create dataloader for tensorflow training
 
     Args:
         dataset Tuple[List[str], List[str]]: Tuple of List data path that have same size
@@ -396,43 +411,43 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 
     Returns:
         datast : the prepare dataset for the training step
-    """
+    """</span>
 
-    # do augumentation by albumentations, remark that in the the end, we use tf.cast to normalize
-    # image and mask and also make sure that the output of this function be in form of tensorflow (tf)
-    def aug_fn(image, mask):
-        # do augumentation by albumentations library
-        data = {"image": image, "mask": mask}
-        aug_data = transforms(**data)
-        aug_img = aug_data["image"]
-        aug_mask = aug_data["mask"]
-        # do normalize by using the tensorflow.cast function
-        aug_img = tf.cast(aug_img / 255.0, dtype)
-        aug_mask = tf.cast(aug_mask / 255.0, dtype)
-        return aug_img, aug_mask
+    <span class="c1"># do augumentation by albumentations, remark that in the the end, we use tf.cast to normalize
+</span>    <span class="c1"># image and mask and also make sure that the output of this function be in form of tensorflow (tf)
+</span>    <span class="k">def</span> <span class="nf">aug_fn</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+        <span class="c1"># do augumentation by albumentations library
+</span>        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">"image"</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span> <span class="s">"mask"</span><span class="p">:</span> <span class="n">mask</span><span class="p">}</span>
+        <span class="n">aug_data</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">aug_img</span> <span class="o">=</span> <span class="n">aug_data</span><span class="p">[</span><span class="s">"image"</span><span class="p">]</span>
+        <span class="n">aug_mask</span> <span class="o">=</span> <span class="n">aug_data</span><span class="p">[</span><span class="s">"mask"</span><span class="p">]</span>
+        <span class="c1"># do normalize by using the tensorflow.cast function
+</span>        <span class="n">aug_img</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">cast</span><span class="p">(</span><span class="n">aug_img</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="n">aug_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">cast</span><span class="p">(</span><span class="n">aug_mask</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">aug_img</span><span class="p">,</span> <span class="n">aug_mask</span>
 
-    def process_data(image, mask):
-        # using tf.numpy_function to apply the aug_img to image and mask
-        aug_img, aug_mask = tf.numpy_function(aug_fn, [image, mask], [dtype, dtype])
-        return aug_img, aug_mask
+    <span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+        <span class="c1"># using tf.numpy_function to apply the aug_img to image and mask
+</span>        <span class="n">aug_img</span><span class="p">,</span> <span class="n">aug_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">numpy_function</span><span class="p">(</span><span class="n">aug_fn</span><span class="p">,</span> <span class="p">[</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">],</span> <span class="p">[</span><span class="n">dtype</span><span class="p">,</span> <span class="n">dtype</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">aug_img</span><span class="p">,</span> <span class="n">aug_mask</span>
 
-    # convert the tuple of list (images, masks) into the tensorflow.data form
-    dataset = tf.data.Dataset.from_tensor_slices(dataset)
+    <span class="c1"># convert the tuple of list (images, masks) into the tensorflow.data form
+</span>    <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">Dataset</span><span class="p">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 
-    # apply the map reading image and mask (make sure that the input and output are in the tensorflow form (tf.))
-    dataset = dataset.map(load_image_and_mask_from_path, num_parallel_calls=multiprocessing.cpu_count() // len(device))
-    # shuffle data
-    if shuffle:
-        dataset = dataset.shuffle(buffer_size=100000)
-    # do the process_data map (augumentation and normalization)
-    dataset = dataset.map(
-        partial(process_data), num_parallel_calls=multiprocessing.cpu_count() // len(device)
-    ).prefetch(AUTOTUNE)
-    # make batchsize, here we use batch_size as a parameter, in some case we dont split dataset by batchsize
-    # for example, if we want to mix multi-dataset, then we skip this step and split dataset by batch_size later
-    if batch_size:
-        dataset = dataset.batch(batch_size)
-    return dataset
+    <span class="c1"># apply the map reading image and mask (make sure that the input and output are in the tensorflow form (tf.))
+</span>    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">.</span><span class="nb">map</span><span class="p">(</span><span class="n">load_image_and_mask_from_path</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">multiprocessing</span><span class="p">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">device</span><span class="p">))</span>
+    <span class="c1"># shuffle data
+</span>    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+    <span class="c1"># do the process_data map (augumentation and normalization)
+</span>    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">.</span><span class="nb">map</span><span class="p">(</span>
+        <span class="n">partial</span><span class="p">(</span><span class="n">process_data</span><span class="p">),</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">multiprocessing</span><span class="p">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="p">).</span><span class="n">prefetch</span><span class="p">(</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+    <span class="c1"># make batchsize, here we use batch_size as a parameter, in some case we dont split dataset by batchsize
+</span>    <span class="c1"># for example, if we want to mix multi-dataset, then we skip this step and split dataset by batch_size later
+</span>    <span class="k">if</span> <span class="n">batch_size</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
 </code></pre></div></div>
 
 <h1 id="4-define-the-segmentation-model">
@@ -444,37 +459,37 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 
 <h2 id="41-model">
 <a class="anchor" href="#41-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.1 Model</h2>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def create_model():
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">create_model</span><span class="p">():</span>
 
-    model = sm.Unet(
-        "efficientnetb4",
-        input_shape=(384, 384, 3),
-        encoder_weights="imagenet",
-        classes=1,
-    )
-    # TO USE mixed_precision, HERE WE USE SMALL TRICK, REMOVE THE LAST LAYER AND ADD
-    # THE ACTIVATION SIGMOID WITH THE DTYPE  TF.FLOAT32
-    last_layer = tf.keras.layers.Activation(activation="sigmoid", dtype=tf.float32)(model.layers[-2].output)
-    model = tf.keras.Model(model.input, last_layer)
+    <span class="n">model</span> <span class="o">=</span> <span class="n">sm</span><span class="p">.</span><span class="n">Unet</span><span class="p">(</span>
+        <span class="s">"efficientnetb4"</span><span class="p">,</span>
+        <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">384</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="n">encoder_weights</span><span class="o">=</span><span class="s">"imagenet"</span><span class="p">,</span>
+        <span class="n">classes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># TO USE mixed_precision, HERE WE USE SMALL TRICK, REMOVE THE LAST LAYER AND ADD
+</span>    <span class="c1"># THE ACTIVATION SIGMOID WITH THE DTYPE  TF.FLOAT32
+</span>    <span class="n">last_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Activation</span><span class="p">(</span><span class="n">activation</span><span class="o">=</span><span class="s">"sigmoid"</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">float32</span><span class="p">)(</span><span class="n">model</span><span class="p">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">].</span><span class="n">output</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">Model</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="nb">input</span><span class="p">,</span> <span class="n">last_layer</span><span class="p">)</span>
 
-    # define optimization, here we use the tensorflow addon, but use can also use some normal \
-    # optimazation that is defined in tensorflow.optimizers
-    optimizer = tfa.optimizers.RectifiedAdam()
+    <span class="c1"># define optimization, here we use the tensorflow addon, but use can also use some normal \
+</span>    <span class="c1"># optimazation that is defined in tensorflow.optimizers
+</span>    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tfa</span><span class="p">.</span><span class="n">optimizers</span><span class="p">.</span><span class="n">RectifiedAdam</span><span class="p">()</span>
 
-    if args.mixed_precision:
-        optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer, dynamic=True)
-    # define a loss fucntion
-    dice_loss = sm.losses.DiceLoss()
-    focal_loss = sm.losses.BinaryFocalLoss()
-    total_loss = dice_loss + focal_loss
-    # define metric
-    metrics = [
-        sm.metrics.IOUScore(threshold=0.5),
-        sm.metrics.FScore(threshold=0.5),
-    ]
-    # compile model with optimizer, losses and metrics
-    model.compile(optimizer, total_loss, metrics)
-    return model
+    <span class="k">if</span> <span class="n">args</span><span class="p">.</span><span class="n">mixed_precision</span><span class="p">:</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">mixed_precision</span><span class="p">.</span><span class="n">LossScaleOptimizer</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">dynamic</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c1"># define a loss fucntion
+</span>    <span class="n">dice_loss</span> <span class="o">=</span> <span class="n">sm</span><span class="p">.</span><span class="n">losses</span><span class="p">.</span><span class="n">DiceLoss</span><span class="p">()</span>
+    <span class="n">focal_loss</span> <span class="o">=</span> <span class="n">sm</span><span class="p">.</span><span class="n">losses</span><span class="p">.</span><span class="n">BinaryFocalLoss</span><span class="p">()</span>
+    <span class="n">total_loss</span> <span class="o">=</span> <span class="n">dice_loss</span> <span class="o">+</span> <span class="n">focal_loss</span>
+    <span class="c1"># define metric
+</span>    <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sm</span><span class="p">.</span><span class="n">metrics</span><span class="p">.</span><span class="n">IOUScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+        <span class="n">sm</span><span class="p">.</span><span class="n">metrics</span><span class="p">.</span><span class="n">FScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="c1"># compile model with optimizer, losses and metrics
+</span>    <span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">total_loss</span><span class="p">,</span> <span class="n">metrics</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
 
 </code></pre></div></div>
 
@@ -508,7 +523,8 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 
 <p>Here is the mixed precision training flow:</p>
 
-<p><img align="center" width="600" src="https://habrastorage.org/webt/3y/pg/ew/3ypgewgss1uoezkydzapcg0pjgy.png"></p>
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/3y/pg/ew/3ypgewgss1uoezkydzapcg0pjgy.png"> -->
+<p><img src="https://habrastorage.org/webt/3y/pg/ew/3ypgewgss1uoezkydzapcg0pjgy.png" alt="" title="mixed precision training flow"></p>
 
 <ul>
   <li>We first feed the data as the float16 or bloat16 type, then the input of the model has the low type (float16 and bfloat16).</li>
@@ -582,44 +598,44 @@ callbacks.append(WandbCallback())
 <h2 id="53-dataloader">
 <a class="anchor" href="#53-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.3 Dataloader</h2>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>data_root = str(args.data_root)
-train_csv_dir = f"{data_root}/csv_file/train.csv"
-valid_csv_dir = f"{data_root}/csv_file/valid.csv"
-# set batch_size
-batch_size = args.batch_size
-epochs = args.epochs
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data_root</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">data_root</span><span class="p">)</span>
+<span class="n">train_csv_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/train.csv"</span>
+<span class="n">valid_csv_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/valid.csv"</span>
+<span class="c1"># set batch_size
+</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">batch_size</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">epochs</span>
 
-# get training and validation set
-train_dataset = load_data_path(data_root, train_csv_dir, "train")
-train_loader = tf_dataset(
-    dataset=train_dataset,
-    shuffle=True,
-    batch_size=batch_size,
-    transforms=train_transform(),
-    dtype=dtype,
-    device=args.device,
-)
-valid_dataset = load_data_path(data_root, valid_csv_dir, "valid")
-valid_loader = tf_dataset(
-    dataset=valid_dataset,
-    shuffle=False,
-    batch_size=batch_size,
-    transforms=valid_transform(),
-    dtype=dtype,
-    device=args.device,
-)
+<span class="c1"># get training and validation set
+</span><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">load_data_path</span><span class="p">(</span><span class="n">data_root</span><span class="p">,</span> <span class="n">train_csv_dir</span><span class="p">,</span> <span class="s">"train"</span><span class="p">)</span>
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">tf_dataset</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+    <span class="n">transforms</span><span class="o">=</span><span class="n">train_transform</span><span class="p">(),</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">device</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">valid_dataset</span> <span class="o">=</span> <span class="n">load_data_path</span><span class="p">(</span><span class="n">data_root</span><span class="p">,</span> <span class="n">valid_csv_dir</span><span class="p">,</span> <span class="s">"valid"</span><span class="p">)</span>
+<span class="n">valid_loader</span> <span class="o">=</span> <span class="n">tf_dataset</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="n">valid_dataset</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+    <span class="n">transforms</span><span class="o">=</span><span class="n">valid_transform</span><span class="p">(),</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">device</span><span class="p">,</span>
+<span class="p">)</span>
 
 </code></pre></div></div>
 
 <h2 id="54-fit-training">
 <a class="anchor" href="#54-fit-training" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.4 Fit training</h2>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>history = model.fit(
-    train_loader,
-    steps_per_epoch=total_steps,
-    epochs=epochs,
-    validation_data=valid_loader,
-    callbacks=callbacks,
-)
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">train_loader</span><span class="p">,</span>
+    <span class="n">steps_per_epoch</span><span class="o">=</span><span class="n">total_steps</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="n">valid_loader</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
+<span class="p">)</span>
 </code></pre></div></div>
 
 <p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%201-Tensorflow">github</a></strong></p>
@@ -632,7 +648,7 @@ valid_loader = tf_dataset(
         theme="github-light"
         crossorigin="anonymous"
         async>
-</script><a class="u-url" href="/ml-blog/2022/08/02/segmentation-model-part1.html" hidden></a>
+</script><a class="u-url" href="/ml-blog/tensorflow/semanticsegmentation/deeplearning/2022/08/02/segmentation-model-part1.html" hidden></a>
 </article>
 
       </div>
