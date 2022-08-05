@@ -1,6 +1,9 @@
 ---
 toc: true
 layout: post
+comments: true
+author: Nguyen Hoang-Phuong
+image: images/dali.png
 description: The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library
 # categories: [tensorflow, semantic segmentation, deep learning]
 title: Segmentation Model-Part V - Data augmentation on the GPU with DALI

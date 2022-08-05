@@ -1,6 +1,9 @@
 ---
 toc: true
 layout: post
+comments: true
+author: Nguyen Hoang-Phuong
+image: images/imbalanced data.png
 description: The second part of the Segmentation Tutorial Series, a guide to handle Imbalanced Data in Deep Learning
 # categories: [tensorflow, semantic segmentation, deep learning]
 title: Segmentation Model-Part II - How to handle Imbalanced Data in Segmentation Problem
