@@ -15,38 +15,38 @@ In this post, we will cover how to train a instance segmentation model by using 
 
 We first introduce about: Semantic image segmentation, Object detection, Semantic Image segmentation
 
-- Semantic image segmentation marks all pixels belonging to that tag, but won’t define the boundaries of each object.
-- Object detection does not segment the object, but define the location of each individual object instance with a box.
-- Combining semantic segmentation with object detection leads to instance segmentation
+- A Semantic image segmentation marks all pixels belonging to that tag, but won’t define the boundaries of each object.
+- A Object detection does not segment the object, but define the location of each individual object instance with a box.
+- Combining the semantic segmentation with the object detection leads to a instance segmentation
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/uc/uw/sy/ucuwsy-0vb8vjqw0v_9gviyv-ga.jpeg">
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/uc/uw/sy/ucuwsy-0vb8vjqw0v_9gviyv-ga.jpeg"> -->
 
+![](https://habrastorage.org/webt/uc/uw/sy/ucuwsy-0vb8vjqw0v_9gviyv-ga.jpeg "Instace Segmentation ,Source: V7Lab")
 
-Source: V7Lab
 
 
 Nowaday, to tackle the instance segmentation problem, one use uselly [Mask R-CNN model](https://arxiv.org/pdf/1703.06870.pdf) which is presented by [K.He] and all.  For more detail about Mask R-CNN model, we  refer to read [Everything about Mask R-CNN: A Beginner’s Guide](https://viso.ai/deep-learning/mask-r-cnn/#:~:text=Mask%20R%2DCNN%20is%20a,segmentation%20mask%20for%20each%20instance.) artical. 
 
 
-Mask R-CNN is the state-of-the-art model for Instance Segmentation with three outputs: mask, classes and boundary box. 
+**Mask R-CNN** is the state-of-the-art model for the Instance Segmentation with three outputs of the model: mask, classes and boundary box. 
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/kg/sg/eb/kgsgebllp-5ajlord4ikausbzle.png">
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/kg/sg/eb/kgsgebllp-5ajlord4ikausbzle.png"> -->
+![](https://habrastorage.org/webt/kg/sg/eb/kgsgebllp-5ajlord4ikausbzle.png "Mask R-CNN architechture,Source: V7Lab")
 
-Source: V7Lab
 
 
 ## 1. Problem Description and Dataset
 
-We will cover the nail instance segmentation. We want to have a bounding box and segment each nail in the picture. It's from the real application. For example, we want to make a nail disease classification application. To do that, we first do the nail segmentation task. Then we can crop nail parts and drop the cropped nail into the nail classification model in order to classify disease for each nail.
+We will cover the nail instance segmentation. We want to have a bounding box and segment each nail in the picture. It's from the real application. We want to make a nail disease classification application. To do that, the first step is cropping nails in the given image. Then each cropping nail image will be fed in to the classification model.
 
-For the semantic nail segmentation, we can segment the nail part and then use post-processing to obtain the cropped nail images. That strategy sometimes does not work when the nail positions overlap. We then want to try instance segmentation to tackle that difficulty. 
+For the semantic nail segmentation, we can segment the nail in iamges and then use post-processing to obtain the bounding box and segmentation of nails. That method does not work well in the case that the nails have overlapping. We then aproach the instance segmentation problem to tackle the difficulty. 
 
 |                                                     Images                                                     |                                                     Masks                                                      |
 | :------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------: |
 | <img align="center" width="300"  src="https://habrastorage.org/webt/em/og/9v/emog9v4ya7ssllg5dht77_wehqk.png"> | <img align="center" width="300"  src="https://habrastorage.org/webt/hl/bf/ov/hlbfovx1uhrbbebgxndyho9yywo.png"> |
 
 
-### Mission: **We want to have a bounding box and segmentation of each nail in the picture.**
+> Mission:  **We want to have a bounding box and segmentation of each nail in the picture.**
 
 
 Our data is organized as
@@ -107,7 +107,7 @@ We want to convert our semantic segmentation data into the instance segmentaion.
 
 The coco annotation has the following format
 
-```
+```python
 {
     "images": [images],
     "annotations": [annotations],
@@ -117,14 +117,14 @@ The coco annotation has the following format
 
 Where: 
 
-- `"images"` (type: [List[Dict]]) is the list of dictionaries, each dictionary has informations
+- **"images"** (type: [List[Dict]]) is the list of dictionaries, each dictionary has informations
     - "id": 100   The id of image
     - "file_name": "train/images/1/image_100.png",  the path to get image
     - "width": 1800,   
     - "height": 1626
 
 
-- `"annotations"`  is the list of dictionaries, each dictionary has informations
+- **"annotations"**  is the list of dictionaries, each dictionary has informations
 
     - "id": 350, id of object (not the image id)
     - "image_id": 100, id of image
@@ -134,13 +134,13 @@ Where:
     - "bbox": [x,y,width,height],
     - "iscrowd": 0 or 1,
 
-- `"categories"`  is the list of dictionaries, each dictionary has informations
+- **"categories"**  is the list of dictionaries, each dictionary has informations
     - "id": int = 0 id of categories
     - "name": str = "nail"
 
-Using the get_annotations function, we can convert the semantic segmentation data into the coco format data of the instance segmentation. 
+Using the *get_annotations* function, we can convert the semantic segmentation data into the coco format data of the instance segmentation. 
 
-```
+```python
 def get_annotations(dataframe: pd.DataFrame):
     """get_annotations is to convert a dataframe into the coco format
 
@@ -207,8 +207,8 @@ def get_annotations(dataframe: pd.DataFrame):
 
 Where: 
 
-- find_contours is a function to get contour of a binary mask. 
-- dataframe is the data frame obtained from the make_csv_file function, that have the infomations of data. 
+- *find_contours* is a function to get contour of a binary mask. 
+- dataframe argument of the above function is the data frame obtained from the *make_csv_file* that has the infomations of data. 
 
 We then save the annotaions as a json file by the `get_json_coco` function
 
@@ -236,7 +236,7 @@ def get_json_coco(args) -> None:
 
 ### 3.1 MMDetection
 
-MMDetection is an object detection toolbox that contains a rich set of object detection and instance segmentation methods as well as related components and modules. It is built on top of PyTorch.
+**MMDetection** is an object detection toolbox that contains a rich set of object detection and instance segmentation methods as well as related components and modules. It is built on top of PyTorch.
 
 One decomposes the detection framework into different components and one can easily construct a customized object detection framework by combining different modules. In this part, we discover how to decompose  the instance segmentation framework and modify them in order to train a instance segmentation model. 
 
@@ -250,7 +250,7 @@ In the second part we have customized our dataset into the coco format. With the
 
 ### 3.2 Modify the config. 
 
-**Config is all we need**. 
+> **Config is all we need**
 
 To run a instance segmentation or object detection, all we need to do is define a good config. In the config file, there are all of infomation for a training model. 
 
@@ -267,7 +267,7 @@ A Config can be decompose into four parts.
 
 In the `configs/__base__` there are examples for each module 
 
-```
+```bash
 ├── configs
 │   ├── __base__
 │       ├── datasets
@@ -285,8 +285,7 @@ configs/mask_rcnn/mask_rcnn_r50_caffe_fpn_mstrain-poly_1x_coco.py
 
 ```
 
-Here we can see: 
-
+Here 
 - mask_rcnn: type of mask_rcnn
 - r50: backbone of the model (Resnet50)
 - caffe: the pretrained model is caffe model.
@@ -296,12 +295,13 @@ Here we can see:
 - 1x: 12 max_epochs
 - coco: the dataset is coco format.
 
-In this post, we focus on two module: dataset and model, we set the schedules and default_runtime as default. 
+In this post, we focus on two modules: dataset and model and set the *schedules* and *default_runtime* as default. 
 
 #### Modify the model config
-For the nail segmentation, the output is a binary mask (only one type of object), we then redefine the model as: 
 
-```
+With the nail segmentation, the output is a binary mask (only nail object), then redefine the model as: 
+
+```python
 # The new config inherits a base config to highlight the necessary modification
 _base_ = "mask_rcnn/mask_rcnn_r50_caffe_fpn_mstrain-poly_1x_coco.py"
 
@@ -309,12 +309,16 @@ _base_ = "mask_rcnn/mask_rcnn_r50_caffe_fpn_mstrain-poly_1x_coco.py"
 model = dict(roi_head=dict(bbox_head=dict(num_classes=1), mask_head=dict(num_classes=1)))
 
 ```
+Here: 
+
+- We inherit the config `mask_rcnn/mask_rcnn_r50_caffe_fpn_mstrain-poly_1x_coco.py`
+- Only need to define the num_classes in the bbox_head and mask_head.
 
 #### Modify the data pipeline config
 
-For the data pipeline we use: 
+For the data pipeline: 
 
-```
+```python
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
@@ -344,12 +348,14 @@ data = dict(
 ```
 
 Here: 
+- type:"CocoDataset" as default because we use the coco format.
 - img_prefix: - the path to the image directory.
 - ann_file: the path to the json annotation file.
 - classes: the classes of the dataset. Here class: = ["nail"]
 - pipeline: data pipeline processing that is defined as
 
-```
+
+```python
 train_pipeline = [
     dict(type="LoadImageFromFile"),
     dict(type="LoadAnnotations", with_bbox=True, with_mask=True),
@@ -382,42 +388,61 @@ test_pipeline = [
     ),
 ]
 ```
+> Note: we want use the multi-scale image when training the pipeline, then
 
+```
+img_scale=[(1333, 640), (1333, 672), (1333, 704), (1333, 736), (1333, 768), (1333, 800)]
+
+```
 ### 3.2 Training
 
-Once we have the config file (see [nail_conig.py], we continue to train model. 
+Once we have the config file (see [nail_conig.py], we start to train model. 
 
-We first call the config by using the `Config` of `mmcv` library: 
+For that we will: 
+- import the config file
+- define the model module
+- defime the data pipeline
+- train the model with an api
+
+#### Import Config by using `mmcv` library:
 
 ```
 cfg = mmcv.Config("configs/nail_config.py")
 ```
 
-Using the apis: `build_detector`, `build_dataset` of mmdetection library, we can easily build the model and dataset. 
+#### Build the model pipeline from the Config by using build_detector api
 
-```
-from mmdet.apis import init_random_seed, set_random_seed, train_detector
+```python 
+from mmdet.apis import build_detector
 
 model = build_detector(cfg.model, train_cfg=cfg.get("train_cfg"), test_cfg=cfg.get("test_cfg"))
 model.init_weights()
 
+```
+
+#### Build the data pipeline from the Config by using build_dataset api
+Using the apis: `build_detector`, `build_dataset` of mmdetection library, we can easily build the model and dataset. 
+
+```
+from mmdet.apis import build_dataset
 datasets = [build_dataset(cfg.data.train)]
 ```
 
-Finally we use the `train_detector` as the Training API: 
+#### Train the model with the train_detector api
 
-```
-train_detector(model, datasets, cfg)
+
+```python
+from mmdet.apis import train_detector
+train_detector(model, datasets)
+
 ```
 
 
 After 40 epochs, we can see the model is training well.
 
-<img align="center" width="400"  src="https://habrastorage.org/webt/q1/5v/hw/q15vhwbx5bslvd97sfhpca1iffu.jpeg">
+<!-- <img align="center" width="400"  src="https://habrastorage.org/webt/q1/5v/hw/q15vhwbx5bslvd97sfhpca1iffu.jpeg"> -->
 
-
-
-
+![](https://habrastorage.org/webt/q1/5v/hw/q15vhwbx5bslvd97sfhpca1iffu.jpeg "a result apter training 40 epochs")
 
 
 **For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%207-Instance%20Segmentation%20with%20MMDetection)**

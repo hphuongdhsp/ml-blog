@@ -73,13 +73,14 @@ For that we use `make_csv_file` function in `data_processing.py` file.
 ## 3. The CPU bottleneck
 
 
-The fact is that today these transforms are applied one input at a time on CPUs. This means that they are super slow. 
+> The fact is that today these transforms are applied one input at a time on CPUs. This means that they are super slow. 
 
 ### 3.1 A naive approach model training
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/vb/ou/jr/vboujrk9qbwjoabvrj-glqy5s-e.png">
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/vb/ou/jr/vboujrk9qbwjoabvrj-glqy5s-e.png"> -->
+![](https://habrastorage.org/webt/vb/ou/jr/vboujrk9qbwjoabvrj-glqy5s-e.png "A naive approach model training")
 
-A naive training pipeline includes: 
+The naive training pipeline includes: 
 
 - The pre-processing of the data occurs on the CPU
 - The model will be typically trained on GPU/TPU.
@@ -88,19 +89,24 @@ A naive training pipeline includes:
 
 To improve the training speed we can shift the data augmentation task in to GPU 
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/nr/wb/zr/nrwbzrp-xf-s2z2awddfswtu0hq.png">
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/nr/wb/zr/nrwbzrp-xf-s2z2awddfswtu0hq.png"> -->
+![](https://habrastorage.org/webt/nr/wb/zr/nrwbzrp-xf-s2z2awddfswtu0hq.png "Data Augmentation using GPU")
 
-To do that we can use [Kornia.augmentation](https://kornia.readthedocs.io/en/v0.4.1/index.html), [Dali](https://developer.nvidia.com/dali). 
-- `Kornia.augmentation` is the module of Kornia which permit to do augmentation in GPU. It will boost the speed of traininig in almost cases. 
-- `DALI` is a library for data loading and pre-processing to accelerate deep learning applications. Data processing pipelines implemented using DALI can easily be retargeted to  [TensorFlow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/), [MXNet](https://mxnet.apache.org/versions/1.9.1/) and [PaddlePaddle](https://github.com/PaddlePaddle/Paddle). This post we will focus on how to use `Kornia`. The guide of using `DALI` will be introduced in next post. 
+To do that we can use [Kornia.augmentation](https://kornia.readthedocs.io/en/v0.4.1/index.html), [Dali](https://developer.nvidia.com/dali) libraries.
+
+
+- **Kornia.augmentation** is the module of Kornia which permit to do augmentation in GPU. It will boost the speed of traininig in almost cases. 
+- **DALI** is the library for data loading and pre-processing to accelerate deep learning applications. Data processing pipelines implemented using DALI can easily be retargeted to  [TensorFlow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/), [MXNet](https://mxnet.apache.org/versions/1.9.1/) and [PaddlePaddle](https://github.com/PaddlePaddle/Paddle). 
+
+This post we will focus on how to use `Kornia`. A guide of using `DALI` will be introduced in next post. 
 
 ## 4. Data Augmentation using Kornia 
 
-In this part, we will cover how to use Kornia for data augmentation. 
-To augumentate data on GPU, we can understand transforms (augumentations) as a `transform_module` ( is a   nn.Module object) whose input is a tensor of size $C\times H \times W$ and output is also tensor of size $C\times H \times W$.
+In this part, we will cover how to use Kornia for data augmentation. To augumentate data on GPU, we use transforms (augumentations) as a `transform_module` ( in Pytorch platform, it is a nn.Module object) whose input is a tensor of size $C\times H \times W$ and output is also tensor of size $C\times H \times W$.
 
 That `transform_module` is put between the processing task (includes read images, make images of batch having same size,  convert images in to the tensor format) and the training model. More precisely,
-```
+
+```python
 class ModelWithAugumentation(nn.Module):
     """Module to perform data augmentation on torch tensors."""
 
@@ -118,24 +124,41 @@ class ModelWithAugumentation(nn.Module):
 
 where transform_module is defined by using `Kornia` or `torchvision`. For example
 
-```
+```python
 transform_module = K.augmentation.AugmentationSequential(
     K.augmentation.Normalize(Tensor((0.485, 0.456, 0.406)), Tensor((0.229, 0.224, 0.225)), p=1)
 )
 ```
 
-We now apply that strategy to our problem. Comparing with the previous pipeline in the last post ([Training deep learning segmentation models in Pytorch Lightning](https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html)), here are some modifications. 
+> Note: we can also use torchvsiion to define the transform module.
 
-- Only use Resize or Padding in the data augmentation on CPUs, in the last part we define the whole augmentation by using albumentations and use it as the transform before going to the model.
-
+```python
+transforms = torch.nn.Sequential(
+    transforms.CenterCrop(10),
+    transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+)
 ```
+
+Each transform module is a `nn.Module` object. We can use `nn.Sequential` to define a sequence of transforms.
+
+We now apply that strategy to our problem. Comparing with the previous pipeline in the last post ([Training deep learning segmentation models in Pytorch Lightning](https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html)), here we have some modifications:
+
+- Only use **Resize** or **Padding** in the data augmentation on CPUs, in the last part we define the whole augmentation by using albumentations and use it as the transform before going to the model.
+
+```python
+import albumentations as A
+
+def resize(p: float = 1):
+    return A.Resize(384, 384, always_apply=True)
+
 self.valid_transform = resize()
 self.train_transform = resize()
 ```
 
-- Using Kornia to define the augmentation, hare we have `train_transform_K` and `valid_transform_K`
+- Using Kornia to define the augmentation (nn.Module object), here we have `train_transform_K` and `valid_transform_K`
   
-```
+```python
+import kornia as K
 
 valid_transform_K = K.augmentation.AugmentationSequential(
     K.augmentation.Normalize(Tensor((0.485, 0.456, 0.406)), Tensor((0.229, 0.224, 0.225)), p=1),
@@ -158,14 +181,15 @@ train_transform_K = K.augmentation.AugmentationSequential(
 
 ```
 
-- In the LightningModule, we define two new functions  
-```
+- In the LightningModule, we define two new functions (or two **nn.Module** objects)
+  
+```python
 self.train_transform = train_transform_K
 self.valid_transform = valid_transform_K
 ```
-and add transform into the training loop and the valid loop (`training_step` and `validation_step`)
+> Note: Add transform into the training loop and the valid loop (`training_step` and `validation_step`)
 
-```
+```python
 def training_step(self, batch, batch_idx):
     imgs, masks = batch["image"], batch["label"]
     if self.train_transform is not None:

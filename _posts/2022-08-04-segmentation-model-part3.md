@@ -25,7 +25,7 @@ We want to cover a nail semantic segmentation problem. For each image, we want t
 
 Our data is organized as
 
-```
+```bash
 ├── Images
 │   ├── 1
 │       ├── first_image.png
@@ -67,7 +67,7 @@ We want the CSV file that stores the image and mask paths. In this project, file
 
 For that we use `make_csv_file` function in `data_processing.py` file. More precisely, 
 
-```
+```python
 def make_csv_file(data_root: Union[str, Path]) -> None:
 
     list_images_train_masks = get_all_items(os.path.join(data_root, "train", "masks"))
@@ -115,7 +115,8 @@ Three main features of Pytorch Lightning:
 - Apply transforms
 - Wrap inside a DataLoader
   
-<img align="center" width="600"  src="https://habrastorage.org/webt/cv/i_/1n/cvi_1nwwdq28wh5tkun8z7h2fp4.png">
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/cv/i_/1n/cvi_1nwwdq28wh5tkun8z7h2fp4.png"> -->
+![](https://habrastorage.org/webt/cv/i_/1n/cvi_1nwwdq28wh5tkun8z7h2fp4.png "LightningDataModule")
 
 ### 3.2 LightningModule
 
@@ -131,12 +132,12 @@ A lightning module is composed of some components that fully define the system:
 
 Once we declare LightningDataModule, LightningModule, we can train the model with `Trainer` API. 
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png">
-
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png"> -->
+![](https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png "Trainer in Pytorch Lightning")
 
 A basic use of trainer: 
 
-```
+```python
 modelmodule = LightningModule(*args_model)
 datamodule = LightningDataModule(*args_data)
 trainer = Trainer(*args_trainer)
@@ -234,12 +235,11 @@ class NailSegmentation(LightningDataModule):
         )
 ```
 
-Here we need to define 3 main functions: 
+> Here we need to define 3 main functions
+- set_up: data loading and preprocessing
+- train_dataloader(): define `train_loader` object in Pytorch
+- val_dataloader(): define `val_loader` object in Pytorch
 
-- def train_dataloader(self)
-- val_dataloader(self)
-
-Those respond to DataLoader of train and valid dataset in Pytorch. 
 
 ##  5. Model Module
 
@@ -266,6 +266,12 @@ model = smp.Unet(
     classes=1,                              # model output channels (number of classes in your dataset)
 )
 ```
+
+Here we use: 
+- Unet architecture for the segmentation model. Unet has two components: encoder and decoder
+- encoder: EfficientNet B4 which is written by [timm](https://github.com/rwightman/pytorch-image-models) library
+- input channels: 3 for RGB images, 1 for gray-scale images
+- classes: 1 for binary segmentation, 2 for multi-class segmentation.
 
 ###  5.2 Define LightningModule
 We next use `LightningModule` to wrap the model into the model module of Pytorch Lightnining. 

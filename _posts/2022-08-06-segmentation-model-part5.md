@@ -69,9 +69,9 @@ For the convenience of training with DALI, we will convert `png` data into `npy`
 
 To do that we use two functions `png2numpy`, `make_csv_file_npy` in [`data_processing.py`](https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%205-Pytorch%20with%20Dali/data_processing.py) file. 
 
-- `png2numpy` function helps us convert the `png` format into the `npy` format and save images and masks in `data_root_npy` folder
-- `make_csv_file_npy` makes 2 CVS files train.cvs and valid.csv having the previous form and be saved at 
-`f"{data_root_npy}/csv_file"` foler.
+- **png2numpy** function helps us convert the *png* format into the *npy* format and save images and masks in **data_root_npy** folder.
+- **make_csv_file_npy** makes 2 CVS files train.cvs and valid.csv having the previous form and be saved at 
+**f"{data_root_npy}/csv_file"** folder.
 
 ## 3. NVIDIA Data Loading Library (DALI)
 
@@ -79,27 +79,42 @@ To do that we use two functions `png2numpy`, `make_csv_file_npy` in [`data_proce
 
 Let us discuss the difference between a Naive Deeplearning Pipeline, Kornia Deep Learning Pipeline and DALI Deeplearning Pipeline.
 
-### Naive Deep Learning Pipeline
 
-- Naive Deeplearning Pipeline: The pre-processing of the data occurs on the CPU, the model will be typically trained on GPU/TPU.
-### Kornia Deep Learning Pipeline
+- **Naive Deeplearning Pipeline**: The pre-processing of the data occurs on the CPU, the model will be typically trained on GPU/TPU.
 
-- Kornia Deep Learning Pipeline: The reading, resezing or padding data occurs on CPU, the transform (augmentation) and model training runed on GPU/TPU. The transform is consider as an `nn.Module`. Then `transform` is a  `nn.Module` object that `forward` input x of size `BxCxHxW` and obtain the output of size `BxCxHxW`.
-### DALI Deep Learning Pipeline
+- **Kornia Deep Learning Pipeline**: The reading, resezing or padding data occur on CPU, the transform (augmentation) and model training ran on GPU/TPU. The transform is consider as an **nn.Module**. Then *transform* is the **nn.Module** object that *forward* input x of size $B\times C \times H \times W$ and obtain the output of size $B\times C\times H \times W$.
 
-- DALI Deeplearning Pipeline: In the reading image, we have two components: encoding and decoding. With DALI library, we can read do encoding by CPUs and decoding by GPUs that work on batch. All other tasks will work on GPUs. We remark that the transform in DALI Pipeline works on data of several types: `BxCxHxW`, `BxHxWXC`. That is why DALI can easily be retargeted to TensorFlow, PyTorch, and MXNet.
+```python
+class ModelWithAugumentation(nn.Module):
+    """Module to perform data augmentation on torch tensors."""
+
+    def __init__(self, transform_module: nn.Module, model : nn.Module) -> None:
+        super().__init__()
+
+        self.transform_module = transform_module
+        self.model = model
+
+    def forward(self, x: Tensor) -> Tensor:
+        augmented_x = self.transform_module(x)  # BxCxHxW
+        x_out = self.model(augmented_x)
+        return x_out
+```
+
+- **DALI Deeplearning Pipeline**: In the reading image, we have two components: encoding and decoding. With DALI library, we can read do encoding by CPUs and decoding by GPUs that work on batch. All other tasks will work on GPUs. We remark that the transform in DALI Pipeline works on data of several types: 
+  $B\times C \times H \timesW$, $B\times H\times W\timesC$. That is why DALI can easily be retargeted to TensorFlow, PyTorch, and MXNet.
 
 
 The DALI Training Pipeline
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/do/qg/tu/doqgtugeu1kqtdtojhospmro0j0.jpeg">
-
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/do/qg/tu/doqgtugeu1kqtdtojhospmro0j0.jpeg"> -->
+![](https://habrastorage.org/webt/do/qg/tu/doqgtugeu1kqtdtojhospmro0j0.jpeg "DALI Training Pipeline")
 
 DALI Library in the whole Pipieline. 
 
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/g1/31/ga/g131gag8f-3co1irt5qq8rl5oui.png">
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/g1/31/ga/g131gag8f-3co1irt5qq8rl5oui.png"> -->
 
+![](https://habrastorage.org/webt/g1/31/ga/g131gag8f-3co1irt5qq8rl5oui.png "DALI Library in the training pipeline")
 
 ## 4. Training the Segmentation problem with DALI and Pytorch Lighiting.
 
@@ -111,7 +126,7 @@ We will define the processing data pipeline by using `dali`, instead of using `t
 
 We first define new class: `GenericPipeline` that wraps the `nvidia.dali.pipeline.Pipeline` class
 
-```
+```python
 import nvidia.dali.ops as ops
 import nvidia.dali.types as types
 from nvidia.dali.pipeline import Pipeline
@@ -354,10 +369,10 @@ class NailSegmentationDaliDali(LightningDataModule):
 ```
 
 - Here in the setup function, we use fetch_dali_loader to get the datapipeline for the train and valid stages
-- train_dataloader and val_dataloader is defined thank to the `LightningWrapper` class
+- train_dataloader and val_dataloader is defined thank to the **LightningWrapper** class
 
 
-```
+```python
 class LightningWrapper(DALIGenericIterator):
     def __init__(self, pipe, **kwargs):
         super().__init__(pipe, **kwargs)
@@ -367,14 +382,18 @@ class LightningWrapper(DALIGenericIterator):
         return out
 ```
 
-- We remark that the input of the model will be dicts of keys ["image", "label"]. It means
+> Remark: The input of the model will be dicts of keys ["image", "label"]. 
 
-```
+It means
+
+
+```python
 input_batch = {"image": images, "label": masks}
+
 ```
 
 
-Then we also need to modify the train loop (`training_step`) and the valid loop (`validation_step`) of the LightningModule. For example: 
+Then we also need to slight modify the train loop (`training_step`) and the valid loop (`validation_step`) of the LightningModule.
 
 
 ```
@@ -393,11 +412,35 @@ def training_step(self, batch, batch_idx):
 
 Once we finish to define `LightningModule` and `LightningDataModule`, we can jump to the `Trainer` to run the training. 
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png">
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png"> -->
+![](https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png "Trainer") 
 
 
+```python
 
-**For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%205-Pytorch%20with%20Dali)**
+model = SegFormer(config.model.encoder_name, config.model.size, config.model.classes)
+
+datamodule = NailSegmentation(
+    data_root=data_root,
+    csv_path=csv_path,
+    test_path="",
+    batch_size=batch_size,
+    num_workers=4,
+    )
+
+model_lighning = LitNailSegmentation(model=model, learning_rate=config.training.learning_rate)
+
+
+trainer = Trainer(args)
+trainer.fit(
+    model=model_lighning,
+    datamodule=datamodule
+)
+
+```
+
+
+**For more details, we can find the full source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%205-Pytorch%20with%20Dali)**
 
 
 ### References
