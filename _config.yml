@@ -7,7 +7,7 @@
 # https://learnxinyminutes.com/docs/yaml/
 
 title: Hoang Phuong' Blog
-description: ""
+description: "share2learn machine learning blog"
 github_username: hphuongdhsp
 # you can comment the below line out if your repo name is not different than your baseurl
 github_repo: "ml-blog"
@@ -119,7 +119,7 @@ kramdown:
 
 # to limit size of xml as it can grow quite large.
 feed:
-  posts_limit: 5 #default posts_limit: 10
+  posts_limit: 10 #default posts_limit: 10
   excerpt_only: true
   
 exclude:
