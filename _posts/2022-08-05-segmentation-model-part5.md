@@ -12,7 +12,7 @@ title: Segmentation Model-Part V - Data augmentation on the GPU with DALI
 In the last post, we have discovered how to augmente data on GPUs with Kornia. This post, we will 
 we discover how to use [DALI](https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html) to accelerate deep learning. 
 
-We will work with the Segmentation Problem (Nail Segmentation). For that, we use Pytorch Lightninig to train model and use `DALI` to load data and do data processing. The first and second we will recall `Problem Description and Dataset`. If you have followed previous posts, you can skip that part. 
+We will work with the Segmentation Problem (Nail Segmentation). For that, we use Pytorch Lightninig to train model and use `DALI` to load data and do data processing. In the first and second parts we will recall `Problem Description and Dataset`. If you have followed previous posts, you can skip that part. 
 
 ## 1. Problem Description and Dataset
 

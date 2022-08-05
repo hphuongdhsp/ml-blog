@@ -5,7 +5,7 @@ comments: true
 author: Nguyen Hoang-Phuong
 image: images/tensorflow.png
 description: The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow
-# categories: [tensorflow, semantic segmentation, deep learning]
+categories: [tensorflow, semantic segmentation, deep learning]
 title: Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow
 ---
 
