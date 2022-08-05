@@ -5,7 +5,7 @@ comments: true
 author: Nguyen Hoang-Phuong
 image: images/tensorflow.png
 description: The first part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in TensorFlow
-# categories: [tensorflow, semantic segmentation, deep learning]
+categories: [tensorflow, semanticsegmentation, deeplearning]
 title: Segmentation Model-Part I - Training deep learning segmentation models in Tensorflow
 ---
 
@@ -122,7 +122,8 @@ Here is the pipeline loader of tf.data:
 - Transfrom (augumentate) the data
 - Load data into the model
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png">
+![](https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png "tf.data pipeline")
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png"> -->
 
 
 The advantage of this method is: 
@@ -133,19 +134,19 @@ The advantage of this method is:
 
 ### Naive pipeline
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/se/pj/bx/sepjbxl-cofjvbatz7x8xp6wn3i.png">
-
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/se/pj/bx/sepjbxl-cofjvbatz7x8xp6wn3i.png"> -->
+![](https://habrastorage.org/webt/se/pj/bx/sepjbxl-cofjvbatz7x8xp6wn3i.png "Naive pipeline")
 
 This is the typical workflow of a naive data pipeline, there is always some idle time and overhead due to the inefficiency of sequential execution.
 
 In contrast, consider: `tf.data` pipeline
 
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/yt/5z/bv/yt5zbvzi3pqdc4l_8ez1c6lzgug.png">
-
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/yt/5z/bv/yt5zbvzi3pqdc4l_8ez1c6lzgug.png"> -->
+![](https://habrastorage.org/webt/yt/5z/bv/yt5zbvzi3pqdc4l_8ez1c6lzgug.png "tf.data pipeline")
 ### 3.1 Get images and masks from a dataframe.
 
-```
+```python
 def load_data_path(data_root: Union[str, Path], csv_dir: Union[str, Path], train: str) -> Tuple:
 
     csv_file = pd.read_csv(csv_dir)
@@ -157,7 +158,7 @@ def load_data_path(data_root: Union[str, Path], csv_dir: Union[str, Path], train
 
 ### 3.2 Decode images and masks
 
-```
+```python
 def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -> Any:
     """this function is to load image and mask
 
@@ -179,7 +180,7 @@ def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -
 
 ### 3.3 Doing augmentation
 
-```
+```python
     def aug_fn(image, mask):
         # do augumentation by albumentations library
         data = {"image": image, "mask": mask}
@@ -194,7 +195,7 @@ def load_image_and_mask_from_path(image_path: tf.string, mask_path: tf.string) -
 
 Here we use [Albumentations](https://albumentations.ai/) library to define the transform. **Albumentations** is a Python library for fast and flexible image augmentations. Albumentations efficiently implements a rich variety of image transform operations that are optimized for performance and does so while providing a concise yet powerful image augmentation interface for different computer vision tasks, including object classification, segmentation, and detection. For example, we define our validation transform as
 
-```
+```python
 import albumentations as A
 
 def valid_transform():
@@ -215,7 +216,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 
 Once we finish the augmentation task, we can do batching of the data by
 
-```
+```python
 dataset = dataset.batch(batch_size)
 ```
 
@@ -223,7 +224,7 @@ Here, the dataset is now an object of `tf.data`.
 
 Compose four previous steps, we have the data loader function:
 
-```
+```python
 def tf_dataset(
     dataset: Tuple[List[str], List[str]],
     shuffle: bool,
@@ -288,7 +289,7 @@ In this part, we will define the segmentation model by using `segmentation_model
 **Segmentation models** is a python library with Neural Networks for Image Segmentation based on Keras (Tensorflow) framework. This is the high-level API, you need only some lines of code to create a Segmentation Neural Network.
 
 ## 4.1 Model 
-```
+```python
 def create_model():
 
     model = sm.Unet(
@@ -346,8 +347,8 @@ Mixed precision training is the use of lower-precision operations (float16 and b
 Here is the mixed precision training flow:
 
 
-<img align="center" width="600"  src="https://habrastorage.org/webt/3y/pg/ew/3ypgewgss1uoezkydzapcg0pjgy.png">
-
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/3y/pg/ew/3ypgewgss1uoezkydzapcg0pjgy.png"> -->
+![](https://habrastorage.org/webt/3y/pg/ew/3ypgewgss1uoezkydzapcg0pjgy.png "mixed precision training flow")
 
 
 
@@ -418,7 +419,7 @@ We finish the training task by calling the train loader and the valid loader and
 
 ## 5.3 Dataloader
 
-```
+```python
 data_root = str(args.data_root)
 train_csv_dir = f"{data_root}/csv_file/train.csv"
 valid_csv_dir = f"{data_root}/csv_file/valid.csv"
@@ -449,7 +450,7 @@ valid_loader = tf_dataset(
 ```
 
 ## 5.4 Fit training
-```
+```python
 history = model.fit(
     train_loader,
     steps_per_epoch=total_steps,
