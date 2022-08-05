@@ -451,16 +451,18 @@ The first one is the officinal source code, but the model sticks with the <stron
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>We then can define the <code>model module</code> and <code>data module</code> as the same in the part III:</p>
-<p>```python</p>
-<p>model = SegFormer(config.model.encoder_name, config.model.size, config.model.classes)</p>
-<p>datamodule = NailSegmentation(
-    data_root=data_root,
-    csv_path=csv_path,
-    test_path="",
-    batch_size=batch_size,
-    num_workers=4,
-    )</p>
-<p>model_lighning = LitNailSegmentation(model=model, learning_rate=config.training.learning_rate)</p>
+<div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">SegFormer</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encoder_name</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span>
+
+<span class="n">datamodule</span> <span class="o">=</span> <span class="n">NailSegmentation</span><span class="p">(</span>
+    <span class="n">data_root</span><span class="o">=</span><span class="n">data_root</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">,</span>
+    <span class="n">test_path</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="n">model_lighning</span> <span class="o">=</span> <span class="n">LitNailSegmentation</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">)</span>
+</pre></div>
 
 </div>
 </div>

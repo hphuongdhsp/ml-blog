@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>https://hphuongdhsp.github.io/ml-blog/markdown/2020/01/14/test-markdown-post.html</loc>
-<lastmod>2020-01-14T00:00:00-06:00</lastmod>
-</url>
-<url>
 <loc>https://hphuongdhsp.github.io/ml-blog/jupyter/2020/02/20/test.html</loc>
 <lastmod>2020-02-20T00:00:00-06:00</lastmod>
 </url>
@@ -17,24 +13,24 @@
 <lastmod>2022-08-03T00:00:00-05:00</lastmod>
 </url>
 <url>
-<loc>https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html</loc>
-<lastmod>2022-08-03T00:00:00-05:00</lastmod>
-</url>
-<url>
-<loc>https://hphuongdhsp.github.io/ml-blog/2022/08/04/segmentation-model-part4.html</loc>
+<loc>https://hphuongdhsp.github.io/ml-blog/2022/08/04/segmentation-model-part3.html</loc>
 <lastmod>2022-08-04T00:00:00-05:00</lastmod>
 </url>
 <url>
-<loc>https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part5.html</loc>
+<loc>https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part4.html</loc>
 <lastmod>2022-08-05T00:00:00-05:00</lastmod>
 </url>
 <url>
-<loc>https://hphuongdhsp.github.io/ml-blog/2022/08/06/segmentation-model-part7.html</loc>
+<loc>https://hphuongdhsp.github.io/ml-blog/2022/08/06/segmentation-model-part5.html</loc>
 <lastmod>2022-08-06T00:00:00-05:00</lastmod>
 </url>
 <url>
 <loc>https://hphuongdhsp.github.io/ml-blog/2022/08/07/segmentation-model-part6.html</loc>
 <lastmod>2022-08-07T00:00:00-05:00</lastmod>
+</url>
+<url>
+<loc>https://hphuongdhsp.github.io/ml-blog/2022/08/08/segmentation-model-part7.html</loc>
+<lastmod>2022-08-08T00:00:00-05:00</lastmod>
 </url>
 <url>
 <loc>https://hphuongdhsp.github.io/ml-blog/about/</loc>

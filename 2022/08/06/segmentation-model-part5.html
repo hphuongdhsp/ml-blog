@@ -11,17 +11,17 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library" />
 <meta property="og:description" content="The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library" />
-<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part5.html" />
-<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part5.html" />
+<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/06/segmentation-model-part5.html" />
+<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/06/segmentation-model-part5.html" />
 <meta property="og:site_name" content="Hoang Phuong’ Blog" />
 <meta property="og:image" content="https://hphuongdhsp.github.io/ml-blog/images/dali.png" />
 <meta property="og:type" content="article" />
-<meta property="article:published_time" content="2022-08-05T00:00:00-05:00" />
+<meta property="article:published_time" content="2022-08-06T00:00:00-05:00" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta property="twitter:image" content="https://hphuongdhsp.github.io/ml-blog/images/dali.png" />
 <meta property="twitter:title" content="Segmentation Model-Part V - Data augmentation on the GPU with DALI" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nguyen Hoang-Phuong"},"dateModified":"2022-08-05T00:00:00-05:00","datePublished":"2022-08-05T00:00:00-05:00","description":"The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library","headline":"Segmentation Model-Part V - Data augmentation on the GPU with DALI","image":"https://hphuongdhsp.github.io/ml-blog/images/dali.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part5.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part5.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nguyen Hoang-Phuong"},"dateModified":"2022-08-06T00:00:00-05:00","datePublished":"2022-08-06T00:00:00-05:00","description":"The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library","headline":"Segmentation Model-Part V - Data augmentation on the GPU with DALI","image":"https://hphuongdhsp.github.io/ml-blog/images/dali.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/06/segmentation-model-part5.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/06/segmentation-model-part5.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/ml-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hphuongdhsp.github.io/ml-blog/feed.xml" title="Hoang Phuong' Blog" /><link rel="shortcut icon" type="image/x-icon" href="/ml-blog/images/hp.ico">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
@@ -93,8 +93,8 @@ window.onload = wrap_img;
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part V - Data augmentation on the GPU with DALI</h1><p class="page-description">The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-05T00:00:00-05:00" itemprop="datePublished">
-        Aug 5, 2022
+    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part V - Data augmentation on the GPU with DALI</h1><p class="page-description">The fifth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Dali library</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-06T00:00:00-05:00" itemprop="datePublished">
+        Aug 6, 2022
       </time>• 
           <span itemprop="author" itemscope itemtype="http://schema.org/Person">
             <span class="p-author h-card" itemprop="name">Nguyen Hoang-Phuong</span></span>
@@ -113,13 +113,7 @@ window.onload = wrap_img;
     <ul id="toc" class="section-nav">
 <li class="toc-entry toc-h2"><a href="#1-problem-description-and-dataset">1. Problem Description and Dataset</a></li>
 <li class="toc-entry toc-h2"><a href="#2-data-preparation">2. Data Preparation</a></li>
-<li class="toc-entry toc-h2"><a href="#3-nvidia-data-loading-library-dali">3. NVIDIA Data Loading Library (DALI)</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#naive-deep-learning-pipeline">Naive Deep Learning Pipeline</a></li>
-<li class="toc-entry toc-h3"><a href="#kornia-deep-learning-pipeline">Kornia Deep Learning Pipeline</a></li>
-<li class="toc-entry toc-h3"><a href="#dali-deep-learning-pipeline">DALI Deep Learning Pipeline</a></li>
-</ul>
-</li>
+<li class="toc-entry toc-h2"><a href="#3-nvidia-data-loading-library-dali">3. NVIDIA Data Loading Library (DALI)</a></li>
 <li class="toc-entry toc-h2"><a href="#4-training-the-segmentation-problem-with-dali-and-pytorch-lighiting">4. Training the Segmentation problem with DALI and Pytorch Lighiting.</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#41-define-data-pipeline-by-dali">4.1 Define Data Pipeline by DALI</a>
@@ -226,10 +220,10 @@ we discover how to use <a href="https://docs.nvidia.com/deeplearning/dali/user-g
 
 <ul>
   <li>
-<code class="language-plaintext highlighter-rouge">png2numpy</code> function helps us convert the <code class="language-plaintext highlighter-rouge">png</code> format into the <code class="language-plaintext highlighter-rouge">npy</code> format and save images and masks in <code class="language-plaintext highlighter-rouge">data_root_npy</code> folder</li>
+<strong>png2numpy</strong> function helps us convert the <em>png</em> format into the <em>npy</em> format and save images and masks in <strong>data_root_npy</strong> folder.</li>
   <li>
-<code class="language-plaintext highlighter-rouge">make_csv_file_npy</code> makes 2 CVS files train.cvs and valid.csv having the previous form and be saved at 
-<code class="language-plaintext highlighter-rouge">f"{data_root_npy}/csv_file"</code> foler.</li>
+<strong>make_csv_file_npy</strong> makes 2 CVS files train.cvs and valid.csv having the previous form and be saved at 
+<strong>f”{data_root_npy}/csv_file”</strong> folder.</li>
 </ul>
 
 <h2 id="3-nvidia-data-loading-library-dali">
@@ -239,28 +233,46 @@ we discover how to use <a href="https://docs.nvidia.com/deeplearning/dali/user-g
 
 <p>Let us discuss the difference between a Naive Deeplearning Pipeline, Kornia Deep Learning Pipeline and DALI Deeplearning Pipeline.</p>
 
-<h3 id="naive-deep-learning-pipeline">
-<a class="anchor" href="#naive-deep-learning-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Naive Deep Learning Pipeline</h3>
+<ul>
+  <li>
+    <p><strong>Naive Deeplearning Pipeline</strong>: The pre-processing of the data occurs on the CPU, the model will be typically trained on GPU/TPU.</p>
+  </li>
+  <li>
+    <p><strong>Kornia Deep Learning Pipeline</strong>: The reading, resezing or padding data occur on CPU, the transform (augmentation) and model training ran on GPU/TPU. The transform is consider as an <strong>nn.Module</strong>. Then <em>transform</em> is the <strong>nn.Module</strong> object that <em>forward</em> input x of size $B\times C \times H \times W$ and obtain the output of size $B\times C\times H \times W$.</p>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ModelWithAugumentation</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="s">"""Module to perform data augmentation on torch tensors."""</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transform_module</span><span class="p">:</span> <span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">model</span> <span class="p">:</span> <span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="p">.</span><span class="n">transform_module</span> <span class="o">=</span> <span class="n">transform_module</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">augmented_x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">transform_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># BxCxHxW
+</span>        <span class="n">x_out</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">(</span><span class="n">augmented_x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x_out</span>
+</code></pre></div></div>
 
 <ul>
-  <li>Naive Deeplearning Pipeline: The pre-processing of the data occurs on the CPU, the model will be typically trained on GPU/TPU.
-    <h3 id="kornia-deep-learning-pipeline">
-<a class="anchor" href="#kornia-deep-learning-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Kornia Deep Learning Pipeline</h3>
-  </li>
-  <li>Kornia Deep Learning Pipeline: The reading, resezing or padding data occurs on CPU, the transform (augmentation) and model training runed on GPU/TPU. The transform is consider as an <code class="language-plaintext highlighter-rouge">nn.Module</code>. Then <code class="language-plaintext highlighter-rouge">transform</code> is a  <code class="language-plaintext highlighter-rouge">nn.Module</code> object that <code class="language-plaintext highlighter-rouge">forward</code> input x of size <code class="language-plaintext highlighter-rouge">BxCxHxW</code> and obtain the output of size <code class="language-plaintext highlighter-rouge">BxCxHxW</code>.
-    <h3 id="dali-deep-learning-pipeline">
-<a class="anchor" href="#dali-deep-learning-pipeline" aria-hidden="true"><span class="octicon octicon-link"></span></a>DALI Deep Learning Pipeline</h3>
-  </li>
-  <li>DALI Deeplearning Pipeline: In the reading image, we have two components: encoding and decoding. With DALI library, we can read do encoding by CPUs and decoding by GPUs that work on batch. All other tasks will work on GPUs. We remark that the transform in DALI Pipeline works on data of several types: <code class="language-plaintext highlighter-rouge">BxCxHxW</code>, <code class="language-plaintext highlighter-rouge">BxHxWXC</code>. That is why DALI can easily be retargeted to TensorFlow, PyTorch, and MXNet.</li>
+  <li>
+<strong>DALI Deeplearning Pipeline</strong>: In the reading image, we have two components: encoding and decoding. With DALI library, we can read do encoding by CPUs and decoding by GPUs that work on batch. All other tasks will work on GPUs. We remark that the transform in DALI Pipeline works on data of several types: 
+$B\times C \times H \timesW$, $B\times H\times W\timesC$. That is why DALI can easily be retargeted to TensorFlow, PyTorch, and MXNet.</li>
 </ul>
 
 <p>The DALI Training Pipeline</p>
 
-<p><img align="center" width="600" src="https://habrastorage.org/webt/do/qg/tu/doqgtugeu1kqtdtojhospmro0j0.jpeg"></p>
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/do/qg/tu/doqgtugeu1kqtdtojhospmro0j0.jpeg"> -->
+<p><img src="https://habrastorage.org/webt/do/qg/tu/doqgtugeu1kqtdtojhospmro0j0.jpeg" alt="" title="DALI Training Pipeline"></p>
 
 <p>DALI Library in the whole Pipieline.</p>
 
-<p><img align="center" width="600" src="https://habrastorage.org/webt/g1/31/ga/g131gag8f-3co1irt5qq8rl5oui.png"></p>
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/g1/31/ga/g131gag8f-3co1irt5qq8rl5oui.png"> -->
+
+<p><img src="https://habrastorage.org/webt/g1/31/ga/g131gag8f-3co1irt5qq8rl5oui.png" alt="" title="DALI Library in the training pipeline"></p>
 
 <h2 id="4-training-the-segmentation-problem-with-dali-and-pytorch-lighiting">
 <a class="anchor" href="#4-training-the-segmentation-problem-with-dali-and-pytorch-lighiting" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Training the Segmentation problem with DALI and Pytorch Lighiting.</h2>
@@ -274,46 +286,46 @@ we discover how to use <a href="https://docs.nvidia.com/deeplearning/dali/user-g
 
 <p>We first define new class: <code class="language-plaintext highlighter-rouge">GenericPipeline</code> that wraps the <code class="language-plaintext highlighter-rouge">nvidia.dali.pipeline.Pipeline</code> class</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import nvidia.dali.ops as ops
-import nvidia.dali.types as types
-from nvidia.dali.pipeline import Pipeline
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">nvidia.dali.ops</span> <span class="k">as</span> <span class="n">ops</span>
+<span class="kn">import</span> <span class="nn">nvidia.dali.types</span> <span class="k">as</span> <span class="n">types</span>
+<span class="kn">from</span> <span class="nn">nvidia.dali.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 
-class GenericPipeline(Pipeline):
-    def __init__(self, batch_size, num_threads, device_id, **kwargs):
-        super().__init__(batch_size, num_threads, device_id)
-        self.kwargs = kwargs
-        self.dim = kwargs["dim"]
-        self.device = device_id
-        # self.patch_size = [384,384]
-        self.load_to_gpu = kwargs["load_to_gpu"]
-        self.input_x = self.get_reader(kwargs["imgs"])
-        self.input_y = self.get_reader(kwargs["lbls"])
-        self.cast = ops.Cast(device="gpu", dtype=types.DALIDataType.FLOAT)
+<span class="k">class</span> <span class="nc">GenericPipeline</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_threads</span><span class="p">,</span> <span class="n">device_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">num_threads</span><span class="p">,</span> <span class="n">device_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">"dim"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device_id</span>
+        <span class="c1"># self.patch_size = [384,384]
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">load_to_gpu</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">"load_to_gpu"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">input_x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">get_reader</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s">"imgs"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">input_y</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">get_reader</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s">"lbls"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">cast</span> <span class="o">=</span> <span class="n">ops</span><span class="p">.</span><span class="n">Cast</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s">"gpu"</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">types</span><span class="p">.</span><span class="n">DALIDataType</span><span class="p">.</span><span class="n">FLOAT</span><span class="p">)</span>
 
-    def get_reader(self, data):
-        return ops.readers.Numpy(
-            files=data,
-            device="cpu",
-            read_ahead=True,
-            dont_use_mmap=True,
-            pad_last_batch=True,
-            shard_id=self.device,
-            seed=self.kwargs["seed"],
-            num_shards=self.kwargs["gpus"],
-            shuffle_after_epoch=self.kwargs["shuffle"],
-        )
+    <span class="k">def</span> <span class="nf">get_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ops</span><span class="p">.</span><span class="n">readers</span><span class="p">.</span><span class="n">Numpy</span><span class="p">(</span>
+            <span class="n">files</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="s">"cpu"</span><span class="p">,</span>
+            <span class="n">read_ahead</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">dont_use_mmap</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">pad_last_batch</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">shard_id</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">device</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s">"seed"</span><span class="p">],</span>
+            <span class="n">num_shards</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s">"gpus"</span><span class="p">],</span>
+            <span class="n">shuffle_after_epoch</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s">"shuffle"</span><span class="p">],</span>
+        <span class="p">)</span>
 
-    def load_data(self):
-        img = self.input_x(name="ReaderX")  # read X
-        img = img.gpu()
-        img = self.cast(img)
-        if self.input_y is not None:
-            lbl = self.input_y(name="ReaderY")  # read Y
-            lbl = lbl.gpu()
-            lbl = self.cast(lbl)
+    <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">input_x</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">"ReaderX"</span><span class="p">)</span>  <span class="c1"># read X
+</span>        <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="p">.</span><span class="n">gpu</span><span class="p">()</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">cast</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">input_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">lbl</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">input_y</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">"ReaderY"</span><span class="p">)</span>  <span class="c1"># read Y
+</span>            <span class="n">lbl</span> <span class="o">=</span> <span class="n">lbl</span><span class="p">.</span><span class="n">gpu</span><span class="p">()</span>
+            <span class="n">lbl</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
 
-            return img, lbl
-        return img
+            <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="n">lbl</span>
+        <span class="k">return</span> <span class="n">img</span>
 
 </code></pre></div></div>
 
@@ -517,26 +529,29 @@ class GenericPipeline(Pipeline):
 
 <ul>
   <li>Here in the setup function, we use fetch_dali_loader to get the datapipeline for the train and valid stages</li>
-  <li>train_dataloader and val_dataloader is defined thank to the <code class="language-plaintext highlighter-rouge">LightningWrapper</code> class</li>
+  <li>train_dataloader and val_dataloader is defined thank to the <strong>LightningWrapper</strong> class</li>
 </ul>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class LightningWrapper(DALIGenericIterator):
-    def __init__(self, pipe, **kwargs):
-        super().__init__(pipe, **kwargs)
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">LightningWrapper</span><span class="p">(</span><span class="n">DALIGenericIterator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">pipe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    def __next__(self):
-        out = super().__next__()[0]
-        return out
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">super</span><span class="p">().</span><span class="n">__next__</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">out</span>
 </code></pre></div></div>
 
-<ul>
-  <li>We remark that the input of the model will be dicts of keys [“image”, “label”]. It means</li>
-</ul>
+<blockquote>
+  <p>Remark: The input of the model will be dicts of keys [“image”, “label”].</p>
+</blockquote>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>input_batch = {"image": images, "label": masks}
+<p>It means</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">input_batch</span> <span class="o">=</span> <span class="p">{</span><span class="s">"image"</span><span class="p">:</span> <span class="n">images</span><span class="p">,</span> <span class="s">"label"</span><span class="p">:</span> <span class="n">masks</span><span class="p">}</span>
+
 </code></pre></div></div>
 
-<p>Then we also need to modify the train loop (<code class="language-plaintext highlighter-rouge">training_step</code>) and the valid loop (<code class="language-plaintext highlighter-rouge">validation_step</code>) of the LightningModule. For example:</p>
+<p>Then we also need to slight modify the train loop (<code class="language-plaintext highlighter-rouge">training_step</code>) and the valid loop (<code class="language-plaintext highlighter-rouge">validation_step</code>) of the LightningModule.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def training_step(self, batch, batch_idx):
     imgs, masks = batch["image"].float(), batch["label"]
@@ -553,9 +568,32 @@ class GenericPipeline(Pipeline):
 
 <p>Once we finish to define <code class="language-plaintext highlighter-rouge">LightningModule</code> and <code class="language-plaintext highlighter-rouge">LightningDataModule</code>, we can jump to the <code class="language-plaintext highlighter-rouge">Trainer</code> to run the training.</p>
 
-<p><img align="center" width="600" src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png"></p>
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png"> -->
+<p><img src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png" alt="" title="Trainer"></p>
 
-<p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%205-Pytorch%20with%20Dali">github</a></strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">model</span> <span class="o">=</span> <span class="n">SegFormer</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">encoder_name</span><span class="p">,</span> <span class="n">config</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">size</span><span class="p">,</span> <span class="n">config</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">classes</span><span class="p">)</span>
+
+<span class="n">datamodule</span> <span class="o">=</span> <span class="n">NailSegmentation</span><span class="p">(</span>
+    <span class="n">data_root</span><span class="o">=</span><span class="n">data_root</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">,</span>
+    <span class="n">test_path</span><span class="o">=</span><span class="s">""</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="n">model_lighning</span> <span class="o">=</span> <span class="n">LitNailSegmentation</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="n">config</span><span class="p">.</span><span class="n">training</span><span class="p">.</span><span class="n">learning_rate</span><span class="p">)</span>
+
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+<span class="n">trainer</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model_lighning</span><span class="p">,</span>
+    <span class="n">datamodule</span><span class="o">=</span><span class="n">datamodule</span>
+<span class="p">)</span>
+
+</code></pre></div></div>
+
+<p><strong>For more details, we can find the full source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%205-Pytorch%20with%20Dali">github</a></strong></p>
 
 <h3 id="references">
 <a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h3>
@@ -575,7 +613,7 @@ class GenericPipeline(Pipeline):
         theme="github-light"
         crossorigin="anonymous"
         async>
-</script><a class="u-url" href="/ml-blog/2022/08/05/segmentation-model-part5.html" hidden></a>
+</script><a class="u-url" href="/ml-blog/2022/08/06/segmentation-model-part5.html" hidden></a>
 </article>
 
       </div>

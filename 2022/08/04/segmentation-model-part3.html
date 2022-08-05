@@ -11,17 +11,17 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="The third part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in Pytorch Lightning" />
 <meta property="og:description" content="The third part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in Pytorch Lightning" />
-<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html" />
-<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html" />
+<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/04/segmentation-model-part3.html" />
+<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/04/segmentation-model-part3.html" />
 <meta property="og:site_name" content="Hoang Phuong’ Blog" />
 <meta property="og:image" content="https://hphuongdhsp.github.io/ml-blog/images/pytorch%20lightning.png" />
 <meta property="og:type" content="article" />
-<meta property="article:published_time" content="2022-08-03T00:00:00-05:00" />
+<meta property="article:published_time" content="2022-08-04T00:00:00-05:00" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta property="twitter:image" content="https://hphuongdhsp.github.io/ml-blog/images/pytorch%20lightning.png" />
 <meta property="twitter:title" content="Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nguyen Hoang-Phuong"},"dateModified":"2022-08-03T00:00:00-05:00","datePublished":"2022-08-03T00:00:00-05:00","description":"The third part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in Pytorch Lightning","headline":"Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning","image":"https://hphuongdhsp.github.io/ml-blog/images/pytorch%20lightning.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nguyen Hoang-Phuong"},"dateModified":"2022-08-04T00:00:00-05:00","datePublished":"2022-08-04T00:00:00-05:00","description":"The third part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in Pytorch Lightning","headline":"Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning","image":"https://hphuongdhsp.github.io/ml-blog/images/pytorch%20lightning.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/04/segmentation-model-part3.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/04/segmentation-model-part3.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/ml-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hphuongdhsp.github.io/ml-blog/feed.xml" title="Hoang Phuong' Blog" /><link rel="shortcut icon" type="image/x-icon" href="/ml-blog/images/hp.ico">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
@@ -93,8 +93,8 @@ window.onload = wrap_img;
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning</h1><p class="page-description">The third part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in Pytorch Lightning</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-03T00:00:00-05:00" itemprop="datePublished">
-        Aug 3, 2022
+    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning</h1><p class="page-description">The third part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in Pytorch Lightning</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-04T00:00:00-05:00" itemprop="datePublished">
+        Aug 4, 2022
       </time>• 
           <span itemprop="author" itemscope itemtype="http://schema.org/Person">
             <span class="p-author h-card" itemprop="name">Nguyen Hoang-Phuong</span></span>
@@ -158,7 +158,7 @@ window.onload = wrap_img;
 
 <p>Our data is organized as</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
 │   ├── 1
 │       ├── first_image.png
 │       ├── second_image.png
@@ -218,28 +218,28 @@ window.onload = wrap_img;
 
 <p>For that we use <code class="language-plaintext highlighter-rouge">make_csv_file</code> function in <code class="language-plaintext highlighter-rouge">data_processing.py</code> file. More precisely,</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def make_csv_file(data_root: Union[str, Path]) -&gt; None:
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">make_csv_file</span><span class="p">(</span><span class="n">data_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
 
-    list_images_train_masks = get_all_items(os.path.join(data_root, "train", "masks"))
+    <span class="n">list_images_train_masks</span> <span class="o">=</span> <span class="n">get_all_items</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_root</span><span class="p">,</span> <span class="s">"train"</span><span class="p">,</span> <span class="s">"masks"</span><span class="p">))</span>
 
-    list_images_train_images = get_all_items(os.path.join(data_root, "train", "images"))
+    <span class="n">list_images_train_images</span> <span class="o">=</span> <span class="n">get_all_items</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_root</span><span class="p">,</span> <span class="s">"train"</span><span class="p">,</span> <span class="s">"images"</span><span class="p">))</span>
 
-    list_images_train = [
-        i for i in list_images_train_images if i in list_images_train_masks
-    ]
+    <span class="n">list_images_train</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_images_train_images</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_images_train_masks</span>
+    <span class="p">]</span>
 
-    print(len(list_images_train))
-    list_images_valid = get_all_items(os.path.join(data_root, "valid", "masks"))
+    <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_images_train</span><span class="p">))</span>
+    <span class="n">list_images_valid</span> <span class="o">=</span> <span class="n">get_all_items</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_root</span><span class="p">,</span> <span class="s">"valid"</span><span class="p">,</span> <span class="s">"masks"</span><span class="p">))</span>
 
-    train_frame = pd.DataFrame(list_images_train, columns=["images"])
+    <span class="n">train_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">list_images_train</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">"images"</span><span class="p">])</span>
 
-    train_frame["train"] = 1
-    valid_frame = pd.DataFrame(list_images_valid, columns=["images"])
+    <span class="n">train_frame</span><span class="p">[</span><span class="s">"train"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">valid_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">list_images_valid</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">"images"</span><span class="p">])</span>
 
-    valid_frame["train"] = 0
-    mkdir(f"{data_root}/csv_file")
-    train_frame.to_csv(f"{data_root}/csv_file/train.csv", index=False)
-    valid_frame.to_csv(f"{data_root}/csv_file/valid.csv", index=False)
+    <span class="n">valid_frame</span><span class="p">[</span><span class="s">"train"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file"</span><span class="p">)</span>
+    <span class="n">train_frame</span><span class="p">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/train.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">valid_frame</span><span class="p">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/valid.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 </code></pre></div></div>
 
 <p>Where <code class="language-plaintext highlighter-rouge">get_all_items</code>, <code class="language-plaintext highlighter-rouge">mkdir</code> are two supported functions (defined in <code class="language-plaintext highlighter-rouge">utils.py</code> file) that help us to find all items in a given folder and make a new folder.</p>
@@ -271,7 +271,8 @@ window.onload = wrap_img;
   <li>Wrap inside a DataLoader</li>
 </ul>
 
-<p><img align="center" width="600" src="https://habrastorage.org/webt/cv/i_/1n/cvi_1nwwdq28wh5tkun8z7h2fp4.png"></p>
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/cv/i_/1n/cvi_1nwwdq28wh5tkun8z7h2fp4.png"> -->
+<p><img src="https://habrastorage.org/webt/cv/i_/1n/cvi_1nwwdq28wh5tkun8z7h2fp4.png" alt="" title="LightningDataModule"></p>
 
 <h3 id="32-lightningmodule">
 <a class="anchor" href="#32-lightningmodule" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2 LightningModule</h3>
@@ -290,14 +291,15 @@ window.onload = wrap_img;
 
 <p>Once we declare LightningDataModule, LightningModule, we can train the model with <code class="language-plaintext highlighter-rouge">Trainer</code> API.</p>
 
-<p><img align="center" width="600" src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png"></p>
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png"> -->
+<p><img src="https://habrastorage.org/webt/qm/q4/jv/qmq4jvmclavtrtfailqkuvm10-8.png" alt="" title="Trainer in Pytorch Lightning"></p>
 
 <p>A basic use of trainer:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>modelmodule = LightningModule(*args_model)
-datamodule = LightningDataModule(*args_data)
-trainer = Trainer(*args_trainer)
-trainer.fit(modelmodule, datamodule)
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">modelmodule</span> <span class="o">=</span> <span class="n">LightningModule</span><span class="p">(</span><span class="o">*</span><span class="n">args_model</span><span class="p">)</span>
+<span class="n">datamodule</span> <span class="o">=</span> <span class="n">LightningDataModule</span><span class="p">(</span><span class="o">*</span><span class="n">args_data</span><span class="p">)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="o">*</span><span class="n">args_trainer</span><span class="p">)</span>
+<span class="n">trainer</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">modelmodule</span><span class="p">,</span> <span class="n">datamodule</span><span class="p">)</span>
 </code></pre></div></div>
 
 <h2 id="4-dataloader">
@@ -390,14 +392,14 @@ trainer.fit(modelmodule, datamodule)
         )
 </code></pre></div></div>
 
-<p>Here we need to define 3 main functions:</p>
-
-<ul>
-  <li>def train_dataloader(self)</li>
-  <li>val_dataloader(self)</li>
-</ul>
-
-<p>Those respond to DataLoader of train and valid dataset in Pytorch.</p>
+<blockquote>
+  <p>Here we need to define 3 main functions</p>
+  <ul>
+    <li>set_up: data loading and preprocessing</li>
+    <li>train_dataloader(): define <code class="language-plaintext highlighter-rouge">train_loader</code> object in Pytorch</li>
+    <li>val_dataloader(): define <code class="language-plaintext highlighter-rouge">val_loader</code> object in Pytorch</li>
+  </ul>
+</blockquote>
 
 <h2 id="5-model-module">
 <a class="anchor" href="#5-model-module" aria-hidden="true"><span class="octicon octicon-link"></span></a>5. Model Module</h2>
@@ -430,6 +432,14 @@ model = smp.Unet(
     classes=1,                              # model output channels (number of classes in your dataset)
 )
 </code></pre></div></div>
+
+<p>Here we use:</p>
+<ul>
+  <li>Unet architecture for the segmentation model. Unet has two components: encoder and decoder</li>
+  <li>encoder: EfficientNet B4 which is written by <a href="https://github.com/rwightman/pytorch-image-models">timm</a> library</li>
+  <li>input channels: 3 for RGB images, 1 for gray-scale images</li>
+  <li>classes: 1 for binary segmentation, 2 for multi-class segmentation.</li>
+</ul>
 
 <h3 id="52-define-lightningmodule">
 <a class="anchor" href="#52-define-lightningmodule" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.2 Define LightningModule</h3>
@@ -568,7 +578,7 @@ trainer.fit(
         theme="github-light"
         crossorigin="anonymous"
         async>
-</script><a class="u-url" href="/ml-blog/2022/08/03/segmentation-model-part3.html" hidden></a>
+</script><a class="u-url" href="/ml-blog/2022/08/04/segmentation-model-part3.html" hidden></a>
 </article>
 
       </div>

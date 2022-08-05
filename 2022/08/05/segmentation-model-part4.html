@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Segmentation Model-Part IV - Data augmentation on the GPU with Kornia library | Hoang Phuong’ Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Segmentation Model-Part IV - Data augmentation on the GPU with Kornia library" />
+<meta name="author" content="Nguyen Hoang-Phuong" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The fourth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Kornia library" />
+<meta property="og:description" content="The fourth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Kornia library" />
+<link rel="canonical" href="https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part4.html" />
+<meta property="og:url" content="https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part4.html" />
+<meta property="og:site_name" content="Hoang Phuong’ Blog" />
+<meta property="og:image" content="https://hphuongdhsp.github.io/ml-blog/images/kornia.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-08-05T00:00:00-05:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://hphuongdhsp.github.io/ml-blog/images/kornia.png" />
+<meta property="twitter:title" content="Segmentation Model-Part IV - Data augmentation on the GPU with Kornia library" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nguyen Hoang-Phuong"},"dateModified":"2022-08-05T00:00:00-05:00","datePublished":"2022-08-05T00:00:00-05:00","description":"The fourth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Kornia library","headline":"Segmentation Model-Part IV - Data augmentation on the GPU with Kornia library","image":"https://hphuongdhsp.github.io/ml-blog/images/kornia.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part4.html"},"url":"https://hphuongdhsp.github.io/ml-blog/2022/08/05/segmentation-model-part4.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/ml-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hphuongdhsp.github.io/ml-blog/feed.xml" title="Hoang Phuong' Blog" /><link rel="shortcut icon" type="image/x-icon" href="/ml-blog/images/hp.ico">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ml-blog/">Hoang Phuong&#39; Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/ml-blog/about/">About Me</a><a class="page-link" href="/ml-blog/search/">Search</a><a class="page-link" href="/ml-blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Segmentation Model-Part IV - Data augmentation on the GPU with Kornia library</h1><p class="page-description">The fourth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Kornia library</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-08-05T00:00:00-05:00" itemprop="datePublished">
+        Aug 5, 2022
+      </time>• 
+          <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span class="p-author h-card" itemprop="name">Nguyen Hoang-Phuong</span></span>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#1-problem-description-and-dataset">1. Problem Description and Dataset</a></li>
+<li class="toc-entry toc-h2"><a href="#2-data-preparation">2. Data Preparation</a></li>
+<li class="toc-entry toc-h2"><a href="#3-the-cpu-bottleneck">3. The CPU bottleneck</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#31-a-naive-approach-model-training">3.1 A naive approach model training</a></li>
+<li class="toc-entry toc-h3"><a href="#32-data-augmentation-using-gpu">3.2 Data Augmentation using GPU</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#4-data-augmentation-using-kornia">4. Data Augmentation using Kornia</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#references">References</a></li>
+</ul>
+</li>
+</ul><p>In this post, we discover how to use <a href="https://github.com/kornia/kornia">Kornia</a> modules in order to perform the data augmentation on the GPU in batch mode. Kornia is a differentiable library that allows classical computer vision to be integrated into deep learning models. Kornia consists a lot of components. One of them is <code class="language-plaintext highlighter-rouge">kornia.augmentation</code> - a module to perform data augmentation in the GPU.</p>
+
+<p>We will work with the Segmentation Problem (Nail Segmentation). For that, we use Pytorch Lightninig to train model and use Kornia to build the data augmentation on the GPU.</p>
+
+<h2 id="1-problem-description-and-dataset">
+<a class="anchor" href="#1-problem-description-and-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Problem Description and Dataset</h2>
+
+<p>We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the nail in the image.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Images</th>
+      <th style="text-align: center">Masks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img align="center" width="300" src="https://habrastorage.org/webt/em/og/9v/emog9v4ya7ssllg5dht77_wehqk.png"></td>
+      <td style="text-align: center"><img align="center" width="300" src="https://habrastorage.org/webt/hl/bf/ov/hlbfovx1uhrbbebgxndyho9yywo.png"></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Our data is organized as</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
+│   ├── 1
+│       ├── first_image.png
+│       ├── second_image.png
+│       ├── third_image.png
+│   ├── 2
+│   ├── 3
+│   ├── 4
+├── Masks
+│   ├── 1
+│       ├── first_image.png
+│       ├── second_image.png
+│       ├── third_image.png
+│   ├── 2
+│   ├── 3
+│   ├── 4
+
+</code></pre></div></div>
+
+<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder, and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images. Each folder has four sub-folder:  <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, and <code class="language-plaintext highlighter-rouge">4</code>, corresponding to four types of nail distribution.</p>
+
+<p>We download data from <a href="https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing">link</a> and put it in <code class="language-plaintext highlighter-rouge">data_root</code>, for example</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data_root</span> <span class="o">=</span> <span class="s">"./nail-segmentation-dataset"</span>
+</code></pre></div></div>
+
+<h2 id="2-data-preparation">
+<a class="anchor" href="#2-data-preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Data Preparation</h2>
+
+<p>Similar to the training pipeline of the previous post, we first make the data frame to store images and masks infos.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>index</th>
+      <th>images</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>path_first_image.png</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>path_second_image.png</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>path_third_image.png</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>path_fourth_image.png</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>For that we use <code class="language-plaintext highlighter-rouge">make_csv_file</code> function in <code class="language-plaintext highlighter-rouge">data_processing.py</code> file.</p>
+
+<h2 id="3-the-cpu-bottleneck">
+<a class="anchor" href="#3-the-cpu-bottleneck" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. The CPU bottleneck</h2>
+
+<blockquote>
+  <p>The fact is that today these transforms are applied one input at a time on CPUs. This means that they are super slow.</p>
+</blockquote>
+
+<h3 id="31-a-naive-approach-model-training">
+<a class="anchor" href="#31-a-naive-approach-model-training" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.1 A naive approach model training</h3>
+
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/vb/ou/jr/vboujrk9qbwjoabvrj-glqy5s-e.png"> -->
+<p><img src="https://habrastorage.org/webt/vb/ou/jr/vboujrk9qbwjoabvrj-glqy5s-e.png" alt="" title="A naive approach model training"></p>
+
+<p>The naive training pipeline includes:</p>
+
+<ul>
+  <li>The pre-processing of the data occurs on the CPU</li>
+  <li>The model will be typically trained on GPU/TPU.</li>
+</ul>
+
+<h3 id="32-data-augmentation-using-gpu">
+<a class="anchor" href="#32-data-augmentation-using-gpu" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2 Data Augmentation using GPU</h3>
+
+<p>To improve the training speed we can shift the data augmentation task in to GPU</p>
+
+<!-- <img align="center" width="600"  src="https://habrastorage.org/webt/nr/wb/zr/nrwbzrp-xf-s2z2awddfswtu0hq.png"> -->
+<p><img src="https://habrastorage.org/webt/nr/wb/zr/nrwbzrp-xf-s2z2awddfswtu0hq.png" alt="" title="Data Augmentation using GPU"></p>
+
+<p>To do that we can use <a href="https://kornia.readthedocs.io/en/v0.4.1/index.html">Kornia.augmentation</a>, <a href="https://developer.nvidia.com/dali">Dali</a> libraries.</p>
+
+<ul>
+  <li>
+<strong>Kornia.augmentation</strong> is the module of Kornia which permit to do augmentation in GPU. It will boost the speed of traininig in almost cases.</li>
+  <li>
+<strong>DALI</strong> is the library for data loading and pre-processing to accelerate deep learning applications. Data processing pipelines implemented using DALI can easily be retargeted to  <a href="https://www.tensorflow.org/">TensorFlow</a>, <a href="https://pytorch.org/">PyTorch</a>, <a href="https://mxnet.apache.org/versions/1.9.1/">MXNet</a> and <a href="https://github.com/PaddlePaddle/Paddle">PaddlePaddle</a>.</li>
+</ul>
+
+<p>This post we will focus on how to use <code class="language-plaintext highlighter-rouge">Kornia</code>. A guide of using <code class="language-plaintext highlighter-rouge">DALI</code> will be introduced in next post.</p>
+
+<h2 id="4-data-augmentation-using-kornia">
+<a class="anchor" href="#4-data-augmentation-using-kornia" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Data Augmentation using Kornia</h2>
+
+<p>In this part, we will cover how to use Kornia for data augmentation. To augumentate data on GPU, we use transforms (augumentations) as a <code class="language-plaintext highlighter-rouge">transform_module</code> ( in Pytorch platform, it is a nn.Module object) whose input is a tensor of size $C\times H \times W$ and output is also tensor of size $C\times H \times W$.</p>
+
+<p>That <code class="language-plaintext highlighter-rouge">transform_module</code> is put between the processing task (includes read images, make images of batch having same size,  convert images in to the tensor format) and the training model. More precisely,</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ModelWithAugumentation</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="s">"""Module to perform data augmentation on torch tensors."""</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transform_module</span><span class="p">:</span> <span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">model</span> <span class="p">:</span> <span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="p">.</span><span class="n">transform_module</span> <span class="o">=</span> <span class="n">transform_module</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">augmented_x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">transform_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># BxCxHxW
+</span>        <span class="n">x_out</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">(</span><span class="n">augmented_x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x_out</span>
+</code></pre></div></div>
+
+<p>where transform_module is defined by using <code class="language-plaintext highlighter-rouge">Kornia</code> or <code class="language-plaintext highlighter-rouge">torchvision</code>. For example</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">transform_module</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">AugmentationSequential</span><span class="p">(</span>
+    <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">Tensor</span><span class="p">((</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">)),</span> <span class="n">Tensor</span><span class="p">((</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">)),</span> <span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>Note: we can also use torchvsiion to define the transform module.</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">transforms</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">)),</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>Each transform module is a <code class="language-plaintext highlighter-rouge">nn.Module</code> object. We can use <code class="language-plaintext highlighter-rouge">nn.Sequential</code> to define a sequence of transforms.</p>
+
+<p>We now apply that strategy to our problem. Comparing with the previous pipeline in the last post (<a href="https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html">Training deep learning segmentation models in Pytorch Lightning</a>), here we have some modifications:</p>
+
+<ul>
+  <li>Only use <strong>Resize</strong> or <strong>Padding</strong> in the data augmentation on CPUs, in the last part we define the whole augmentation by using albumentations and use it as the transform before going to the model.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">albumentations</span> <span class="k">as</span> <span class="n">A</span>
+
+<span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">A</span><span class="p">.</span><span class="n">Resize</span><span class="p">(</span><span class="mi">384</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span> <span class="n">always_apply</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="bp">self</span><span class="p">.</span><span class="n">valid_transform</span> <span class="o">=</span> <span class="n">resize</span><span class="p">()</span>
+<span class="bp">self</span><span class="p">.</span><span class="n">train_transform</span> <span class="o">=</span> <span class="n">resize</span><span class="p">()</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Using Kornia to define the augmentation (nn.Module object), here we have <code class="language-plaintext highlighter-rouge">train_transform_K</code> and <code class="language-plaintext highlighter-rouge">valid_transform_K</code>
+</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">kornia</span> <span class="k">as</span> <span class="n">K</span>
+
+<span class="n">valid_transform_K</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">AugmentationSequential</span><span class="p">(</span>
+    <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">Tensor</span><span class="p">((</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">)),</span> <span class="n">Tensor</span><span class="p">((</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">)),</span> <span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">data_keys</span><span class="o">=</span><span class="p">[</span><span class="s">"input"</span><span class="p">,</span> <span class="s">"mask"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">train_transform_K</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">AugmentationSequential</span><span class="p">(</span>
+    <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">container</span><span class="p">.</span><span class="n">ImageSequential</span><span class="p">(</span>  <span class="c1"># OneOf
+</span>        <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.6</span><span class="p">),</span>
+        <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">RandomVerticalFlip</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.6</span><span class="p">),</span>
+        <span class="n">random_apply</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">random_apply_weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">ColorJitter</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="c1"># K.augmentation.RandomAffine( degrees = (-15.0,15.0), p= 0.3),
+</span>    <span class="n">K</span><span class="p">.</span><span class="n">augmentation</span><span class="p">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">Tensor</span><span class="p">((</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">)),</span> <span class="n">Tensor</span><span class="p">((</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">)),</span> <span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">data_keys</span><span class="o">=</span><span class="p">[</span><span class="s">"input"</span><span class="p">,</span> <span class="s">"mask"</span><span class="p">],</span>
+    <span class="n">same_on_batch</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li>In the LightningModule, we define two new functions (or two <strong>nn.Module</strong> objects)</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="bp">self</span><span class="p">.</span><span class="n">train_transform</span> <span class="o">=</span> <span class="n">train_transform_K</span>
+<span class="bp">self</span><span class="p">.</span><span class="n">valid_transform</span> <span class="o">=</span> <span class="n">valid_transform_K</span>
+</code></pre></div></div>
+<blockquote>
+  <p>Note: Add transform into the training loop and the valid loop (<code class="language-plaintext highlighter-rouge">training_step</code> and <code class="language-plaintext highlighter-rouge">validation_step</code>)</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
+    <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s">"image"</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s">"label"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">train_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">train_transform</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span> <span class="c1"># add the transform before going to the model
+</span>        <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="n">imgs</span><span class="p">.</span><span class="nb">float</span><span class="p">(),</span> <span class="n">masks</span><span class="p">.</span><span class="nb">float</span><span class="p">()</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+
+    <span class="n">train_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">loss_function</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+    <span class="n">train_dice_soft</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dice_soft</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"train_loss"</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"train_dice_soft"</span><span class="p">,</span> <span class="n">train_dice_soft</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">"loss"</span><span class="p">:</span> <span class="n">train_loss</span><span class="p">,</span> <span class="s">"train_dice_soft"</span><span class="p">:</span> <span class="n">train_dice_soft</span><span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
+    <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s">"image"</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s">"label"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">valid_transform</span><span class="p">:</span>
+        <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">valid_transform</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span> <span class="c1"># add the transform before going to the model
+</span>        <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="n">imgs</span><span class="p">.</span><span class="nb">float</span><span class="p">(),</span> <span class="n">masks</span><span class="p">.</span><span class="nb">float</span><span class="p">()</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+
+    <span class="n">valid_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">loss_function</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+    <span class="n">valid_dice_soft</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dice_soft</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+    <span class="n">valid_iou</span> <span class="o">=</span> <span class="n">binary_mean_iou</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"valid_loss"</span><span class="p">,</span> <span class="n">valid_loss</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"valid_dice"</span><span class="p">,</span> <span class="n">valid_dice_soft</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"valid_iou"</span><span class="p">,</span> <span class="n">valid_iou</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">"valid_loss"</span><span class="p">:</span> <span class="n">valid_loss</span><span class="p">,</span>
+        <span class="s">"valid_dice"</span><span class="p">:</span> <span class="n">valid_dice_soft</span><span class="p">,</span>
+        <span class="s">"valid_iou"</span><span class="p">:</span> <span class="n">valid_iou</span><span class="p">,</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>We keep all of rest parts of the pipeline</strong> (<code class="language-plaintext highlighter-rouge">LightningDataModule</code>, <code class="language-plaintext highlighter-rouge">Trainer</code>).</p>
+
+<p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%204-Pytorch%20Lightning%20with%20Kornia">github</a></strong></p>
+
+<h3 id="references">
+<a class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h3>
+
+<ul>
+  <li><a href="https://hphuongdhsp.github.io/ml-blog/2022/08/03/segmentation-model-part3.html">Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning</a></li>
+  <li><a href="https://kornia.readthedocs.io/en/latest/augmentation.html">Kornia.augmentation</a></li>
+</ul>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hphuongdhsp/ml-blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/ml-blog/2022/08/05/segmentation-model-part4.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/ml-blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ml-blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ml-blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>share2learn machine learning blog</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/hphuongdhsp" target="_blank" title="hphuongdhsp"><svg class="svg-icon grey"><use xlink:href="/ml-blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/hphuongdhsp" target="_blank" title="hphuongdhsp"><svg class="svg-icon grey"><use xlink:href="/ml-blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
