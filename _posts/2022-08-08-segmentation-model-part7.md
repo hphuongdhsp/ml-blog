@@ -5,7 +5,7 @@ comments: true
 author: Nguyen Hoang-Phuong
 image: images/mmdetection.png
 description: The seventh part of the Segmentation Tutorial Series, a step-by-step guide to developing Instance Segmentation Models in MMDetection
-# categories: [tensorflow, semantic segmentation, deep learning]
+categories: [pytorchlightning, semanticsegmentation, deeplearning, segformer, huggingface]
 title: Segmentation Model-Part VII -  Training Instance Segmentation in MMDetection
 ---
 

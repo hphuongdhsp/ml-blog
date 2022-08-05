@@ -5,7 +5,7 @@ comments: true
 author: Nguyen Hoang-Phuong
 image: images/imbalanced data.png
 description: The second part of the Segmentation Tutorial Series, a guide to handle Imbalanced Data in Deep Learning
-# categories: [tensorflow, semantic segmentation, deep learning]
+categories: [tensorflow, semanticsegmentation, deeplearning, imbalanceddata]
 title: Segmentation Model-Part II - How to handle Imbalanced Data in Segmentation Problem
 ---
 
@@ -25,7 +25,7 @@ We want to cover a nail semantic segmentation problem. For each image, we want t
 
 Our data is organized as
 
-```
+```bash
 ├── Images
 │   ├── 1
 │       ├── first_image.png
@@ -106,7 +106,7 @@ We remark that all functions we will use have been defined in the last part.
 
 We first define all data frame and load directories of image and masks
 
-```
+```python
 train0_csv_dir = f"{data_root}/csv_file/train0.csv"
 train1_csv_dir = f"{data_root}/csv_file/train1.csv"
 train2_csv_dir = f"{data_root}/csv_file/train2.csv"
@@ -122,9 +122,9 @@ train4_dataset = load_data_path(data_root, train4_csv_dir, "train")
 ```
 Using tf_dataset we load five datasets and remark that we will not batch in this step, we will concatenate those datasets with weights and batch them when we have the whole dataset.
 
-`The cool thing about this method is that we can use different augmentation for different sub-dataset`. For example we can apply the train_transform for the first dataset and valid_transform for the second datset. 
+**The cool thing about this method is that we can use different augmentation for different sub-dataset**. For example we can apply the *train_transform* for the first dataset and *valid_transform* for the second datset. 
 
-```
+```python
 train0_loader = tf_dataset(
     dataset=train0_dataset,
     shuffle=False,
@@ -168,7 +168,7 @@ train4_loader = tf_dataset(
 ```
 
 Shuffle and repeat each dataset
-```
+```python
 data_loaders = [
     train0_loader.apply(tf.data.experimental.shuffle_and_repeat(100000, count=epochs)),
     train1_loader.apply(tf.data.experimental.shuffle_and_repeat(100000, count=epochs)),
@@ -195,18 +195,18 @@ Returns of `tf.data.experimental.sample_from_datasets`
 - A dataset that interleaves elements from datasets at random, according to weights if provided, otherwise with uniform probability.
 
 
-```
+```python
 train_loader = tf.data.experimental.sample_from_datasets(data_loaders, weights=weights, seed=None)
 ```
 We then have the train_loader with balancing data. We only need to batch them before feeding data into the model.
 
-```
+```python
 train_loader = train_loader.batch(batch_size)
 ```
 
 Once we have train_loader, we define valid_loader, model, as same as the previous post. Finally, we fit the model.
 
-```
+```python
     history = model.fit(
         train_loader,
         steps_per_epoch=steps_per_epoch,
@@ -218,7 +218,7 @@ Once we have train_loader, we define valid_loader, model, as same as the previou
 
 where 
 
-```
+```python
     steps_per_epoch = (
         int(
             (

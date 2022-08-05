@@ -5,7 +5,7 @@ comments: true
 author: Nguyen Hoang-Phuong
 image: images/pytorch lightning.png
 description: The third part of the Segmentation Tutorial Series, a step-by-step guide to developing deep learning segmentation models in Pytorch Lightning
-# categories: [tensorflow, semantic segmentation, deep learning]
+categories: [pytorchlightning, semanticsegmentation, deeplearning]
 title: Segmentation Model-Part III - Training deep learning segmentation models in Pytorch Lightning
 ---
 

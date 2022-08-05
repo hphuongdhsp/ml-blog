@@ -5,7 +5,7 @@ comments: true
 author: Nguyen Hoang-Phuong
 image: images/kornia.png
 description: The fourth part of the Segmentation Tutorial Series, a step-by-step guide to developing data augmentation on GPU with Kornia library
-# categories: [tensorflow, semantic segmentation, deep learning]
+categories: [pytorchlightning, semanticsegmentation, deeplearning, kornia]
 title: Segmentation Model-Part IV - Data augmentation on the GPU with Kornia library
 ---
 
