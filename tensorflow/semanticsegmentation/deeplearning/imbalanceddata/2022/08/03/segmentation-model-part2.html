@@ -130,12 +130,12 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h2"><a href="#1-problem-description-and-dataset">1. Problem Description and Dataset</a></li>
 <li class="toc-entry toc-h2"><a href="#2-data-preparation">2. Data Preparation</a></li>
 <li class="toc-entry toc-h2"><a href="#3-how-to-define-dataloader">3. How to define dataloader</a></li>
-</ul><p>In the last post, we discussed how to train a segmentation model in Tensorflow. This post will cover how to balance datasets in training a segmentation model in Tensorflow. We can use the same technique to deal with the imbalanced data in a Classification problem. Let us recall our segmentation problem.</p>
+</ul><p>In the <a href="https://hphuongdhsp.github.io/ml-blog/tensorflow/semanticsegmentation/deeplearning/2022/08/02/segmentation-model-part1.html">previous post</a>, we discussed how to train a segmentation model in Tensorflow. This post will cover how to balance datasets in training a segmentation model in Tensorflow. We can use the same technique to deal with the imbalanced data in a Classification problem. Let us recall our segmentation problem.</p>
 
 <h2 id="1-problem-description-and-dataset">
 <a class="anchor" href="#1-problem-description-and-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Problem Description and Dataset</h2>
 
-<p>We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the mail in the image.</p>
+<p>We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the nail in the image.</p>
 
 <table>
   <thead>
@@ -173,7 +173,7 @@ window.onload = wrap_img;
 
 </code></pre></div></div>
 
-<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> corresponds to four types of distribution of nails. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images.</p>
+<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> corresponding to four distribution patterns of nails. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images.</p>
 
 <p>We download data from <a href="https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing">link</a> and put it in <code class="language-plaintext highlighter-rouge">data_root</code>, for example</p>
 
@@ -183,7 +183,7 @@ window.onload = wrap_img;
 <h2 id="2-data-preparation">
 <a class="anchor" href="#2-data-preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Data Preparation</h2>
 
-<p>Similar to the training pipeline of the previous post, we want to have the CSV file that stores the image and mask paths</p>
+<p>Similar to the training pipeline of the previous post, we want to have a CSV file that stores the paths of images and masks</p>
 
 <table>
   <thead>
@@ -212,9 +212,9 @@ window.onload = wrap_img;
   </tbody>
 </table>
 
-<p>For that we use <code class="language-plaintext highlighter-rouge">make_csv_file</code> function in <code class="language-plaintext highlighter-rouge">data_processing.py</code> file. <strong>What thing do we need more for data balancing?</strong></p>
+<p>For that we use <code class="language-plaintext highlighter-rouge">make_csv_file</code> function in <code class="language-plaintext highlighter-rouge">data_processing.py</code> file. <strong>What do we need more to balance the data??</strong></p>
 
-<p>We remark that our image data have four subfolders, and the distributions of the coverage segmentation are very different in each folder. Also, the quality of the image those are different (skew data).</p>
+<p>We remark that our image data have four subfolders, and the distributions of the coverage segmentation are very different in each folder. Those image quantity are different (skew data).</p>
 
 <table>
   <thead>
@@ -249,31 +249,31 @@ window.onload = wrap_img;
 
 <p>We want to split the info data frame into some smaller data frame. To do that we use:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def split_data_train(data_root) -&gt; None:
-    r"""
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">split_data_train</span><span class="p">(</span><span class="n">data_root</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="sa">r</span><span class="s">"""
     This function is to split the train into some subsets. The purpose of this step is to make the balanced dataset.
-    """
-    data_root = args.data_root
-    path_csv = f"{data_root}/csv_file/train.csv"
-    train = pd.read_csv(path_csv)
-    train["type"] = train["images"].apply(lambda x: x.split("/")[1])
-    for i in train["type"].unique().tolist():
-        df = train.loc[train["type"] == i]
-        df.to_csv(f"{data_root}/csv_file/train{i}.csv", index=False)
+    """</span>
+    <span class="n">data_root</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">data_root</span>
+    <span class="n">path_csv</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/train.csv"</span>
+    <span class="n">train</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path_csv</span><span class="p">)</span>
+    <span class="n">train</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="s">"images"</span><span class="p">].</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"/"</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">train</span><span class="p">[</span><span class="s">"type"</span><span class="p">].</span><span class="n">unique</span><span class="p">().</span><span class="n">tolist</span><span class="p">():</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">train</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">train</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/train</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s">.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 </code></pre></div></div>
 
-<p>We have five new data frame <code class="language-plaintext highlighter-rouge">train_0</code>, <code class="language-plaintext highlighter-rouge">train_1</code>, <code class="language-plaintext highlighter-rouge">train_2</code>, <code class="language-plaintext highlighter-rouge">train_3</code>, <code class="language-plaintext highlighter-rouge">train_4</code>. We will use those files in the next step.</p>
+<p>We have five new data frames <code class="language-plaintext highlighter-rouge">train_0</code>, <code class="language-plaintext highlighter-rouge">train_1</code>, <code class="language-plaintext highlighter-rouge">train_2</code>, <code class="language-plaintext highlighter-rouge">train_3</code>, <code class="language-plaintext highlighter-rouge">train_4</code>. We will use those files in the next step.</p>
 
-<p><strong>We will inherit all of the things in the previous post (DataLoader, Model, mixed precision, logger)</strong>. We need to change how we load datasets and how to balance the data when we load data.</p>
+<p><strong>We will inherit all things from the previous post (DataLoader, Model, mixed precision, logger)</strong>. We need to change how we load datasets and how to balance the data when we load data.</p>
 
 <h2 id="3-how-to-define-dataloader">
 <a class="anchor" href="#3-how-to-define-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. How to define dataloader</h2>
 
-<p>We remark that all functions we will use have been defined in the last part.</p>
+<p>We remark that all functions we will use, have been defined in the previous post.</p>
 
-<p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%201-Tensorflow">github</a></strong></p>
+<p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%201-Tensorflow">github</a>.</strong></p>
 
-<p>We first define all data frame and load directories of image and masks</p>
+<p>We first define all data frames and load directories of images and masks</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">train0_csv_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/train0.csv"</span>
 <span class="n">train1_csv_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/train1.csv"</span>
@@ -288,9 +288,9 @@ window.onload = wrap_img;
 <span class="n">train4_dataset</span> <span class="o">=</span> <span class="n">load_data_path</span><span class="p">(</span><span class="n">data_root</span><span class="p">,</span> <span class="n">train4_csv_dir</span><span class="p">,</span> <span class="s">"train"</span><span class="p">)</span>
 
 </code></pre></div></div>
-<p>Using tf_dataset we load five datasets and remark that we will not batch in this step, we will concatenate those datasets with weights and batch them when we have the whole dataset.</p>
+<p>Using <code class="language-plaintext highlighter-rouge">tf_dataset</code> we load five datasets and remark that we will not batch in this step, we will concatenate those datasets with weights and batch them when we have the whole dataset.</p>
 
-<p><strong>The cool thing about this method is that we can use different augmentation for different sub-dataset</strong>. For example we can apply the <em>train_transform</em> for the first dataset and <em>valid_transform</em> for the second datset.</p>
+<p><strong>The cool thing about this method is that we can use different augmentation for different sub-dataset</strong>. For example we can apply the <code class="language-plaintext highlighter-rouge">train_transform</code> for the first dataset and <code class="language-plaintext highlighter-rouge">valid_transform</code> for the second datset.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">train0_loader</span> <span class="o">=</span> <span class="n">tf_dataset</span><span class="p">(</span>
     <span class="n">dataset</span><span class="o">=</span><span class="n">train0_dataset</span><span class="p">,</span>
@@ -354,8 +354,8 @@ window.onload = wrap_img;
 
 <p>The input <code class="language-plaintext highlighter-rouge">tf.data.experimental.sample_from_datasets</code> function is:</p>
 <ul>
-  <li>datasets: A non-empty list of tf.data.Dataset objects with compatible structure.</li>
-  <li>weights: (Optional.) A list or Tensor of len(datasets) floating-point values where weights[i] represents the probability to sample from datasets[i], or a tf.data.Dataset object where each element is such a list. Defaults to a uniform distribution across datasets.</li>
+  <li>datasets: A non-empty list of tf.data.Dataset objects with a compatible structure.</li>
+  <li>weights: (Optional.) A list or Tensor of len(datasets) floating-point values where weights[i] represents the probability to sample from datasets[i], or a tf.data.Dataset object where each element is such a list. Defaults a uniform distribution across datasets.</li>
 </ul>
 
 <p>Returns of <code class="language-plaintext highlighter-rouge">tf.data.experimental.sample_from_datasets</code></p>
@@ -365,12 +365,12 @@ window.onload = wrap_img;
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">train_loader</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">experimental</span><span class="p">.</span><span class="n">sample_from_datasets</span><span class="p">(</span><span class="n">data_loaders</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 </code></pre></div></div>
-<p>We then have the train_loader with balancing data. We only need to batch them before feeding data into the model.</p>
+<p>We then have the <code class="language-plaintext highlighter-rouge">train_loader</code> with balancing data. We only need to batch them before feeding data into the model.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">train_loader</span> <span class="o">=</span> <span class="n">train_loader</span><span class="p">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
 </code></pre></div></div>
 
-<p>Once we have train_loader, we define valid_loader, model, as same as the previous post. Finally, we fit the model.</p>
+<p>Once we have <code class="language-plaintext highlighter-rouge">train_loader</code>, we define <code class="language-plaintext highlighter-rouge">valid_loader</code>, model, as same as the previous post. Finally, we fit the model.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span>
         <span class="n">train_loader</span><span class="p">,</span>
@@ -399,6 +399,8 @@ window.onload = wrap_img;
 </code></pre></div></div>
 
 <p><strong>For more details, we can find the source code at <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%202-Tensorflow%20Balanced%20Data">github</a></strong></p>
+
+<p>In the <a href="https://hphuongdhsp.github.io/ml-blog/pytorchlightning/semanticsegmentation/deeplearning/2022/08/04/segmentation-model-part3.html">next post</a>, we will cover how to train a deep learning in Pytorch Lightning</p>
 
   </div><!-- from https://github.com/utterance/utterances -->
 <script src="https://utteranc.es/client.js"

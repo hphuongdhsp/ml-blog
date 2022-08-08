@@ -190,7 +190,7 @@ window.onload = wrap_img;
 
 </code></pre></div></div>
 
-<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> corresponds to four types of distribution of nails. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images.</p>
+<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>,  each folder has four sub-folders <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">4</code> correspond to four types of distribution of nails. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images.</p>
 
 <p>We download data from <a href="https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing">link</a> and put it in <code class="language-plaintext highlighter-rouge">data_root</code>, for example</p>
 
@@ -200,7 +200,7 @@ window.onload = wrap_img;
 <h2 id="2-data-preparation">
 <a class="anchor" href="#2-data-preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Data Preparation</h2>
 
-<p>For the convenience of loading data, we will store data information in the data frame (or CSV file).</p>
+<p>For the convenience of loading data, we will store data information in a data frame (or CSV file).</p>
 
 <p>We want to have the CSV file that stores the image and mask paths</p>
 
@@ -269,11 +269,11 @@ def make_csv_file(data_root) -&gt; None:
 <h2 id="3-define-dataloader">
 <a class="anchor" href="#3-define-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Define DataLoader</h2>
 
-<p>In this part we will do the following:</p>
+<p>In this part we will do the following steps:</p>
 
 <ul>
   <li>Get lists of images and masks</li>
-  <li>Define Dataloader with input being a list of images and masks and output be list of image batchs which being fed into the model. More precisely:
+  <li>Define Dataloader with input being a list of images and masks and output being a list of image batchs which are fed into the model. More precisely:
     <ul>
       <li>Decode images and masks (read images and masks)</li>
       <li>Transform data</li>
@@ -282,9 +282,9 @@ def make_csv_file(data_root) -&gt; None:
   </li>
 </ul>
 
-<p>Before going to the next part, let’s talk about the advantages of using tf.data for the data loader pipeline.</p>
+<p>Before going to the next part, let’s talk about the advantages of using <code class="language-plaintext highlighter-rouge">tf.data</code> for the data loader pipeline.</p>
 
-<p>The main feature of the next part is the data loader. We use the <code class="language-plaintext highlighter-rouge">tensorflow.data</code> (tf.data) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine <code class="language-plaintext highlighter-rouge">tf.data</code> and <code class="language-plaintext highlighter-rouge">keras.Sequence</code>. This tutorial focuses on how to load data by tf.data.</p>
+<p>The main feature of the next part is the data loader. We use the <code class="language-plaintext highlighter-rouge">tensorflow.data</code> (<code class="language-plaintext highlighter-rouge">tf.data</code>) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine <code class="language-plaintext highlighter-rouge">tf.data</code> and <code class="language-plaintext highlighter-rouge">keras.Sequence</code>. This tutorial focuses on how to load data by <code class="language-plaintext highlighter-rouge">tf.data</code>.</p>
 
 <p>Here is the pipeline loader of tf.data:</p>
 <ul>
@@ -296,7 +296,7 @@ def make_csv_file(data_root) -&gt; None:
 <p><img src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png" alt="" title="tf.data pipeline">
 <!-- <img align="center" width="600"  src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png"> --></p>
 
-<p>The advantage of this method is:</p>
+<p>The advantages of this method are:</p>
 <ul>
   <li>Loading data by using multi-processing</li>
   <li>Don’t have the memory leak phenomenal</li>
@@ -528,7 +528,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 
 <ul>
   <li>We first feed the data as the float16 or bloat16 type, then the input of the model has the low type (float16 and bfloat16).</li>
-  <li>All of the calculations in the model are computed with the lower-precision operations</li>
+  <li>All of the calculations in the model are computed with the lower-precision operations.</li>
   <li>Convert the output of the model into float32 to do optimization tasks.</li>
   <li>Update weights, convert them into lower-precision, and continue the next round of training.</li>
 </ul>
@@ -546,10 +546,10 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 </code></pre></div></div>
 
 <ul>
-  <li>Change the out data (input of model) into tf.float16:</li>
+  <li>Change the type of output data (the input of model) into <code class="language-plaintext highlighter-rouge">tf.float16</code>:</li>
 </ul>
 
-<p>When we load dataset, before do suffling and do batching we convert out data into float16. To do that,</p>
+<p>When we load dataset, before suffling and batching we convert the output data into float16. To do that,</p>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
     <span class="c1"># using tf.numpy_function to apply the aug_img to image and mask
 </span>    <span class="n">aug_img</span><span class="p">,</span> <span class="n">aug_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">numpy_function</span><span class="p">(</span><span class="n">aug_fn</span><span class="p">,</span> <span class="p">[</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">],</span> <span class="p">[</span><span class="n">dtype</span><span class="p">,</span> <span class="n">dtype</span><span class="p">])</span>
@@ -557,7 +557,7 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 </code></pre></div></div>
 
 <ul>
-  <li>Fix the last layer of the model. Here we remark that the dtype of the last layer should be <code class="language-plaintext highlighter-rouge">float32</code>. To do that, in the model part, we add some trick lines:</li>
+  <li>Fix the last layer of the model. Here we remark that the dtype of the last layer should be <code class="language-plaintext highlighter-rouge">float32</code>. To do that, in the model part, we add some tricks:</li>
 </ul>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">model</span> <span class="o">=</span> <span class="n">sm</span><span class="p">.</span><span class="n">Unet</span><span class="p">(</span>
@@ -576,24 +576,24 @@ aug_mask = tf.cast(aug_mask / 255.0, dtype)
 <h2 id="52-using-wanbd-for-logging">
 <a class="anchor" href="#52-using-wanbd-for-logging" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.2 Using Wanbd for logging.</h2>
 
-<p>In this part, we will cover how to use wandb for logging. WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings. To do that we use callback of model training as the WandbLogging</p>
+<p>In this part, we will cover how to use <code class="language-plaintext highlighter-rouge">wandb</code> for logging. <code class="language-plaintext highlighter-rouge">WandB</code> is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings. To do that we use callback of model training as the <code class="language-plaintext highlighter-rouge">WandbLogging</code></p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import wandb
-from wandb.keras import WandbCallback
-logdir = f"{work_dir}/tensorflow/logs/wandb"
-mkdir(logdir)
-wandb.init(project="Segmentation by Tensorflow", dir=logdir)
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">wandb</span>
+<span class="kn">from</span> <span class="nn">wandb.keras</span> <span class="kn">import</span> <span class="n">WandbCallback</span>
+<span class="n">logdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">work_dir</span><span class="si">}</span><span class="s">/tensorflow/logs/wandb"</span>
+<span class="n">mkdir</span><span class="p">(</span><span class="n">logdir</span><span class="p">)</span>
+<span class="n">wandb</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s">"Segmentation by Tensorflow"</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">logdir</span><span class="p">)</span>
 
-wandb.config = {
-    "learning_rate": earning_rate,
-    "epochs": epochs,
-    "batch_size": batch_size,
-}
-callbacks.append(WandbCallback())
+<span class="n">wandb</span><span class="p">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"learning_rate"</span><span class="p">:</span> <span class="n">earning_rate</span><span class="p">,</span>
+    <span class="s">"epochs"</span><span class="p">:</span> <span class="n">epochs</span><span class="p">,</span>
+    <span class="s">"batch_size"</span><span class="p">:</span> <span class="n">batch_size</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">callbacks</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">WandbCallback</span><span class="p">())</span>
 
 </code></pre></div></div>
 
-<p>We finish the training task by calling the train loader and the valid loader and fitting the model. Then</p>
+<p>We finish the training task by calling the train loader and valid loader and fitting the model. Then</p>
 
 <h2 id="53-dataloader">
 <a class="anchor" href="#53-dataloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.3 Dataloader</h2>

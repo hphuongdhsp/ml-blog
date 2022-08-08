@@ -200,7 +200,7 @@ window.onload = wrap_img;
 <h2 id="2-data-preparation">
 <a class="anchor" href="#2-data-preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Data Preparation</h2>
 
-<p>We want the CSV file that stores the image and mask paths. In this project, file names of images and masks are the same, and then we only need to save the <code class="language-plaintext highlighter-rouge">images</code> path and modify the <code class="language-plaintext highlighter-rouge">data_root</code> of images and masks when we define a dataset.</p>
+<p>We want a CSV file that stores the image and mask paths. In this project, file names of images and masks are the same, and then we only need to save the <code class="language-plaintext highlighter-rouge">images</code> path and modify the <code class="language-plaintext highlighter-rouge">data_root</code> of images and masks when we define a dataset.</p>
 
 <table>
   <thead>
@@ -322,87 +322,87 @@ window.onload = wrap_img;
 
 <h3 id="41-define-torchutilsdatadataset-for-the-nail-data">
 <a class="anchor" href="#41-define-torchutilsdatadataset-for-the-nail-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.1 Define <code class="language-plaintext highlighter-rouge">torch.utils.data.Dataset</code> for the Nail Data</h3>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class NailDataset(Dataset):
-    def __init__(self, data_root: str, csv_folder: str, train: str, tfms: A.Compose):
-        self.data_root = data_root
-        self.csv_folder = csv_folder
-        self.train = train
-        self.tfms = tfms
-        if self.train == "train":
-            self.ids = pd.read_csv(os.path.join(self.csv_folder, "train.csv"))["images"]
-        else:
-            self.ids = pd.read_csv(os.path.join(self.csv_folder, "valid.csv"))["images"]
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">NailDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">csv_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">train</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tfms</span><span class="p">:</span> <span class="n">A</span><span class="p">.</span><span class="n">Compose</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">data_root</span> <span class="o">=</span> <span class="n">data_root</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">csv_folder</span> <span class="o">=</span> <span class="n">csv_folder</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">train</span> <span class="o">=</span> <span class="n">train</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">tfms</span> <span class="o">=</span> <span class="n">tfms</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">train</span> <span class="o">==</span> <span class="s">"train"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">ids</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">csv_folder</span><span class="p">,</span> <span class="s">"train.csv"</span><span class="p">))[</span><span class="s">"images"</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">ids</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">csv_folder</span><span class="p">,</span> <span class="s">"valid.csv"</span><span class="p">))[</span><span class="s">"images"</span><span class="p">]</span>
 
-    def __len__(self) -&gt; int:
-        return len(self.ids)
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">ids</span><span class="p">)</span>
 
-    def __getitem__(self, idx: int) -&gt; Any:
-        fname = self.ids[idx]
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">ids</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
 
-        image = read_image(self.data_root + f"/{self.train}/images" + fname)
-        mask = read_mask(self.data_root + f"/{self.train}/masks" + fname)
+        <span class="n">image</span> <span class="o">=</span> <span class="n">read_image</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">data_root</span> <span class="o">+</span> <span class="sa">f</span><span class="s">"/</span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">train</span><span class="si">}</span><span class="s">/images"</span> <span class="o">+</span> <span class="n">fname</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">read_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">data_root</span> <span class="o">+</span> <span class="sa">f</span><span class="s">"/</span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">train</span><span class="si">}</span><span class="s">/masks"</span> <span class="o">+</span> <span class="n">fname</span><span class="p">)</span>
 
-        mask = (mask &gt; 0).astype(np.uint8)
-        if self.tfms is not None:
-            augmented = self.tfms(image=image, mask=mask)
-            image, mask = augmented["image"], augmented["mask"]
-        return {
-            "image": img2tensor(image),
-            "label": img2tensor(mask),
-        }
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">tfms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">augmented</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">tfms</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+            <span class="n">image</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">augmented</span><span class="p">[</span><span class="s">"image"</span><span class="p">],</span> <span class="n">augmented</span><span class="p">[</span><span class="s">"mask"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">"image"</span><span class="p">:</span> <span class="n">img2tensor</span><span class="p">(</span><span class="n">image</span><span class="p">),</span>
+            <span class="s">"label"</span><span class="p">:</span> <span class="n">img2tensor</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span>
+        <span class="p">}</span>
 </code></pre></div></div>
 
 <h3 id="42-define-lightningdatamodule-for-the-nail-data">
 <a class="anchor" href="#42-define-lightningdatamodule-for-the-nail-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.2 Define <code class="language-plaintext highlighter-rouge">LightningDataModule</code> for the Nail Data</h3>
 <p>We then use LightningDataModule to wrap our NailDataset into the data module of Pytorch Lightning.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class NailSegmentation(LightningDataModule):
-    def __init__(self, data_root: str, csv_path: str, test_path: str, batch_size: int = 16, num_workers: int = 4):
-        super().__init__()
-        assert os.path.isdir(csv_path), f"missing folder: {csv_path}"
-        assert os.path.isdir(data_root), f"missing folder: {data_root}"
-        self.data_root = str(data_root)
-        self.csv_path = str(csv_path)
-        self.test_path = str(test_path)
-        self.valid_transform = valid_transform()
-        self.train_transform = train_transform()
-        # other configs
-        self.batch_size = batch_size
-        self.num_workers = num_workers if num_workers is not None else mproc.cpu_count()
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">NailSegmentation</span><span class="p">(</span><span class="n">LightningDataModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">test_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">csv_path</span><span class="p">),</span> <span class="sa">f</span><span class="s">"missing folder: </span><span class="si">{</span><span class="n">csv_path</span><span class="si">}</span><span class="s">"</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">data_root</span><span class="p">),</span> <span class="sa">f</span><span class="s">"missing folder: </span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">"</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">data_root</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">csv_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">test_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">test_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">valid_transform</span> <span class="o">=</span> <span class="n">valid_transform</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">train_transform</span> <span class="o">=</span> <span class="n">train_transform</span><span class="p">()</span>
+        <span class="c1"># other configs
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">num_workers</span> <span class="o">=</span> <span class="n">num_workers</span> <span class="k">if</span> <span class="n">num_workers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">mproc</span><span class="p">.</span><span class="n">cpu_count</span><span class="p">()</span>
 
-    def prepare_data(self) -&gt; None:
-        pass
+    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">pass</span>
 
-    def setup(self, *_, **__) -&gt; None:
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
 
-        self.train_dataset = NailDataset(
-            self.data_root,
-            self.csv_path,
-            train="train",
-            tfms=self.train_transform,
-        )
-        self.valid_dataset = NailDataset(
-            self.data_root,
-            self.csv_path,
-            train="valid",
-            tfms=self.valid_transform,
-        )
+        <span class="bp">self</span><span class="p">.</span><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">NailDataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">data_root</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">csv_path</span><span class="p">,</span>
+            <span class="n">train</span><span class="o">=</span><span class="s">"train"</span><span class="p">,</span>
+            <span class="n">tfms</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">train_transform</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">valid_dataset</span> <span class="o">=</span> <span class="n">NailDataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">data_root</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">csv_path</span><span class="p">,</span>
+            <span class="n">train</span><span class="o">=</span><span class="s">"valid"</span><span class="p">,</span>
+            <span class="n">tfms</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">valid_transform</span><span class="p">,</span>
+        <span class="p">)</span>
 
-    def train_dataloader(self) -&gt; DataLoader:
-        return DataLoader(
-            self.train_dataset,
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
-            shuffle=True,
-        )
+    <span class="k">def</span> <span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataLoader</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DataLoader</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">train_dataset</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">num_workers</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="p">)</span>
 
-    def val_dataloader(self) -&gt; DataLoader:
-        return DataLoader(
-            self.valid_dataset,
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
-            shuffle=False,
-        )
+    <span class="k">def</span> <span class="nf">val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataLoader</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DataLoader</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">valid_dataset</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">num_workers</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="p">)</span>
 </code></pre></div></div>
 
 <blockquote>
@@ -436,14 +436,14 @@ window.onload = wrap_img;
 
 <p>For convenience, we use <a href="https://github.com/qubvel/segmentation_models.pytorch">segmentation_models_pytorch</a> to define our model. <code class="language-plaintext highlighter-rouge">Segmentation_models_pytorch</code> is a high-level API, it helps us build a semantic segmentation model with only some lines of code.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import segmentation_models_pytorch as smp
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">segmentation_models_pytorch</span> <span class="k">as</span> <span class="n">smp</span>
 
-model = smp.Unet(
-    encoder_name="timm-efficientnet-b4",    # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-    encoder_weights="imagenet",             # use `imagenet` pre-trained weights for encoder initialization
-    in_channels=3,                          # model input channels (1 for gray-scale images, 3 for RGB,
-    classes=1,                              # model output channels (number of classes in your dataset)
-)
+<span class="n">model</span> <span class="o">=</span> <span class="n">smp</span><span class="p">.</span><span class="n">Unet</span><span class="p">(</span>
+    <span class="n">encoder_name</span><span class="o">=</span><span class="s">"timm-efficientnet-b4"</span><span class="p">,</span>    <span class="c1"># choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+</span>    <span class="n">encoder_weights</span><span class="o">=</span><span class="s">"imagenet"</span><span class="p">,</span>             <span class="c1"># use `imagenet` pre-trained weights for encoder initialization
+</span>    <span class="n">in_channels</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>                          <span class="c1"># model input channels (1 for gray-scale images, 3 for RGB,
+</span>    <span class="n">classes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>                              <span class="c1"># model output channels (number of classes in your dataset)
+</span><span class="p">)</span>
 </code></pre></div></div>
 
 <p>Here we use:</p>
@@ -458,74 +458,74 @@ model = smp.Unet(
 <a class="anchor" href="#52-define-lightningmodule" aria-hidden="true"><span class="octicon octicon-link"></span></a>5.2 Define LightningModule</h3>
 <p>We next use <code class="language-plaintext highlighter-rouge">LightningModule</code> to wrap the model into the model module of Pytorch Lightnining.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class LitNailSegmentation(LightningModule):
-    def __init__(self, model: nn.Module, learning_rate: float = 1e-4):
-        super().__init__()
-        self.model = model
-        self.loss_function = symmetric_lovasz
-        self.dice_soft = binary_dice_coefficient
-        self.learning_rate = learning_rate
-        self.save_hyperparameters()
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">LitNailSegmentation</span><span class="p">(</span><span class="n">LightningModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">loss_function</span> <span class="o">=</span> <span class="n">symmetric_lovasz</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">dice_soft</span> <span class="o">=</span> <span class="n">binary_dice_coefficient</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">save_hyperparameters</span><span class="p">()</span>
 
-    def forward(self, x):
-        return self.model(x)
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-    def training_step(self, batch, batch_idx):
-        imgs, masks = batch["image"], batch["label"]
+    <span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
+        <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s">"image"</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s">"label"</span><span class="p">]</span>
 
-        imgs, masks = imgs.float(), masks.float()
-        logits = self(imgs)
+        <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="n">imgs</span><span class="p">.</span><span class="nb">float</span><span class="p">(),</span> <span class="n">masks</span><span class="p">.</span><span class="nb">float</span><span class="p">()</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
 
-        train_loss = self.loss_function(logits, masks)
-        train_dice_soft = self.dice_soft(logits, masks)
+        <span class="n">train_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">loss_function</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+        <span class="n">train_dice_soft</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dice_soft</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
 
-        self.log("train_loss", train_loss, prog_bar=True)
-        self.log("train_dice_soft", train_dice_soft, prog_bar=True)
-        return {"loss": train_loss, "train_dice_soft": train_dice_soft}
+        <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"train_loss"</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"train_dice_soft"</span><span class="p">,</span> <span class="n">train_dice_soft</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">"loss"</span><span class="p">:</span> <span class="n">train_loss</span><span class="p">,</span> <span class="s">"train_dice_soft"</span><span class="p">:</span> <span class="n">train_dice_soft</span><span class="p">}</span>
 
-    def validation_step(self, batch, batch_idx):
-        imgs, masks = batch["image"], batch["label"]
+    <span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
+        <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s">"image"</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s">"label"</span><span class="p">]</span>
 
-        imgs, masks = imgs.float(), masks.float()
-        logits = self(imgs)
-        valid_loss = self.loss_function(logits, masks)
-        valid_dice_soft = self.dice_soft(logits, masks)
-        valid_iou = binary_mean_iou(logits, masks)
+        <span class="n">imgs</span><span class="p">,</span> <span class="n">masks</span> <span class="o">=</span> <span class="n">imgs</span><span class="p">.</span><span class="nb">float</span><span class="p">(),</span> <span class="n">masks</span><span class="p">.</span><span class="nb">float</span><span class="p">()</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+        <span class="n">valid_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">loss_function</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+        <span class="n">valid_dice_soft</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dice_soft</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+        <span class="n">valid_iou</span> <span class="o">=</span> <span class="n">binary_mean_iou</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
 
-        self.log("valid_loss", valid_loss, prog_bar=True)
-        self.log("valid_dice", valid_dice_soft, prog_bar=True)
-        self.log("valid_iou", valid_iou, prog_bar=True)
+        <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"valid_loss"</span><span class="p">,</span> <span class="n">valid_loss</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"valid_dice"</span><span class="p">,</span> <span class="n">valid_dice_soft</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="s">"valid_iou"</span><span class="p">,</span> <span class="n">valid_iou</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-        return {
-            "valid_loss": valid_loss,
-            "valid_dice": valid_dice_soft,
-            "valid_iou": valid_iou,
-        }
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">"valid_loss"</span><span class="p">:</span> <span class="n">valid_loss</span><span class="p">,</span>
+            <span class="s">"valid_dice"</span><span class="p">:</span> <span class="n">valid_dice_soft</span><span class="p">,</span>
+            <span class="s">"valid_iou"</span><span class="p">:</span> <span class="n">valid_iou</span><span class="p">,</span>
+        <span class="p">}</span>
 
-    def validation_epoch_end(self, outputs):
+    <span class="k">def</span> <span class="nf">validation_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
 
-        logs = {"epoch": self.trainer.current_epoch}
-        valid_losses = torch.stack([x["valid_loss"] for x in outputs]).mean()
-        valid_dices = torch.stack([x["valid_dice"] for x in outputs]).mean()
-        valid_ious = torch.stack([x["valid_iou"] for x in outputs]).mean()
+        <span class="n">logs</span> <span class="o">=</span> <span class="p">{</span><span class="s">"epoch"</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">trainer</span><span class="p">.</span><span class="n">current_epoch</span><span class="p">}</span>
+        <span class="n">valid_losses</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s">"valid_loss"</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">]).</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">valid_dices</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s">"valid_dice"</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">]).</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">valid_ious</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s">"valid_iou"</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">]).</span><span class="n">mean</span><span class="p">()</span>
 
-        logs["valid_losses"] = valid_losses
-        logs["valid_dices"] = valid_dices
-        logs["valid_ious"] = valid_ious
+        <span class="n">logs</span><span class="p">[</span><span class="s">"valid_losses"</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_losses</span>
+        <span class="n">logs</span><span class="p">[</span><span class="s">"valid_dices"</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_dices</span>
+        <span class="n">logs</span><span class="p">[</span><span class="s">"valid_ious"</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_ious</span>
 
-        return {
-            "valid_losses": valid_losses,
-            "valid_dices": valid_dices,
-            "valid_ious": valid_ious,
-            "log": logs,
-        }
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">"valid_losses"</span><span class="p">:</span> <span class="n">valid_losses</span><span class="p">,</span>
+            <span class="s">"valid_dices"</span><span class="p">:</span> <span class="n">valid_dices</span><span class="p">,</span>
+            <span class="s">"valid_ious"</span><span class="p">:</span> <span class="n">valid_ious</span><span class="p">,</span>
+            <span class="s">"log"</span><span class="p">:</span> <span class="n">logs</span><span class="p">,</span>
+        <span class="p">}</span>
 
-    def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.learning_rate)
+    <span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">optim</span><span class="p">.</span><span class="n">AdamW</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">learning_rate</span><span class="p">)</span>
 
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, self.trainer.max_epochs, 0)
-        self.optimizer = [optimizer]
-        return self.optimizer, [scheduler]
+        <span class="n">scheduler</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">optim</span><span class="p">.</span><span class="n">lr_scheduler</span><span class="p">.</span><span class="n">CosineAnnealingLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">trainer</span><span class="p">.</span><span class="n">max_epochs</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="p">[</span><span class="n">optimizer</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">optimizer</span><span class="p">,</span> <span class="p">[</span><span class="n">scheduler</span><span class="p">]</span>
 </code></pre></div></div>
 
 <p>Here we use:</p>
@@ -535,8 +535,8 @@ model = smp.Unet(
   <li>symmetric_lovasz as the loss function, which is defined in the <a href="https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%203-Pytorch%20Lightning/loss.py">Loss.py</a> file. <em>symmetric_lovasz</em> is defined by</li>
 </ul>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def symmetric_lovasz(outputs, targets):
-    return 0.5*(lovasz_hinge(outputs, targets) + lovasz_hinge(-outputs, 1.0 - targets))
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">symmetric_lovasz</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">lovasz_hinge</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span> <span class="o">+</span> <span class="n">lovasz_hinge</span><span class="p">(</span><span class="o">-</span><span class="n">outputs</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">targets</span><span class="p">))</span>
 </code></pre></div></div>
 
 <p>where lovasz_hinge is <a href="https://arxiv.org/pdf/1705.08790.pdf">Lovasz loss</a> for the binary segmentation.</p>
@@ -550,33 +550,34 @@ model = smp.Unet(
 
 <p>Once we have the data module, and model module, we can train the model with <code class="language-plaintext highlighter-rouge">Trainer</code> API,</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>datamodule = NailSegmentation(
-    data_root=data_root,
-    csv_path=csv_path,
-    test_path="",
-    batch_size=batch_size,
-    num_workers=4,
-)
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">datamodule</span> <span class="o">=</span> <span class="n">NailSegmentation</span><span class="p">(</span>
+    <span class="n">data_root</span><span class="o">=</span><span class="n">data_root</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">,</span>
+    <span class="n">test_path</span><span class="o">=</span><span class="s">""</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
 
-model_lighning = LitNailSegmentation(model=model, learning_rate=config.training.learning_rate)
+<span class="n">model_lighning</span> <span class="o">=</span> <span class="n">LitNailSegmentation</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="n">config</span><span class="p">.</span><span class="n">training</span><span class="p">.</span><span class="n">learning_rate</span><span class="p">)</span>
 
 
-trainer = Trainer(*args_trainer)
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="o">*</span><span class="n">args_trainer</span><span class="p">)</span>
 
-trainer.fit(
-            model=model_lighning,
-            datamodule=datamodule,
-            ckpt_path=ckpt_path,
-        )
+<span class="n">trainer</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model_lighning</span><span class="p">,</span>
+            <span class="n">datamodule</span><span class="o">=</span><span class="n">datamodule</span><span class="p">,</span>
+            <span class="n">ckpt_path</span><span class="o">=</span><span class="n">ckpt_path</span><span class="p">,</span>
+        <span class="p">)</span>
 </code></pre></div></div>
+
 <p>Here <code class="language-plaintext highlighter-rouge">args_trainer</code> is the argument of the <code class="language-plaintext highlighter-rouge">trainer</code>. More precisely, it has</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{   gpus: [0]                       # gpu device to train 
-    max_epochs: 300                 # number of epochs
-    precision: 16                   # using mix precision to train  
-    auto_lr_find: True              # auto find the good initial learning rate
-    limit_train_batches: 1.0        # percent of train dataset use to train, here 100%
-    ... 
-    }
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="pi">{</span>   <span class="nv">gpus</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">0</span><span class="pi">]</span>                       <span class="c1"># gpu device to train </span>
+    <span class="nv">max_epochs</span><span class="pi">:</span> <span class="nv">300</span>                 <span class="c1"># number of epochs</span>
+    <span class="nv">precision</span><span class="pi">:</span> <span class="nv">16</span>                   <span class="c1"># using mix precision to train  </span>
+    <span class="nv">auto_lr_find</span><span class="pi">:</span> <span class="nv">True</span>              <span class="c1"># auto find the good initial learning rate</span>
+    <span class="nv">limit_train_batches</span><span class="pi">:</span> <span class="nv">1.0</span>        <span class="c1"># percent of train dataset use to train, here 100%</span>
+    <span class="nv">...</span> 
+    <span class="pi">}</span>
 </code></pre></div></div>
 
 <p>Lightning implements various techniques to help during training that can help make the training smoother.</p>

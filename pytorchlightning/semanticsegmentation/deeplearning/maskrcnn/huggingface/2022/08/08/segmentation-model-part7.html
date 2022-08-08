@@ -210,7 +210,7 @@ window.onload = wrap_img;
 
 <p>Our data is organized as</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── Images
 │   ├── 1
 │       ├── first_image.png
 │       ├── second_image.png
@@ -229,7 +229,7 @@ window.onload = wrap_img;
 
 </code></pre></div></div>
 
-<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder, and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images. Each folder has four sub-folder:  <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, and <code class="language-plaintext highlighter-rouge">4</code>, corresponding to four types of nail distribution.</p>
+<p>We have two folders: <code class="language-plaintext highlighter-rouge">Images</code> and <code class="language-plaintext highlighter-rouge">Masks</code>. <code class="language-plaintext highlighter-rouge">Images</code> is the data folder, and <code class="language-plaintext highlighter-rouge">Masks</code> is the label folder, which is the segmentations of input images. Each folder has four sub-folder:  <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code>, <code class="language-plaintext highlighter-rouge">3</code>, and <code class="language-plaintext highlighter-rouge">4</code>, corresponding to four distribution parttens of nail .</p>
 
 <p>We download data from <a href="https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing">link</a> and put it in <code class="language-plaintext highlighter-rouge">data_root</code>, for example</p>
 
@@ -413,19 +413,19 @@ window.onload = wrap_img;
 
 <p>We then save the annotaions as a json file by the <code class="language-plaintext highlighter-rouge">get_json_coco</code> function</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def get_json_coco(args) -&gt; None:
-    train_df = pd.read_csv(f"{data_root}/csv_file/train_info.csv")
-    valid_df = pd.read_csv(f"{data_root}/csv_file/valid_info.csv")
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_json_coco</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/train_info.csv"</span><span class="p">)</span>
+    <span class="n">valid_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_root</span><span class="si">}</span><span class="s">/csv_file/valid_info.csv"</span><span class="p">)</span>
 
-    coco_json = os.path.join(data_root, "annotations")
-    mkdir(coco_json)
-    train_json = get_annotations(train_df)
-    valid_json = get_annotations(valid_df)
+    <span class="n">coco_json</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_root</span><span class="p">,</span> <span class="s">"annotations"</span><span class="p">)</span>
+    <span class="n">mkdir</span><span class="p">(</span><span class="n">coco_json</span><span class="p">)</span>
+    <span class="n">train_json</span> <span class="o">=</span> <span class="n">get_annotations</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
+    <span class="n">valid_json</span> <span class="o">=</span> <span class="n">get_annotations</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
 
-    with open(f"{coco_json}/train.json", "w+", encoding="utf-8") as f:
-        json.dump(train_json, f, ensure_ascii=True, indent=4)
-    with open(f"{coco_json}/valid.json", "w+", encoding="utf-8") as f:
-        json.dump(valid_json, f, ensure_ascii=True, indent=4)
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">coco_json</span><span class="si">}</span><span class="s">/train.json"</span><span class="p">,</span> <span class="s">"w+"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="p">.</span><span class="n">dump</span><span class="p">(</span><span class="n">train_json</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">coco_json</span><span class="si">}</span><span class="s">/valid.json"</span><span class="p">,</span> <span class="s">"w+"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="p">.</span><span class="n">dump</span><span class="p">(</span><span class="n">valid_json</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
 </code></pre></div></div>
 
@@ -601,7 +601,7 @@ window.onload = wrap_img;
   <p>Note: we want use the multi-scale image when training the pipeline, then</p>
 </blockquote>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>img_scale=[(1333, 640), (1333, 672), (1333, 704), (1333, 736), (1333, 768), (1333, 800)]
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">img_scale</span><span class="o">=</span><span class="p">[(</span><span class="mi">1333</span><span class="p">,</span> <span class="mi">640</span><span class="p">),</span> <span class="p">(</span><span class="mi">1333</span><span class="p">,</span> <span class="mi">672</span><span class="p">),</span> <span class="p">(</span><span class="mi">1333</span><span class="p">,</span> <span class="mi">704</span><span class="p">),</span> <span class="p">(</span><span class="mi">1333</span><span class="p">,</span> <span class="mi">736</span><span class="p">),</span> <span class="p">(</span><span class="mi">1333</span><span class="p">,</span> <span class="mi">768</span><span class="p">),</span> <span class="p">(</span><span class="mi">1333</span><span class="p">,</span> <span class="mi">800</span><span class="p">)]</span>
 
 </code></pre></div></div>
 <h3 id="32-training">
