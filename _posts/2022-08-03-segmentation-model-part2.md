@@ -9,12 +9,12 @@ categories: [tensorflow, semanticsegmentation, deeplearning, imbalanceddata]
 title: Segmentation Model-Part II - How to handle Imbalanced Data in Segmentation Problem
 ---
 
-In the last post, we discussed how to train a segmentation model in Tensorflow. This post will cover how to balance datasets in training a segmentation model in Tensorflow. We can use the same technique to deal with the imbalanced data in a Classification problem. Let us recall our segmentation problem.
+In the [previous post](https://hphuongdhsp.github.io/ml-blog/tensorflow/semanticsegmentation/deeplearning/2022/08/02/segmentation-model-part1.html), we discussed how to train a segmentation model in Tensorflow. This post will cover how to balance datasets in training a segmentation model in Tensorflow. We can use the same technique to deal with the imbalanced data in a Classification problem. Let us recall our segmentation problem.
 
 
 ## 1. Problem Description and Dataset
 
-We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the mail in the image.
+We want to cover a nail semantic segmentation problem. For each image, we want to detect the segmentation of the nail in the image.
 
 
 |                                                     Images                                                     |                                                     Masks                                                      |
@@ -46,7 +46,7 @@ Our data is organized as
 ```
 
 
-We have two folders: `Images` and `Masks`,  each folder has four sub-folders `1`, `2`, `3`, `4` corresponds to four types of distribution of nails. `Images` is the data folder and `Masks` is the label folder, which is the segmentations of input images.
+We have two folders: `Images` and `Masks`,  each folder has four sub-folders `1`, `2`, `3`, `4` corresponding to four distribution patterns of nails. `Images` is the data folder and `Masks` is the label folder, which is the segmentations of input images.
 
 We download data from [link](https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing) and put it in `data_root`, for example
 
@@ -56,7 +56,7 @@ data_root = "./nail-segmentation-dataset"
 
 ## 2. Data Preparation
 
-Similar to the training pipeline of the previous post, we want to have the CSV file that stores the image and mask paths
+Similar to the training pipeline of the previous post, we want to have a CSV file that stores the paths of images and masks
 
 | index | images                |
 | ----- | --------------------- |
@@ -65,9 +65,9 @@ Similar to the training pipeline of the previous post, we want to have the CSV f
 | 3     | path_third_image.png  |
 | 4     | path_fourth_image.png |
 
-For that we use `make_csv_file` function in `data_processing.py` file. **What thing do we need more for data balancing?** 
+For that we use `make_csv_file` function in `data_processing.py` file. **What do we need more to balance the data??** 
 
-We remark that our image data have four subfolders, and the distributions of the coverage segmentation are very different in each folder. Also, the quality of the image those are different (skew data).
+We remark that our image data have four subfolders, and the distributions of the coverage segmentation are very different in each folder. Those image quantity are different (skew data).
 
 | Folder | number of image |
 | ------ | --------------- |
@@ -79,7 +79,7 @@ We remark that our image data have four subfolders, and the distributions of the
 
 We want to split the info data frame into some smaller data frame. To do that we use:
 
-```
+```python
 def split_data_train(data_root) -> None:
     r"""
     This function is to split the train into some subsets. The purpose of this step is to make the balanced dataset.
@@ -93,18 +93,18 @@ def split_data_train(data_root) -> None:
         df.to_csv(f"{data_root}/csv_file/train{i}.csv", index=False)
 ```
 
-We have five new data frame `train_0`, `train_1`, `train_2`, `train_3`, `train_4`. We will use those files in the next step. 
+We have five new data frames `train_0`, `train_1`, `train_2`, `train_3`, `train_4`. We will use those files in the next step. 
 
 
-**We will inherit all of the things in the previous post (DataLoader, Model, mixed precision, logger)**. We need to change how we load datasets and how to balance the data when we load data.
+**We will inherit all things from the previous post (DataLoader, Model, mixed precision, logger)**. We need to change how we load datasets and how to balance the data when we load data.
 
 ## 3. How to define dataloader
 
-We remark that all functions we will use have been defined in the last part.
+We remark that all functions we will use, have been defined in the previous post.
 
-**For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%201-Tensorflow)**
+**For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%201-Tensorflow).**
 
-We first define all data frame and load directories of image and masks
+We first define all data frames and load directories of images and masks
 
 ```python
 train0_csv_dir = f"{data_root}/csv_file/train0.csv"
@@ -120,9 +120,9 @@ train3_dataset = load_data_path(data_root, train3_csv_dir, "train")
 train4_dataset = load_data_path(data_root, train4_csv_dir, "train")
 
 ```
-Using tf_dataset we load five datasets and remark that we will not batch in this step, we will concatenate those datasets with weights and batch them when we have the whole dataset.
+Using `tf_dataset` we load five datasets and remark that we will not batch in this step, we will concatenate those datasets with weights and batch them when we have the whole dataset.
 
-**The cool thing about this method is that we can use different augmentation for different sub-dataset**. For example we can apply the *train_transform* for the first dataset and *valid_transform* for the second datset. 
+**The cool thing about this method is that we can use different augmentation for different sub-dataset**. For example we can apply the `train_transform` for the first dataset and `valid_transform` for the second datset. 
 
 ```python
 train0_loader = tf_dataset(
@@ -188,8 +188,8 @@ weights = [1 / len(data_loaders)] * len(data_loaders)
 Using `tf.data.experimental.sample_from_datasets` to balance data. 
 
 The input `tf.data.experimental.sample_from_datasets` function is: 
-- datasets: A non-empty list of tf.data.Dataset objects with compatible structure.
-- weights: (Optional.) A list or Tensor of len(datasets) floating-point values where weights[i] represents the probability to sample from datasets[i], or a tf.data.Dataset object where each element is such a list. Defaults to a uniform distribution across datasets.
+- datasets: A non-empty list of tf.data.Dataset objects with a compatible structure.
+- weights: (Optional.) A list or Tensor of len(datasets) floating-point values where weights[i] represents the probability to sample from datasets[i], or a tf.data.Dataset object where each element is such a list. Defaults a uniform distribution across datasets.
 
 Returns of `tf.data.experimental.sample_from_datasets`
 - A dataset that interleaves elements from datasets at random, according to weights if provided, otherwise with uniform probability.
@@ -198,13 +198,13 @@ Returns of `tf.data.experimental.sample_from_datasets`
 ```python
 train_loader = tf.data.experimental.sample_from_datasets(data_loaders, weights=weights, seed=None)
 ```
-We then have the train_loader with balancing data. We only need to batch them before feeding data into the model.
+We then have the `train_loader` with balancing data. We only need to batch them before feeding data into the model.
 
 ```python
 train_loader = train_loader.batch(batch_size)
 ```
 
-Once we have train_loader, we define valid_loader, model, as same as the previous post. Finally, we fit the model.
+Once we have `train_loader`, we define `valid_loader`, model, as same as the previous post. Finally, we fit the model.
 
 ```python
     history = model.fit(
@@ -235,3 +235,6 @@ where
 ```
 
 **For more details, we can find the source code at [github](https://github.com/hphuongdhsp/Segmentation-Tutorial/tree/master/Part%202-Tensorflow%20Balanced%20Data)**
+
+
+In the [next post](https://hphuongdhsp.github.io/ml-blog/pytorchlightning/semanticsegmentation/deeplearning/2022/08/04/segmentation-model-part3.html), we will cover how to train a deep learning in Pytorch Lightning

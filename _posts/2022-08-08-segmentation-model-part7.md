@@ -51,7 +51,7 @@ For the semantic nail segmentation, we can segment the nail in iamges and then u
 
 Our data is organized as
 
-```
+```shell
 ├── Images
 │   ├── 1
 │       ├── first_image.png
@@ -72,7 +72,7 @@ Our data is organized as
 ```
 
 
-We have two folders: `Images` and `Masks`. `Images` is the data folder, and `Masks` is the label folder, which is the segmentations of input images. Each folder has four sub-folder:  `1`, `2`, `3`, and `4`, corresponding to four types of nail distribution.
+We have two folders: `Images` and `Masks`. `Images` is the data folder, and `Masks` is the label folder, which is the segmentations of input images. Each folder has four sub-folder:  `1`, `2`, `3`, and `4`, corresponding to four distribution parttens of nail .
 
 We download data from [link](https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing) and put it in `data_root`, for example
 
@@ -212,7 +212,7 @@ Where:
 
 We then save the annotaions as a json file by the `get_json_coco` function
 
-```
+```python
 def get_json_coco(args) -> None:
     train_df = pd.read_csv(f"{data_root}/csv_file/train_info.csv")
     valid_df = pd.read_csv(f"{data_root}/csv_file/valid_info.csv")
@@ -390,7 +390,7 @@ test_pipeline = [
 ```
 > Note: we want use the multi-scale image when training the pipeline, then
 
-```
+```python
 img_scale=[(1333, 640), (1333, 672), (1333, 704), (1333, 736), (1333, 768), (1333, 800)]
 
 ```

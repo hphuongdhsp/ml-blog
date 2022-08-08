@@ -56,7 +56,7 @@ data_root = "./nail-segmentation-dataset"
 
 ## 2. Data Preparation
 
-We want the CSV file that stores the image and mask paths. In this project, file names of images and masks are the same, and then we only need to save the `images` path and modify the `data_root` of images and masks when we define a dataset. 
+We want a CSV file that stores the image and mask paths. In this project, file names of images and masks are the same, and then we only need to save the `images` path and modify the `data_root` of images and masks when we define a dataset. 
 
 | index | images                |
 | ----- | --------------------- |
@@ -151,7 +151,7 @@ trainer.fit(modelmodule, datamodule)
 To define the LightningModule of our dataset, we first define the `torch.utils.data.Dataset` for the nail data. 
 
 ### 4.1 Define `torch.utils.data.Dataset` for the Nail Data
-```
+```python
 class NailDataset(Dataset):
     def __init__(self, data_root: str, csv_folder: str, train: str, tfms: A.Compose):
         self.data_root = data_root
@@ -185,7 +185,7 @@ class NailDataset(Dataset):
 ### 4.2 Define `LightningDataModule` for the Nail Data
 We then use LightningDataModule to wrap our NailDataset into the data module of Pytorch Lightning. 
 
-```
+```python
 class NailSegmentation(LightningDataModule):
     def __init__(self, data_root: str, csv_path: str, test_path: str, batch_size: int = 16, num_workers: int = 4):
         super().__init__()
@@ -256,7 +256,7 @@ In this part we define:
 
 For convenience, we use [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch) to define our model. `Segmentation_models_pytorch` is a high-level API, it helps us build a semantic segmentation model with only some lines of code. 
 
-```
+```python
 import segmentation_models_pytorch as smp
 
 model = smp.Unet(
@@ -276,7 +276,7 @@ Here we use:
 ###  5.2 Define LightningModule
 We next use `LightningModule` to wrap the model into the model module of Pytorch Lightnining. 
 
-```
+```python
 class LitNailSegmentation(LightningModule):
     def __init__(self, model: nn.Module, learning_rate: float = 1e-4):
         super().__init__()
@@ -351,7 +351,7 @@ Here we use:
  - [AdamW](https://pytorch.org/docs/stable/generated/torch.optim.AdamW.html) as the optimizers
  - symmetric_lovasz as the loss function, which is defined in the [Loss.py](https://github.com/hphuongdhsp/Segmentation-Tutorial/blob/master/Part%203-Pytorch%20Lightning/loss.py) file. *symmetric_lovasz* is defined by 
 
-```
+```python
 def symmetric_lovasz(outputs, targets):
     return 0.5*(lovasz_hinge(outputs, targets) + lovasz_hinge(-outputs, 1.0 - targets))
 ```
@@ -364,7 +364,7 @@ where lovasz_hinge is [Lovasz loss](https://arxiv.org/pdf/1705.08790.pdf) for th
 
 Once we have the data module, and model module, we can train the model with `Trainer` API, 
 
-```
+```python
 datamodule = NailSegmentation(
     data_root=data_root,
     csv_path=csv_path,
@@ -384,8 +384,10 @@ trainer.fit(
             ckpt_path=ckpt_path,
         )
 ```
+
+
 Here `args_trainer` is the argument of the `trainer`. More precisely, it has
-```
+```yaml
 {   gpus: [0]                       # gpu device to train 
     max_epochs: 300                 # number of epochs
     precision: 16                   # using mix precision to train  

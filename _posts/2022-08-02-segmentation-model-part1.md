@@ -46,7 +46,7 @@ Our data is organized as
 ```
 
 
-We have two folders: `Images` and `Masks`,  each folder has four sub-folders `1`, `2`, `3`, `4` corresponds to four types of distribution of nails. `Images` is the data folder and `Masks` is the label folder, which is the segmentations of input images.
+We have two folders: `Images` and `Masks`,  each folder has four sub-folders `1`, `2`, `3`, `4` correspond to four types of distribution of nails. `Images` is the data folder and `Masks` is the label folder, which is the segmentations of input images.
 
 We download data from [link](https://drive.google.com/file/d/1qBLwdQeu9nvTw70E46XNXMciB0aKsM7r/view?usp=sharing) and put it in `data_root`, for example
 
@@ -56,7 +56,7 @@ data_root = "./nail-segmentation-dataset"
 
 ## 2. Data Preparation
 
-For the convenience of loading data, we will store data information in the data frame (or CSV file). 
+For the convenience of loading data, we will store data information in a data frame (or CSV file). 
 
 We want to have the CSV file that stores the image and mask paths
 
@@ -105,17 +105,17 @@ Once we have the data frame, we can go to define the dataset.
 
 ## 3. Define DataLoader
 
-In this part we will do the following: 
+In this part we will do the following steps: 
 
 - Get lists of images and masks
-- Define Dataloader with input being a list of images and masks and output be list of image batchs which being fed into the model. More precisely: 
+- Define Dataloader with input being a list of images and masks and output being a list of image batchs which are fed into the model. More precisely: 
   - Decode images and masks (read images and masks)
   - Transform data
   - Batch the augmented data. 
 
-Before going to the next part, let's talk about the advantages of using tf.data for the data loader pipeline.
+Before going to the next part, let's talk about the advantages of using `tf.data` for the data loader pipeline.
 
-The main feature of the next part is the data loader. We use the `tensorflow.data` (tf.data) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine `tf.data` and `keras.Sequence`. This tutorial focuses on how to load data by tf.data.
+The main feature of the next part is the data loader. We use the `tensorflow.data` (`tf.data`) to load the dataset instead of using Sequence Keras (keras.Sequence). In fact, we can also combine `tf.data` and `keras.Sequence`. This tutorial focuses on how to load data by `tf.data`.
 
 Here is the pipeline loader of tf.data: 
 - Read data from a CSV file
@@ -126,7 +126,7 @@ Here is the pipeline loader of tf.data:
 <!-- <img align="center" width="600"  src="https://habrastorage.org/webt/0g/ec/1p/0gec1pep-rta5ntt7umwq2ybafy.png"> -->
 
 
-The advantage of this method is: 
+The advantages of this method are: 
 - Loading data by using multi-processing
 - Don't have the memory leak phenomenal 
 - Flexible to load dataset, can load weight sample data (using `tf.compat.v1.data.experimental.sample_from_datasets` )
@@ -353,7 +353,7 @@ Here is the mixed precision training flow:
 
 
 - We first feed the data as the float16 or bloat16 type, then the input of the model has the low type (float16 and bfloat16). 
-- All of the calculations in the model are computed with the lower-precision operations
+- All of the calculations in the model are computed with the lower-precision operations.
 - Convert the output of the model into float32 to do optimization tasks.
 - Update weights, convert them into lower-precision, and continue the next round of training.
 
@@ -369,9 +369,9 @@ if args.mixed_precision:
     print("Mixed precision enabled")
 ```
 
-- Change the out data (input of model) into tf.float16: 
+- Change the type of output data (the input of model) into `tf.float16`: 
   
-When we load dataset, before do suffling and do batching we convert out data into float16. To do that, 
+When we load dataset, before suffling and batching we convert the output data into float16. To do that, 
 ```python
 def process_data(image, mask):
     # using tf.numpy_function to apply the aug_img to image and mask
@@ -379,7 +379,7 @@ def process_data(image, mask):
     return aug_img, aug_mask
 ```
 
-- Fix the last layer of the model. Here we remark that the dtype of the last layer should be `float32`. To do that, in the model part, we add some trick lines: 
+- Fix the last layer of the model. Here we remark that the dtype of the last layer should be `float32`. To do that, in the model part, we add some tricks: 
   
 ```python
 model = sm.Unet(
@@ -397,9 +397,9 @@ last_layer = tf.keras.layers.Activation(activation="sigmoid", dtype=tf.float32)(
 
 ## 5.2 Using Wanbd for logging.
 
-In this part, we will cover how to use wandb for logging. WandB is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings. To do that we use callback of model training as the WandbLogging
+In this part, we will cover how to use `wandb` for logging. `WandB` is a central dashboard to keep track of your hyperparameters, system metrics, and predictions so you can compare models live and share your findings. To do that we use callback of model training as the `WandbLogging`
 
-```
+```python
 import wandb
 from wandb.keras import WandbCallback
 logdir = f"{work_dir}/tensorflow/logs/wandb"
@@ -415,7 +415,7 @@ callbacks.append(WandbCallback())
 
 ```
 
-We finish the training task by calling the train loader and the valid loader and fitting the model. Then
+We finish the training task by calling the train loader and valid loader and fitting the model. Then
 
 ## 5.3 Dataloader
 

@@ -176,7 +176,7 @@ The initial input of GenericPipeline is:
 - device_id: gpu device
 - kwargs: the dictionary that has the infomations of parameters and train/valid data. 
 
-```
+```python
 kwargs = {
             "dim": 2,
             "seed": 42,
@@ -195,7 +195,7 @@ We now can define `ValidPipeline` and `TrainPipeline` based on the `GenericPipel
 
 #### ValidPipeline
 
-```
+```python
 class ValidPipeline(GenericPipeline):
     def __init__(self, batch_size, num_threads, device_id, **kwargs):
         super().__init__(batch_size, num_threads, device_id, **kwargs)
@@ -221,7 +221,7 @@ Here, we remark that define_graph is the function to do the data processing. For
 #### TrainPipeline
 
 Similar, we have the TrainPipeline
-```
+```python
 class TrainPipeline(GenericPipeline):
     def __init__(self, batch_size, num_threads, device_id, **kwargs):
         super().__init__(batch_size, num_threads, device_id, **kwargs)
@@ -283,7 +283,7 @@ For the augmentation in DALI, we need to redefine all of transform functions. Fo
 
 For the convenience, we will define the function `fetch_dali_loader` that will generate `Pipeline` (TrainPipeline, ValidPipeline) depends on the type of dataset. 
 
-```
+```python
 def fetch_dali_loader(imgs, lbls, batch_size, mode, **kwargs):
     assert len(imgs) > 0, "Empty list of images!"
     if lbls is not None:
@@ -305,7 +305,7 @@ Once we have the TrainPipeline and ValidPipeline, we can use them for the Lightn
 
 Our LightningDataModule of Nail data is defined by
 
-```
+```python
 class NailSegmentationDaliDali(LightningDataModule):
     def __init__(self, data_root_npy: str, batch_size: int, csv_folder: str):
         super().__init__()
