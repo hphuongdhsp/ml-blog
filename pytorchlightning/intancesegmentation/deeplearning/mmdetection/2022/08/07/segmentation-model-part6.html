@@ -291,7 +291,10 @@ features of the encoder part and predicts the semantic segmentation mask</li>
 <strong>Hierarchical Feature Representation</strong>: Unlike ViT that can only generate a single-resolution feature
 map, MiT generate multi-level features to adapt with the semantic segmentation. We can see the multi-level features idea is one of the most important ideas for the semantic segmentation, for example: HRNET, PSPNet, DeepLab, FPN, ...</li>
 <li>
-<strong>Overlapped Patch Merging</strong>: In Vision Transformer, a image input is splitted into <strong>partition</strong> patches. With the Mix Transformer, a image input is also splitted into patches, but there are overlapping.</li>
+<strong>Overlapped Patch Merging</strong>: In Vision Transformer, a image input is splitted into <strong>partition</strong> patches. With the Mix Transformer, a image input is also splitted into patches, but there are overlapping.<blockquote>
+<p>Comment:With the overlapping patches, the MiT are using a CNN layer. That helps the model learn better the local feature. Is that why we call Mix Transformer?</p>
+</blockquote>
+</li>
 </ul>
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">OverlapPatchMerging</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
