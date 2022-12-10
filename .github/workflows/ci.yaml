@@ -18,7 +18,7 @@ permissions:
 jobs:
   build-site:
     if: ( github.event.commits[0].message != 'Initial commit' ) || github.run_number > 1
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check if secret exists
         if: github.event_name == 'push'
