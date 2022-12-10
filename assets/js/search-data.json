@@ -95,7 +95,7 @@
   
       ,"page1": {
           "title": "About Me",
-          "content": "Hi there, I’am Hoang-Phuong. . I am currently working at MedTech Torus-Actions as a Data Scientist. . My passion is in several domains: Machine Learning, Cryptocurrency, and Fintech. I like to follow the latest technology in Deep Learning. . Besides work, I like to play sports: football, billard, ping-pong,… .",
+          "content": "👋 Hi there, I’am Hoang-Phuong, call me Pierre if u have trouble with my name. . ✨ I am a Data Scientist, and I am currently working at MODEC as a Data Scientist. . ✨ My passion is in several domains: Machine Learning, Cryptocurrency, and Fintech. I like to follow the latest technology in Deep Learning. . ✨ Besides work, I like to play sports: football, billard, ping-pong,… .",
           "url": "https://hphuongdhsp.github.io/ml-blog/about/",
           "relUrl": "/about/",
           "date": ""
@@ -134,7 +134,10 @@
   
 
   
-      ,"page10": {
+  
+
+  
+      ,"page11": {
           "title": "",
           "content": "Sitemap: {{ “sitemap.xml” | absolute_url }} | .",
           "url": "https://hphuongdhsp.github.io/ml-blog/robots.txt",
