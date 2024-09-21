@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Research
+title: About Me
 permalink: /about/
 ---
 
