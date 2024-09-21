@@ -12,7 +12,7 @@ RUN chmod u+x word2post.sh
 RUN dos2unix /fastpages/*.sh
 
 # Update RubyGems to the required version
-RUN gem update --system 3.3.22
+RUN gem update --system
 
 # Set the entrypoint command
 CMD [ "/fastpages/action_entrypoint.sh" ]
